@@ -1,38 +1,69 @@
+import {useMemo} from 'react'
+
 export function WaveForm({
   waveformData,
-  position = 'bottom',
+  width,
+  height,
+  barWidth,
+  type = 'bottomReflection',
 }: {
   waveformData: number[]
-  position?: 'top' | 'center' | 'bottom'
+  width: number
+  height: number
+  barWidth: number
+  type: 'top' | 'center' | 'bottom' | 'bottomReflection'
 }) {
-  const width = 1500
-  const height = 300
-  const barWidth = 10
+  const marginBottom = useMemo(() => {
+    return type === 'bottomReflection' ? {marginBottom: height / 4} : undefined
+  }, [height, type])
+
+  const bars = useMemo(() => {
+    return waveformData.map((num, i) => {
+      // Values of 0 get a minimal visual representation.
+      const barHeight = Math.max(height * num, barWidth)
+      const x = (barWidth + barWidth * 0.5) * i
+      const y = (() => {
+        if (type === 'top') return undefined
+        if (type === 'bottom' || type === 'bottomReflection') {
+          return height - barHeight
+        }
+        return height / 2 - barHeight / 2
+      })()
+
+      return (
+        <rect
+          key={i}
+          width={barWidth}
+          height={barHeight}
+          x={x}
+          y={y}
+          rx={barWidth / 2}
+          ry={barWidth / 2}
+        />
+      )
+    })
+  }, [barWidth, height, type, waveformData])
+
+  if (type === 'bottomReflection') {
+    return (
+      <div className="relative" style={marginBottom}>
+        <svg width={width} height={height}>
+          {bars}
+        </svg>
+        <svg
+          className="absolute origin-top translate-y-1/4 -scale-y-[0.25] opacity-20"
+          width={width}
+          height={height}
+        >
+          {bars}
+        </svg>
+      </div>
+    )
+  }
 
   return (
     <svg width={width} height={height}>
-      {waveformData.map((num, i) => {
-        // Values of 0 get a minimal visual representation.
-        const barHeight = Math.max(height * num, barWidth)
-        const x = (barWidth + barWidth * 0.5) * i
-        const y = (() => {
-          if (position === 'top') return undefined
-          if (position === 'bottom') return height - barHeight
-          return height / 2 - barHeight / 2
-        })()
-
-        return (
-          <rect
-            key={i}
-            width={barWidth}
-            height={barHeight}
-            x={x}
-            y={y}
-            rx={barWidth / 2}
-            ry={barWidth / 2}
-          />
-        )
-      })}
+      {bars}
     </svg>
   )
 }

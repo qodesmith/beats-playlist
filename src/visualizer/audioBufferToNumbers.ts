@@ -4,9 +4,11 @@ import {chunkArray} from '@qodestack/utils'
  * Converts an audio buffer to an array of numbers ranging from 0 - 1. These
  * numbers will drive the visualization of audio waveforms.
  */
-export function audioBufferToNumbers(audioBuffer: AudioBuffer) {
+export function audioBufferToNumbers(
+  audioBuffer: AudioBuffer,
+  finalNumOfPoints: number = 100
+) {
   const float32Array = audioBuffer.getChannelData(0)
-  const finalNumOfPoints = 100
 
   // Flip all the negative values positive - range here is 0 - 1
   const channelData = float32Array.map(Math.abs)
