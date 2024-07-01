@@ -1,27 +1,16 @@
-import {useEffect, useState} from 'react'
-import {audioBufferToNumbers} from './audioBufferToNumbers'
 import {WaveForm} from './WaveForm'
+import {useFetchAudioBuffer} from '../hooks/useFetchAudioBuffer'
 
-export function Visualizer({audioFileUrl}: {audioFileUrl: string}) {
-  const [audioNumbers, setAudioNumbers] = useState<number[]>()
+export function Visualizer({fileName}: {fileName: string}) {
+  const {audioBuffer} = useFetchAudioBuffer(fileName)
 
-  useEffect(() => {
-    fetch(audioFileUrl)
-      .then(res => res.arrayBuffer())
-      .then(arrayBuffer => new AudioContext().decodeAudioData(arrayBuffer))
-      .then(audioBuffer =>
-        setAudioNumbers(audioBufferToNumbers(audioBuffer, 300))
-      )
-  }, [audioFileUrl])
-
-  if (!audioNumbers) {
+  if (!audioBuffer) {
     return <div>Loading...</div>
   }
 
   return (
     <WaveForm
-      waveformData={audioNumbers}
-      width={1500}
+      audioBuffer={audioBuffer}
       height={75}
       barWidth={3}
       type="bottomReflection"
