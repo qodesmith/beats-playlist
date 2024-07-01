@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import './main.css'
-import {Visualizer} from './visualizer/Visualizer'
+import {Visualizer} from './components/Visualizer/Visualizer'
 import {QueryClientProvider} from '@tanstack/react-query'
 import {queryClient} from './appFoundation'
 
