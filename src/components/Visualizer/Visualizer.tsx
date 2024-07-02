@@ -11,9 +11,10 @@ export function Visualizer({fileName}: {fileName: string}) {
   return (
     <WaveForm
       audioBuffer={audioBuffer}
-      height={75}
-      barWidth={3}
+      height={175}
+      barWidth={10}
       type="bottomReflection"
+      style="solid"
     />
   )
 }

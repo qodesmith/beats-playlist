@@ -10,11 +10,13 @@ export function WaveForm({
   height,
   barWidth,
   type = 'bottomReflection',
+  style = 'bars',
 }: {
   audioBuffer: AudioBuffer
   height: number
   barWidth: number
   type: 'top' | 'center' | 'bottom' | 'bottomReflection'
+  style: 'bars' | 'solid'
 }) {
   /**
    * `width` is calculated by measuring the containing div in the DOM once it's
@@ -42,14 +44,20 @@ export function WaveForm({
    */
   const waveformData = useMemo(() => {
     if (width === undefined) return []
-    const barCount = width / (barWidth + barWidth * BAR_WIDTH_SPACING)
+    const barCount =
+      style === 'bars'
+        ? width / (barWidth + barWidth * BAR_WIDTH_SPACING)
+        : width / barWidth
     return audioBufferToNumbers(audioBuffer, barCount)
-  }, [audioBuffer, barWidth, width])
+  }, [audioBuffer, barWidth, style, width])
   const bars = useMemo(() => {
     return waveformData.map((num, i) => {
       // Values of 0 get a minimal visual representation.
       const barHeight = Math.max(height * num, barWidth)
-      const x = (barWidth + barWidth * BAR_WIDTH_SPACING) * i
+      const x =
+        style === 'bars'
+          ? (barWidth + barWidth * BAR_WIDTH_SPACING) * i
+          : barWidth * i
       const y = (() => {
         if (type === 'top') return undefined
         if (type === 'bottom' || type === 'bottomReflection') {
@@ -65,12 +73,12 @@ export function WaveForm({
           height={barHeight}
           x={x}
           y={y}
-          rx={barWidth / 2}
-          ry={barWidth / 2}
+          // rx={barWidth / 2}
+          // ry={barWidth / 2}
         />
       )
     })
-  }, [barWidth, height, type, waveformData])
+  }, [barWidth, height, style, type, waveformData])
 
   // Initial width effect
   useEffect(() => {
