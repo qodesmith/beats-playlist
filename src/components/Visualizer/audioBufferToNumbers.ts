@@ -1,5 +1,3 @@
-import {chunkArray} from '@qodestack/utils'
-
 /**
  * Converts an audio buffer to an array of numbers ranging from 0 - 1. These
  * numbers will drive the visualization of audio waveforms.
@@ -9,22 +7,36 @@ export function audioBufferToNumbers(
   finalNumOfPoints: number = 100
 ) {
   const float32Array = audioBuffer.getChannelData(0)
+  const length = float32Array.length
+  const chunkSize = Math.ceil(length / finalNumOfPoints)
+  const averages: number[] = []
 
-  // Flip all the negative values positive - range here is 0 - 1
-  const channelData = float32Array.map(Math.abs)
+  let tempTotal = 0
+  let tempItemsCount = 0
+  let maxAvg = 0
 
-  // Split the data into chunks.
-  const chunkSize = Math.ceil(channelData.length / finalNumOfPoints)
-  const chunks = chunkArray(channelData, chunkSize)
+  for (let i = 0; i < length; i++) {
+    const num = float32Array[i]
+    tempTotal += Math.abs(num)
+    tempItemsCount++
 
-  // Reduce each chunk to an average
-  const arrayOfAverages = chunks.map(arr => {
-    const total = arr.reduce((acc, num) => acc + num, 0)
-    return total / arr.length
-  })
-  const maxNum = Math.max(...arrayOfAverages)
+    if (tempItemsCount === chunkSize) {
+      const avg = tempTotal / tempItemsCount
+      averages.push(avg)
+      tempItemsCount = 0
+      tempTotal = 0
 
-  // Return an array of numbers, each ranging from 0 - 1
-  const finalNumbers = arrayOfAverages.map(num => num / maxNum)
+      if (maxAvg < avg) maxAvg = avg
+    }
+  }
+
+  // Process last few numbers that didn't make a whole chunk.
+  if (tempItemsCount) {
+    const lastAvg = tempTotal / tempItemsCount
+    averages.push(lastAvg)
+    if (maxAvg < lastAvg) maxAvg = lastAvg
+  }
+
+  const finalNumbers = averages.map(num => num / maxAvg)
   return finalNumbers
 }
