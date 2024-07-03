@@ -50,8 +50,8 @@ export function drawCanvasBars({
   if (!ctx) return
 
   const multiplier = style === 'reflection' ? 0.8 : 1
-  const [r, g, b] = [0, 0, 0]
-  ctx.fillStyle = `rgba(${r},${g},${b},1)`
+  const {color} = window.getComputedStyle(document.body)
+  ctx.fillStyle = color
 
   waveformData.forEach((height, i) => {
     const x = barWidth * i
@@ -64,7 +64,7 @@ export function drawCanvasBars({
   })
 
   if (style === 'reflection') {
-    ctx.fillStyle = `rgba(${r},${g},${b},.2)`
+    ctx.filter = 'opacity(.2)'
 
     waveformData.forEach((height, i) => {
       const x = barWidth * i
