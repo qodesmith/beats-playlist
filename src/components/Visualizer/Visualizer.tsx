@@ -8,13 +8,5 @@ export function Visualizer({fileName}: {fileName: string}) {
     return <div>Loading...</div>
   }
 
-  return (
-    <WaveForm
-      audioBuffer={audioBuffer}
-      height={175}
-      barWidth={10}
-      type="bottomReflection"
-      style="solid"
-    />
-  )
+  return <WaveForm audioBuffer={audioBuffer} height={175} barWidth={1} />
 }
