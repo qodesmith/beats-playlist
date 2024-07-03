@@ -3,14 +3,18 @@ import {audioBufferToNumbers} from './audioBufferToNumbers'
 import {VerticalPosition} from './VerticalPosition'
 import {drawCanvasBars, resizeCanvas} from './canvasTools'
 
+export type WaveformStyle = 'center' | 'reflection'
+
 export function WaveForm({
   audioBuffer,
   height,
   barWidth,
+  style,
 }: {
   audioBuffer: AudioBuffer
   height: number
   barWidth: number
+  style?: WaveformStyle
 }) {
   const [width, setWidth] = useState<number>()
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -21,7 +25,13 @@ export function WaveForm({
     return audioBufferToNumbers(audioBuffer, barCount)
   }, [audioBuffer, barWidth, width])
 
-  drawCanvasBars({canvasRef, canvasHeight: height, waveformData, barWidth})
+  drawCanvasBars({
+    canvasRef,
+    canvasHeight: height,
+    waveformData,
+    barWidth,
+    style,
+  })
 
   // Initial canvas settings effect
   useEffect(() => {

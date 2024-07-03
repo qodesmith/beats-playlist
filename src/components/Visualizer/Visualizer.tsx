@@ -8,5 +8,14 @@ export function Visualizer({fileName}: {fileName: string}) {
     return <div>Loading...</div>
   }
 
-  return <WaveForm audioBuffer={audioBuffer} height={175} barWidth={1} />
+  return (
+    <WaveForm
+      // In dev, this will force the canvas to redraw when HMR happens
+      key={import.meta.env.DEV ? Math.random() : undefined}
+      audioBuffer={audioBuffer}
+      height={175}
+      barWidth={1}
+      style="center"
+    />
+  )
 }
