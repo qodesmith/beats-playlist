@@ -53,13 +53,15 @@ export function drawCanvasBars({
   const ctx = canvasRef.current?.getContext('2d')
   if (!ctx) return
 
+  const waveformDataLength = waveformData.length
   const multiplier = style === 'reflection' ? 0.8 : 1
   const color = tailwindColor
     ? tailwindColors[tailwindColor]
     : window.getComputedStyle(document.body).color
   ctx.fillStyle = color
 
-  waveformData.forEach((height, i) => {
+  for (let i = 0; i < waveformDataLength; i++) {
+    const height = waveformData[i]
     const x = barWidth * i
     const barHeight = height * canvasHeight * multiplier
     const y =
@@ -67,17 +69,18 @@ export function drawCanvasBars({
       (style === 'center' ? 2 : 1)
 
     ctx.fillRect(x, y, barWidth, barHeight)
-  })
+  }
 
   if (style === 'reflection') {
     ctx.filter = 'opacity(.2)'
 
-    waveformData.forEach((height, i) => {
+    for (let i = 0; i < waveformDataLength; i++) {
+      const height = waveformData[i]
       const x = barWidth * i
       const barHeight = height * canvasHeight * (1 - multiplier)
       const y = canvasHeight * 0.8
 
       ctx.fillRect(x, y, barWidth, barHeight)
-    })
+    }
   }
 }
