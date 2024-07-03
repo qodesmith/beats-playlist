@@ -15,7 +15,8 @@ export function Visualizer({fileName}: {fileName: string}) {
       audioBuffer={audioBuffer}
       height={175}
       barWidth={1}
-      style="center"
+      style="reflection"
+      tailwindColor="puerto-rico-400"
     />
   )
 }

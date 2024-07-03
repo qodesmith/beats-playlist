@@ -2,6 +2,7 @@ import {useEffect, useMemo, useRef, useState} from 'react'
 import {audioBufferToNumbers} from './audioBufferToNumbers'
 import {VerticalPosition} from './VerticalPosition'
 import {drawCanvasBars, resizeCanvas} from './canvasTools'
+import {TailwindColor} from '../../tailwindColors'
 
 export type WaveformStyle = 'center' | 'reflection'
 
@@ -10,11 +11,13 @@ export function WaveForm({
   height,
   barWidth,
   style,
+  tailwindColor,
 }: {
   audioBuffer: AudioBuffer
   height: number
   barWidth: number
   style?: WaveformStyle
+  tailwindColor?: TailwindColor
 }) {
   const [width, setWidth] = useState<number>()
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -31,6 +34,7 @@ export function WaveForm({
     waveformData,
     barWidth,
     style,
+    tailwindColor,
   })
 
   // Initial canvas settings effect

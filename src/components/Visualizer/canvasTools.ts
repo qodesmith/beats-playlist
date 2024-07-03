@@ -1,3 +1,5 @@
+import {tailwindColors} from '../../tailwindColors'
+import type {TailwindColor} from '../../tailwindColors'
 import type {WaveformStyle} from './WaveForm'
 
 export function resizeCanvas({
@@ -39,18 +41,22 @@ export function drawCanvasBars({
   waveformData,
   barWidth,
   style,
+  tailwindColor,
 }: {
   canvasRef: React.RefObject<HTMLCanvasElement>
   canvasHeight: number
   waveformData: number[]
   barWidth: number
   style: WaveformStyle | undefined
+  tailwindColor: TailwindColor | undefined
 }) {
   const ctx = canvasRef.current?.getContext('2d')
   if (!ctx) return
 
   const multiplier = style === 'reflection' ? 0.8 : 1
-  const {color} = window.getComputedStyle(document.body)
+  const color = tailwindColor
+    ? tailwindColors[tailwindColor]
+    : window.getComputedStyle(document.body).color
   ctx.fillStyle = color
 
   waveformData.forEach((height, i) => {
