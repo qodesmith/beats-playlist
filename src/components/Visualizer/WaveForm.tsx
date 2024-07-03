@@ -55,7 +55,7 @@ export function WaveForm({
 
   return (
     <div className="relative" ref={containerRef}>
-      <VerticalPosition />
+      <VerticalPosition style={style} />
       <canvas ref={canvasRef} />
     </div>
   )
