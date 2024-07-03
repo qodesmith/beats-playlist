@@ -42,6 +42,7 @@ export function drawCanvasBars({
   barWidth,
   style,
   tailwindColor,
+  isReflection,
 }: {
   canvasRef: React.RefObject<HTMLCanvasElement>
   canvasHeight: number
@@ -49,38 +50,26 @@ export function drawCanvasBars({
   barWidth: number
   style: WaveformStyle | undefined
   tailwindColor: TailwindColor | undefined
+  isReflection?: boolean
 }) {
   const ctx = canvasRef.current?.getContext('2d')
   if (!ctx) return
 
   const waveformDataLength = waveformData.length
-  const multiplier = style === 'reflection' ? 0.8 : 1
   const color = tailwindColor
     ? tailwindColors[tailwindColor]
     : window.getComputedStyle(document.body).color
   ctx.fillStyle = color
+  if (isReflection) ctx.filter = 'opacity(.2)'
 
   for (let i = 0; i < waveformDataLength; i++) {
     const height = waveformData[i]
     const x = barWidth * i
-    const barHeight = height * canvasHeight * multiplier
-    const y =
-      (canvasHeight - barHeight - (canvasHeight - canvasHeight * multiplier)) /
-      (style === 'center' ? 2 : 1)
+    const barHeight = height * canvasHeight
+    const y = isReflection
+      ? 0
+      : (canvasHeight - barHeight) / (style === 'center' ? 2 : 1)
 
     ctx.fillRect(x, y, barWidth, barHeight)
-  }
-
-  if (style === 'reflection') {
-    ctx.filter = 'opacity(.2)'
-
-    for (let i = 0; i < waveformDataLength; i++) {
-      const height = waveformData[i]
-      const x = barWidth * i
-      const barHeight = height * canvasHeight * (1 - multiplier)
-      const y = canvasHeight * 0.8
-
-      ctx.fillRect(x, y, barWidth, barHeight)
-    }
   }
 }
