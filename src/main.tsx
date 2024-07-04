@@ -12,8 +12,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <h1>Beats Playlist!</h1>
-      <Visualizer fileName="beat.mp3" />
-      <div>Hello world!</div>
+      <Visualizer
+        fileName="beat.mp3"
+        tailwindColor="puerto-rico-400"
+        style="reflection"
+      />
     </QueryClientProvider>
   </React.StrictMode>
 )

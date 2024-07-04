@@ -1,13 +1,11 @@
 import {useCallback, useRef, useState} from 'react'
-import {WaveformStyle} from './WaveForm'
 
 const CURSOR_WIDTH = 1
 
-export function VerticalPosition({style}: {style: WaveformStyle | undefined}) {
+export function Cursor({cursorHeight}: {cursorHeight?: number}) {
   const [shouldShow, setShouldShow] = useState<boolean>(false)
   const [left, setLeft] = useState<number>(0)
   const containerRef = useRef<HTMLDivElement>(null)
-  const cursorHeight = style === 'reflection' ? 'h-4/5' : 'h-full'
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       const domRect = containerRef.current?.getBoundingClientRect()
@@ -27,9 +25,11 @@ export function VerticalPosition({style}: {style: WaveformStyle | undefined}) {
     setShouldShow(false)
   }, [])
 
+  console.log({cursorHeight})
+
   return (
     <div
-      className="absolute size-full opacity-75"
+      className="absolute top-0 size-full opacity-75"
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -37,8 +37,8 @@ export function VerticalPosition({style}: {style: WaveformStyle | undefined}) {
     >
       {shouldShow && (
         <div
-          className={`absolute ${cursorHeight} w-px bg-red-600`}
-          style={{left}}
+          className="absolute h-full w-px bg-red-600"
+          style={{left, height: cursorHeight ?? '100%'}}
         />
       )}
     </div>
