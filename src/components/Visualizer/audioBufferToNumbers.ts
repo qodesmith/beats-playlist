@@ -37,6 +37,8 @@ export function audioBufferToNumbers(
     if (maxAvg < lastAvg) maxAvg = lastAvg
   }
 
+  // Convert numbers to 0 - 1 values
   const finalNumbers = averages.map(num => num / maxAvg)
+
   return finalNumbers
 }
