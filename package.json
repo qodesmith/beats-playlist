@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "createColors": "bun run createTailwindColors.ts 2> /dev/null"
   },
-  "dependencies": {},
+  "dependencies": {
+    "elysia": "^1.0.27"
+  },
   "devDependencies": {
     "@qodestack/prettier-config": "^1.0.2",
     "@qodestack/utils": "^2.1.0",
