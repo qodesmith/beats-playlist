@@ -1,9 +1,11 @@
-import {useAtom} from 'jotai'
-import {widthAtomFamily} from './state'
-import {useEffect, useMemo} from 'react'
 import type {TailwindColor} from '../../tailwindColors'
-import {tailwindColors} from '../../tailwindColors'
+
+import {useAtom} from 'jotai'
+import {useMemo, useEffect} from 'react'
+
 import {audioBufferToNumbers} from './audioBufferToNumbers'
+import {widthAtomFamily} from './state'
+import {tailwindColors} from '../../tailwindColors'
 
 /**
  * Two things we want to do with a canvas element:

@@ -1,5 +1,8 @@
-import {ReactNode, useEffect, useRef} from 'react'
+import type {ReactNode} from 'react'
+
 import {useSetAtom} from 'jotai'
+import {useEffect, useRef} from 'react'
+
 import {widthAtomFamily} from './state'
 
 /**

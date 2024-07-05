@@ -1,9 +1,12 @@
-import {useFetchAudioBuffer} from '../../hooks/useFetchAudioBuffer'
-import {SizeContainer} from './SizeContainer'
-import {useId} from 'react'
-import {WaveformCanvas, type WaveformStyle} from './WaveformCanvas'
+import type {WaveformStyle} from './WaveformCanvas'
 import type {TailwindColor} from '../../tailwindColors'
+
+import {useId} from 'react'
+
 import {Cursor} from './Cursor'
+import {SizeContainer} from './SizeContainer'
+import {WaveformCanvas} from './WaveformCanvas'
+import {useFetchAudioBuffer} from '../../hooks/useFetchAudioBuffer'
 
 export function Visualizer({
   fileName,
