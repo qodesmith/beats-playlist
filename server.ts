@@ -6,9 +6,13 @@ if (port === undefined) {
 }
 
 const app = new Elysia()
-  .get('/metadata', () => Bun.file('metadata.json'))
-  .get('/thumbnails/:id', ({params: {id}}) => Bun.file(`/thumbnails/${id}.jpg`))
-  .get('/beats/:file', ({params: {file}}) => Bun.file(`/audio/${file}`))
+  .get('/', () => Bun.file('/app/index.html'))
+  .get('/assets/:file', ({params: {file}}) => Bun.file(`/app/assets/${file}`))
+  .get('/metadata', () => Bun.file('/beats/metadata.json'))
+  .get('/thumbnails/:id', ({params: {id}}) =>
+    Bun.file(`/beats/thumbnails/${id}.jpg`)
+  )
+  .get('/beats/:file', ({params: {file}}) => Bun.file(`/beats/audio/${file}`))
   .listen(port)
 
 console.log(
