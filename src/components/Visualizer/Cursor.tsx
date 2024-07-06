@@ -25,8 +25,6 @@ export function Cursor({cursorHeight}: {cursorHeight?: number}) {
     setShouldShow(false)
   }, [])
 
-  console.log({cursorHeight})
-
   return (
     <div
       className="absolute top-0 size-full opacity-75"
