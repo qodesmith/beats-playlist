@@ -12,7 +12,9 @@ const app = new Elysia()
   .get('/thumbnails/:id', ({params: {id}}) =>
     Bun.file(`/beats/thumbnails/${id}.jpg`)
   )
-  .get('/beats/:file', ({params: {file}}) => Bun.file(`/beats/audio/${file}`))
+  .get('/beats/:file', ({params: {file}}) =>
+    Bun.file(`/beats/audio/${decodeURIComponent(file)}`)
+  )
   .listen(port)
 
 console.log(
