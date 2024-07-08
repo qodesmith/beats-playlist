@@ -6,9 +6,30 @@ if (port === undefined) {
 }
 
 const app = new Elysia()
+  // Frontend assets.
   .get('/', () => Bun.file('/app/index.html'))
   .get('/assets/:file', ({params: {file}}) => Bun.file(`/app/assets/${file}`))
-  .get('/metadata', () => Bun.file('/beats/metadata.json'))
+
+  // API
+  .get('/metadata', async (/*{query}*/) => {
+    return Bun.file('/beats/metadata.json')
+
+    // Paginated version:
+    // const page = Number(query.page) || 1
+    // const limit = Number(query.limit) || 50
+    // const startIndex = (page - 1) * limit
+    // const endIndex = page * limit
+
+    // const metadata: Video[] = await Bun.file('/beats/metadata.json').json()
+    // const paginatedMetadata = metadata.slice(startIndex, endIndex)
+
+    // return {
+    //   page,
+    //   limit,
+    //   total: metadata.length,
+    //   data: paginatedMetadata,
+    // }
+  })
   .get('/thumbnails/:id', ({params: {id}}) =>
     Bun.file(`/beats/thumbnails/${id}.jpg`)
   )

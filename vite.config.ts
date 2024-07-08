@@ -39,16 +39,37 @@ function rewriteUnraidApiPaths(): PluginOption {
     name: 'rewrite-unraid-api-paths',
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
-        const url = req.url ?? ''
+        if (!req.url) return next()
+        const url = new URL(req.url, `http://${req.headers.host}`)
 
         // Check if the URL matches the pattern /beats/:filename
-        const beatsMatch = url.match(/^\/beats\/([^/]+)$/)
+        const beatsMatch = url.pathname.match(/^\/beats\/([^/]+)$/)
 
         if (beatsMatch) {
           // Rewrite the URL to /beats/audio/:filename
           req.url = `/beats/audio/${beatsMatch[1]}`
-        } else if (url === '/metadata') {
+        } else if (url.pathname === '/metadata') {
           req.url = '/beats/metadata.json'
+
+          // Mimic the server behavior for paginated metadata results.
+          // const metadata: Video[] = JSON.parse(
+          //   fs.readFileSync('./public/beats/metadata.json', {encoding: 'utf8'})
+          // )
+
+          // const page = Number(url.searchParams.get('page')) || 1
+          // const limit = Number(url.searchParams.get('limit')) || 3
+          // const startIndex = (page - 1) * limit
+          // const endIndex = page * limit
+          // const paginatedMetadata = metadata.slice(startIndex, endIndex)
+          // const responseData = JSON.stringify({
+          //   page,
+          //   limit,
+          //   total: metadata.length,
+          //   data: paginatedMetadata,
+          // })
+
+          // res.writeHead(200, {'Content-Type': 'application/json'})
+          // res.end(responseData)
         }
 
         next()
