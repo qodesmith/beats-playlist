@@ -22,7 +22,7 @@ export function Visualizer({
   const canvasId = useId()
   const canvasId2 = useId()
   const isReflection = style === 'reflection'
-  const HEIGHT = 175
+  const HEIGHT = 40
   const BAR_WIDTH = 1
 
   if (!audioBuffer) {
