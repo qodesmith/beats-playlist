@@ -10,7 +10,7 @@ import {HomePage} from './components/HomePage'
 document.documentElement.classList.add('h-full')
 document.body.classList.add(
   // Style the app in dark mode.
-  'dark:bg-slate-800',
+  'dark:bg-neutral-900',
   'dark:text-white',
 
   // Other styles.
@@ -19,8 +19,10 @@ document.body.classList.add(
   'h-full',
   'overflow-hidden'
 )
+const root = document.getElementById('root')!
+root.classList.add('h-full')
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+ReactDOM.createRoot(root).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <HomePage />
