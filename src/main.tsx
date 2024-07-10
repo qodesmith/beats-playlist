@@ -7,8 +7,18 @@ import './main.css'
 import {queryClient} from './appFoundation'
 import {HomePage} from './components/HomePage'
 
-// Style the app in dark mode.
-document.body.classList.add('dark:bg-slate-800', 'dark:text-white')
+document.documentElement.classList.add('h-full')
+document.body.classList.add(
+  // Style the app in dark mode.
+  'dark:bg-slate-800',
+  'dark:text-white',
+
+  // Other styles.
+  'font-extralight',
+  'p-4',
+  'h-full',
+  'overflow-hidden'
+)
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
