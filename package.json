@@ -15,6 +15,7 @@
     "deploy": "bun run build && bun run buildDocker && bun run pushDocker"
   },
   "dependencies": {
+    "@elysiajs/server-timing": "^1.0.2",
     "elysia": "^1.0.27"
   },
   "devDependencies": {

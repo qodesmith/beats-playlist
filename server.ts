@@ -1,3 +1,4 @@
+import {serverTiming} from '@elysiajs/server-timing'
 import {Elysia} from 'elysia'
 
 const port = Bun.env.SERVER_PORT
@@ -6,6 +7,7 @@ if (port === undefined) {
 }
 
 const app = new Elysia()
+  .use(serverTiming())
   // Frontend assets.
   .get('/', () => Bun.file('/app/index.html'))
   .get('/assets/:file', ({params: {file}}) => Bun.file(`/app/assets/${file}`))
