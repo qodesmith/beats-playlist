@@ -2,6 +2,7 @@ import type {Video} from '@qodestack/dl-yt-playlist'
 
 import {pluralize} from '@qodestack/utils'
 import {useQuery} from '@tanstack/react-query'
+import {useMemo} from 'react'
 
 import {metadataQueryFn, metadataQueryKey} from '../appFoundation'
 
@@ -14,16 +15,18 @@ export function useFetchMetadata() {
   return {metadata, ...rest}
 }
 
-export function useMetadataStats() {
+export function useMetadataStats(): {totalBeats?: number; totalTime?: string} {
   const {metadata} = useFetchMetadata()
-  if (metadata === undefined) return {}
 
-  const totalBeats = metadata.length
-  const totalSeconds = metadata.reduce<number>((acc, beat) => {
-    return acc + beat.durationInSeconds
-  }, 0)
+  return useMemo(() => {
+    if (!metadata) return {}
+    const totalBeats = metadata.length
+    const totalSeconds = metadata.reduce<number>((acc, beat) => {
+      return acc + beat.durationInSeconds
+    }, 0)
 
-  return {totalTime: secondsToPlainSentence(totalSeconds), totalBeats}
+    return {totalTime: secondsToPlainSentence(totalSeconds), totalBeats}
+  }, [metadata])
 }
 
 function secondsToPlainSentence(totalSeconds: number): string {
