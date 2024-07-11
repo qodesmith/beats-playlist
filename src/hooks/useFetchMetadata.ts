@@ -7,10 +7,11 @@ import {useMemo} from 'react'
 import {metadataQueryFn, metadataQueryKey} from '../appFoundation'
 
 export function useFetchMetadata() {
-  const {data: metadata, ...rest} = useQuery<Video[]>({
+  const {data, ...rest} = useQuery<Video[]>({
     queryKey: metadataQueryKey,
     queryFn: metadataQueryFn,
   })
+  const metadata = data?.filter(({audioFileExtension}) => !!audioFileExtension)
 
   return {metadata, ...rest}
 }
