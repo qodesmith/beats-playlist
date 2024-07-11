@@ -14,18 +14,16 @@ const UNRAID_API = NO_UNRAID === 'true' ? undefined : process.env.UNRAID_API
 // https://vitejs.dev/config/
 export default defineConfig(({command}) => ({
   publicDir: command === 'build' ? false : 'public',
-  plugins: [react(), rewriteUnraidApiPaths(), copyPublicAssetsAfterBuild()],
+  plugins: [react(), localUnraidApiPaths(), copyPublicAssetsAfterBuild()],
   clearScreen: false,
   server: {
     open: true,
     proxy: UNRAID_API
-      ? ['/beats', '/metadata', '/thumbnails'].reduce<Record<string, string>>(
-          (acc, endpoint) => {
-            acc[endpoint] = UNRAID_API
-            return acc
-          },
-          {}
-        )
+      ? {
+          '/beats': UNRAID_API,
+          '/metadata': UNRAID_API,
+          '/thumbnails': UNRAID_API,
+        }
       : undefined,
   },
 }))
@@ -34,7 +32,7 @@ export default defineConfig(({command}) => ({
  * When developing locally WITHOUT access to the Unraid server, rewrite paths
  * to reflect the file structure in the `public` directory.
  */
-function rewriteUnraidApiPaths(): PluginOption {
+function localUnraidApiPaths(): PluginOption {
   if (UNRAID_API) return null
 
   return {
