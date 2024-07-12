@@ -1,14 +1,35 @@
 import type {WaveformStyle} from './WaveformCanvas'
 import type {TailwindColor} from '../../tailwindColors'
 
+import {useAtomValue} from 'jotai'
 import {useId} from 'react'
 
 import {Cursor} from './Cursor'
 import {SizeContainer} from './SizeContainer'
 import {WaveformCanvas} from './WaveformCanvas'
-import {useFetchAudioBuffer} from '../../hooks/useFetchAudioBuffer'
+import {audioBufferFamily} from '../Beats/state'
 
 export function Visualizer({
+  fileName,
+  style,
+  tailwindColor,
+}: {
+  fileName: string | undefined
+  style?: WaveformStyle
+  tailwindColor?: TailwindColor
+}) {
+  if (!fileName) return null
+
+  return (
+    <VisualizerBody
+      fileName={fileName}
+      style={style}
+      tailwindColor={tailwindColor}
+    />
+  )
+}
+
+function VisualizerBody({
   fileName,
   style,
   tailwindColor,
@@ -17,17 +38,13 @@ export function Visualizer({
   style?: WaveformStyle
   tailwindColor?: TailwindColor
 }) {
-  const {audioBuffer} = useFetchAudioBuffer(fileName)
+  const audioBuffer = useAtomValue(audioBufferFamily(fileName))
   const containerId = useId()
   const canvasId = useId()
   const canvasId2 = useId()
   const isReflection = style === 'reflection'
   const HEIGHT = 40
   const BAR_WIDTH = 1
-
-  if (!audioBuffer) {
-    return <div>Loading...</div>
-  }
 
   return (
     <SizeContainer id={containerId} canvasId={canvasId}>

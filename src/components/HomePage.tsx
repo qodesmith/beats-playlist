@@ -1,4 +1,5 @@
 import {useAtomValue} from 'jotai'
+import {Suspense} from 'react'
 
 import {BeatList} from './Beats/BeatList'
 import {selectedBeatFileNameAtom} from './Beats/state'
@@ -12,15 +13,17 @@ export function HomePage() {
     <div className="flex h-full flex-col">
       <Header />
       <div className="flex-grow overflow-y-auto">
-        <BeatList />
+        <Suspense fallback="Loading beats...">
+          <BeatList />
+        </Suspense>
       </div>
-      {beatFileName && (
+      <Suspense fallback="Loading waveform...">
         <Visualizer
           fileName={beatFileName}
           tailwindColor="puerto-rico-400"
           style="center"
         />
-      )}
+      </Suspense>
     </div>
   )
 }
