@@ -21,7 +21,7 @@
   "devDependencies": {
     "@qodestack/dl-yt-playlist": "^6.3.0",
     "@qodestack/prettier-config": "^1.0.2",
-    "@qodestack/utils": "^2.1.0",
+    "@qodestack/utils": "^2.2.0",
     "@types/bun": "^1.1.6",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
