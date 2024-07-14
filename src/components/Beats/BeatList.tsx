@@ -10,15 +10,20 @@ export function BeatList() {
   const handleImageError = useCallback(
     (e: React.SyntheticEvent<HTMLDivElement, Event>) => {
       const img = e.target as HTMLImageElement
+      const parent = img.parentElement as HTMLDivElement
       img.style.display = 'none'
+      parent.style.backgroundColor = 'gray'
     },
     []
   )
 
   return (
-    <>
+    <div className="flex flex-grow flex-col overflow-y-auto pb-4">
       {metadata.map(
-        ({id, title, channelName, dateAddedToPlaylist, durationInSeconds}) => {
+        (
+          {id, title, channelName, dateAddedToPlaylist, durationInSeconds},
+          i
+        ) => {
           const dateAdded = new Date(dateAddedToPlaylist).toLocaleDateString()
           const loadWaveform = () => {
             setBeatId(id)
@@ -27,12 +32,17 @@ export function BeatList() {
           return (
             <div
               key={id}
-              className="grid grid-cols-[40px_1fr_10ch_5ch]"
+              className="grid grid-cols-[4ch_40px_1fr_10ch_5ch] gap-4 rounded p-2 hover:bg-neutral-800"
               onClick={loadWaveform}
             >
+              {/* COUNTER */}
+              <div className="flex items-center justify-end opacity-50">
+                {i + 1}
+              </div>
+
               {/* THUMBNAIL */}
               <div
-                className="h-[40px] w-[40px] overflow-hidden rounded bg-gray-500"
+                className="flex w-[40px] items-center justify-center overflow-hidden rounded"
                 onError={handleImageError}
               >
                 <img src={`/thumbnails/${id}[small]`} />
@@ -47,14 +57,16 @@ export function BeatList() {
               </div>
 
               {/* DATE ADDED */}
-              <div>{dateAdded}</div>
+              <div className="flex items-center justify-end">{dateAdded}</div>
 
               {/* DURATION */}
-              <div>{secondsToDuration(durationInSeconds)}</div>
+              <div className="flex items-center justify-start">
+                {secondsToDuration(durationInSeconds)}
+              </div>
             </div>
           )
         }
       )}
-    </>
+    </div>
   )
 }

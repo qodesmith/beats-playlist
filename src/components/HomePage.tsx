@@ -12,11 +12,9 @@ export function HomePage() {
   return (
     <div className="flex h-full flex-col">
       <Header />
-      <div className="flex-grow overflow-y-auto">
-        <Suspense fallback="Loading beats...">
-          <BeatList />
-        </Suspense>
-      </div>
+      <Suspense fallback="Loading beats...">
+        <BeatList />
+      </Suspense>
       <Suspense fallback="Loading waveform...">
         <Visualizer
           beatId={beatId}
