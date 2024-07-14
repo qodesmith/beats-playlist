@@ -9,9 +9,9 @@ import {HomePage} from './components/HomePage'
 
 document.documentElement.classList.add('h-full')
 document.body.classList.add(
-  // Style the app in dark mode.
-  'dark:bg-neutral-900',
-  'dark:text-white',
+  // Style the app as dark mode.
+  'bg-neutral-900',
+  'text-white',
 
   // Other styles.
   'font-extralight',
