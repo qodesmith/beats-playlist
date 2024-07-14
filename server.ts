@@ -32,12 +32,13 @@ const app = new Elysia()
     //   data: paginatedMetadata,
     // }
   })
+  .get('/thumbnails-small/:id', ({params: {id}}) =>
+    Bun.file(`/beats/thumbnails/${id}[small].jpg`)
+  )
   .get('/thumbnails/:id', ({params: {id}}) =>
     Bun.file(`/beats/thumbnails/${id}.jpg`)
   )
-  .get('/beats/:file', ({params: {file}}) =>
-    Bun.file(`/beats/audio/${decodeURIComponent(file)}`)
-  )
+  .get('/beats/:id', ({params: {id}}) => Bun.file(`/beats/audio/${id}.mp3`))
   .listen(port)
 
 console.log(

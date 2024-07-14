@@ -2,12 +2,12 @@ import {useAtomValue} from 'jotai'
 import {Suspense} from 'react'
 
 import {BeatList} from './Beats/BeatList'
-import {selectedBeatFileNameAtom} from './Beats/state'
+import {selectedBeatIdAtom} from './Beats/state'
 import {Header} from './Header'
 import {Visualizer} from './Visualizer/Visualizer'
 
 export function HomePage() {
-  const beatFileName = useAtomValue(selectedBeatFileNameAtom)
+  const beatId = useAtomValue(selectedBeatIdAtom)
 
   return (
     <div className="flex h-full flex-col">
@@ -19,7 +19,7 @@ export function HomePage() {
       </div>
       <Suspense fallback="Loading waveform...">
         <Visualizer
-          fileName={beatFileName}
+          beatId={beatId}
           tailwindColor="puerto-rico-400"
           style="center"
         />

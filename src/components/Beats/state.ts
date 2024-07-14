@@ -7,9 +7,9 @@ import {atomFamily} from 'jotai/utils'
 export const metadataAtom = atom<Promise<Video[]>>(() => {
   return fetch('/metadata')
     .then(res => res.json())
-    .then((metadata: Video[]) =>
-      metadata.filter(({audioFileExtension}) => !!audioFileExtension)
-    )
+    .then((metadata: Video[]) => {
+      return metadata.filter(({audioFileExtension}) => !!audioFileExtension)
+    })
 })
 
 export const metadataStatsSelector = atom<
@@ -53,24 +53,24 @@ function secondsToPlainSentence(totalSeconds: number): string {
   return parts.join(', ')
 }
 
-export const selectedBeatFileNameAtom = atom<string | undefined>(undefined)
+export const selectedBeatIdAtom = atom<string | undefined>(undefined)
 
-const audioBufferFileNames = new Set<string>()
+const audioBufferBeatIds = new Set<string>()
 
-export const audioBufferFamily = atomFamily((fileName: string) => {
-  audioBufferFileNames.add(fileName)
+export const audioBufferFamily = atomFamily((beatId: string) => {
+  audioBufferBeatIds.add(beatId)
 
   return atom<Promise<AudioBuffer>>(() => {
-    return fetch(`/beats/${fileName}`)
+    return fetch(`/beats/${beatId}`)
       .then(res => res.arrayBuffer())
       .then(arrayBuffer => new AudioContext().decodeAudioData(arrayBuffer))
   })
 })
 
 export function clearAudioBufferFamily() {
-  audioBufferFileNames.forEach(fileName => {
-    audioBufferFamily.remove(fileName)
+  audioBufferBeatIds.forEach(beatId => {
+    audioBufferFamily.remove(beatId)
   })
 
-  audioBufferFileNames.clear()
+  audioBufferBeatIds.clear()
 }

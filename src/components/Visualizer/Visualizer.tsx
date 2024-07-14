@@ -10,19 +10,19 @@ import {WaveformCanvas} from './WaveformCanvas'
 import {audioBufferFamily} from '../Beats/state'
 
 export function Visualizer({
-  fileName,
+  beatId,
   style,
   tailwindColor,
 }: {
-  fileName: string | undefined
+  beatId: string | undefined
   style?: WaveformStyle
   tailwindColor?: TailwindColor
 }) {
-  if (!fileName) return null
+  if (!beatId) return null
 
   return (
     <VisualizerBody
-      fileName={fileName}
+      beatId={beatId}
       style={style}
       tailwindColor={tailwindColor}
     />
@@ -30,15 +30,15 @@ export function Visualizer({
 }
 
 function VisualizerBody({
-  fileName,
+  beatId,
   style,
   tailwindColor,
 }: {
-  fileName: string
+  beatId: string
   style?: WaveformStyle
   tailwindColor?: TailwindColor
 }) {
-  const audioBuffer = useAtomValue(audioBufferFamily(fileName))
+  const audioBuffer = useAtomValue(audioBufferFamily(beatId))
   const containerId = useId()
   const canvasId = useId()
   const canvasId2 = useId()
