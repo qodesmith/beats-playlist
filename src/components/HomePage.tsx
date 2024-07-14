@@ -5,6 +5,7 @@ import {BeatList} from './Beats/BeatList'
 import {selectedBeatIdAtom} from './Beats/state'
 import {Header} from './Header'
 import {Visualizer} from './Visualizer/Visualizer'
+import {highlightColorObj} from '../constants'
 
 export function HomePage() {
   const beatId = useAtomValue(selectedBeatIdAtom)
@@ -18,7 +19,7 @@ export function HomePage() {
       <Suspense fallback="Loading waveform...">
         <Visualizer
           beatId={beatId}
-          tailwindColor="puerto-rico-400"
+          tailwindColor={highlightColorObj.name}
           style="center"
         />
       </Suspense>
