@@ -14,7 +14,6 @@ document.body.classList.add(
   'text-white',
 
   // Other styles.
-  'font-extralight',
   'p-4',
   'h-full',
   'overflow-hidden'
