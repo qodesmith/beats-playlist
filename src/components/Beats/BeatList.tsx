@@ -1,12 +1,13 @@
 import {secondsToDuration} from '@qodestack/utils'
-import {useAtomValue, useSetAtom} from 'jotai'
+import {useAtom, useAtomValue} from 'jotai'
 import {useCallback} from 'react'
 
 import {metadataAtom, selectedBeatIdAtom} from './state'
+import {highlightColorObj} from '../../constants'
 
 export function BeatList() {
   const metadata = useAtomValue(metadataAtom)
-  const setBeatId = useSetAtom(selectedBeatIdAtom)
+  const [beatId, setBeatId] = useAtom(selectedBeatIdAtom)
   const handleImageError = useCallback(
     (e: React.SyntheticEvent<HTMLDivElement, Event>) => {
       const img = e.target as HTMLImageElement
@@ -24,34 +25,44 @@ export function BeatList() {
           {id, title, channelName, dateAddedToPlaylist, durationInSeconds},
           i
         ) => {
+          const isCurrentBeat = beatId === id
+          const counterCls = [
+            'flex items-center justify-end',
+            !isCurrentBeat && 'opacity-50',
+            isCurrentBeat && highlightColorObj.text,
+          ]
+            .filter(Boolean)
+            .join(' ')
+          const titleCls = beatId === id ? highlightColorObj.text : undefined
+          const containerCls = [
+            'grid grid-cols-[4ch_40px_1fr_10ch_5ch] gap-4 rounded p-2',
+            !isCurrentBeat && 'hover:bg-neutral-800',
+            isCurrentBeat && 'bg-neutral-700',
+          ]
+            .filter(Boolean)
+            .join(' ')
           const dateAdded = new Date(dateAddedToPlaylist).toLocaleDateString()
           const loadWaveform = () => {
             setBeatId(id)
           }
 
           return (
-            <div
-              key={id}
-              className="grid grid-cols-[4ch_40px_1fr_10ch_5ch] gap-4 rounded p-2 hover:bg-neutral-800"
-              onClick={loadWaveform}
-            >
+            <div key={id} className={containerCls} onClick={loadWaveform}>
               {/* COUNTER */}
-              <div className="flex items-center justify-end opacity-50">
-                {i + 1}
-              </div>
+              <div className={counterCls}>{i + 1}</div>
 
               {/* THUMBNAIL */}
               <div
                 className="flex w-[40px] items-center justify-center overflow-hidden rounded"
                 onError={handleImageError}
               >
-                <img src={`/thumbnails/${id}[small]`} />
+                <img src={`/thumbnails/${id}[small]`} className="rounded" />
               </div>
 
               {/* TITLE / ARTIST */}
               <div className="flex flex-col">
-                <div>{title}</div>
-                <div className="text-sm opacity-50">
+                <div className={titleCls}>{title}</div>
+                <div className={`text-sm opacity-50`}>
                   {channelName || <>&mdash;</>}
                 </div>
               </div>
