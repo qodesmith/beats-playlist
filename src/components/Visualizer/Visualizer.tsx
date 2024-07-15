@@ -14,31 +14,11 @@ export function Visualizer({
   style,
   tailwindColor,
 }: {
-  beatId: string | undefined
-  style?: WaveformStyle
-  tailwindColor?: TailwindColor
-}) {
-  if (!beatId) return null
-
-  return (
-    <VisualizerBody
-      beatId={beatId}
-      style={style}
-      tailwindColor={tailwindColor}
-    />
-  )
-}
-
-function VisualizerBody({
-  beatId,
-  style,
-  tailwindColor,
-}: {
   beatId: string
   style?: WaveformStyle
   tailwindColor?: TailwindColor
 }) {
-  const audioBuffer = useAtomValue(audioBufferFamily(beatId))
+  const {audioBuffer} = useAtomValue(audioBufferFamily(beatId))
   const containerId = useId()
   const canvasId = useId()
   const canvasId2 = useId()
