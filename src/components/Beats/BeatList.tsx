@@ -1,4 +1,5 @@
 import {secondsToDuration} from '@qodestack/utils'
+import clsx from 'clsx'
 import {useAtom, useAtomValue} from 'jotai'
 import {useCallback} from 'react'
 
@@ -26,21 +27,18 @@ export function BeatList() {
           i
         ) => {
           const isCurrentBeat = beatId === id
-          const counterCls = [
-            'flex items-center justify-end',
-            !isCurrentBeat && 'opacity-50',
-            isCurrentBeat && highlightColorObj.text,
-          ]
-            .filter(Boolean)
-            .join(' ')
-          const titleCls = beatId === id ? highlightColorObj.text : undefined
-          const containerCls = [
+          const counterCls = clsx('flex items-center justify-end', {
+            'opacity-50': !isCurrentBeat,
+            [highlightColorObj.text]: isCurrentBeat,
+          })
+          const titleCls = clsx(beatId === id && highlightColorObj.text)
+          const containerCls = clsx(
             'grid grid-cols-[4ch_40px_1fr_10ch_5ch] gap-4 rounded p-2',
-            !isCurrentBeat && 'hover:bg-neutral-800',
-            isCurrentBeat && 'bg-neutral-700',
-          ]
-            .filter(Boolean)
-            .join(' ')
+            {
+              'hover:bg-neutral-800': !isCurrentBeat,
+              'bg-neutral-700': isCurrentBeat,
+            }
+          )
           const dateAdded = new Date(dateAddedToPlaylist).toLocaleDateString()
           const loadWaveform = () => {
             setBeatId(id)
