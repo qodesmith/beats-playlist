@@ -60,7 +60,7 @@ export function BeatList() {
               {/* TITLE / ARTIST */}
               <div className="flex flex-col">
                 <div className={titleCls}>{title}</div>
-                <div className={`text-sm opacity-50`}>
+                <div className="text-sm opacity-50">
                   {channelName || <>&mdash;</>}
                 </div>
               </div>
