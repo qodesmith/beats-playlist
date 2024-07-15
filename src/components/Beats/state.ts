@@ -1,4 +1,5 @@
 import type {Video} from '@qodestack/dl-yt-playlist'
+import type {Atom} from 'jotai'
 
 import {pluralize} from '@qodestack/utils'
 import {atom} from 'jotai'
@@ -57,15 +58,33 @@ export const selectedBeatIdAtom = atom<string | undefined>(undefined)
 
 const audioBufferBeatIds = new Set<string>()
 
-export const audioBufferFamily = atomFamily((beatId: string) => {
+export const audioBufferFamily = atomFamily<
+  string,
+  Atom<Promise<{audioBuffer: AudioBuffer; rms: number}>>
+>((beatId: string) => {
   audioBufferBeatIds.add(beatId)
 
-  return atom<Promise<AudioBuffer>>(() => {
+  return atom(() => {
     return fetch(`/beats/${beatId}`)
       .then(res => res.arrayBuffer())
       .then(arrayBuffer => new AudioContext().decodeAudioData(arrayBuffer))
+      .then(audioBuffer => {
+        const rms = calculateRMS(audioBuffer)
+        return {audioBuffer, rms}
+      })
   })
 })
+
+function calculateRMS(audioBuffer: AudioBuffer) {
+  const data = audioBuffer.getChannelData(0)
+  let sum = 0
+
+  for (let i = 0; i < data.length; i++) {
+    sum += data[i] * data[i]
+  }
+
+  return Math.sqrt(sum / data.length)
+}
 
 export function clearAudioBufferFamily() {
   audioBufferBeatIds.forEach(beatId => {
