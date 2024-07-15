@@ -15,6 +15,9 @@ document.body.classList.add(
 
   // Other styles.
   'p-4',
+  'bg-gradient-to-b',
+  'from-neutral-900',
+  'to-black',
   'h-full',
   'overflow-hidden'
 )
