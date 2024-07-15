@@ -1,12 +1,20 @@
 import {secondsToDuration} from '@qodestack/utils'
 import clsx from 'clsx'
 import {useAtom, useAtomValue} from 'jotai'
-import {useCallback} from 'react'
+import {Suspense, useCallback} from 'react'
 
 import {metadataAtom, selectedBeatIdAtom} from './state'
 import {highlightColorObj} from '../../constants'
 
 export function BeatList() {
+  return (
+    <Suspense fallback="Loading beats...">
+      <BeatListBody />
+    </Suspense>
+  )
+}
+
+function BeatListBody() {
   const metadata = useAtomValue(metadataAtom)
   const [beatId, setBeatId] = useAtom(selectedBeatIdAtom)
   const handleImageError = useCallback(
