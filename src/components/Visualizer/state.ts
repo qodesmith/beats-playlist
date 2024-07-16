@@ -1,10 +1,12 @@
 import {atom} from 'jotai'
 import {atomFamily, loadable} from 'jotai/utils'
 
+// We don't actually use the `_id` param. Jotai uses it under the hood to
+// identity the various atoms in the family. It's for tracking purposes only.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const widthAtomFamily = atomFamily((_id: string) =>
-  atom<number | undefined>(undefined)
-)
+export const sizeContainerAtomFamily = atomFamily((_id: string) => {
+  return atom({width: 0, height: 0})
+})
 
 export const audioBufferAtomFamily = atomFamily((id: string | undefined) => {
   const audioBufferAtom = atom(async () => {

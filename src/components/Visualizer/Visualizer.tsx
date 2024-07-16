@@ -1,28 +1,57 @@
 import type {WaveformStyle} from './WaveformCanvas'
 import type {TailwindColor} from '../../tailwindColors'
 
+import {useId} from 'react'
+
 import {Cursor} from './Cursor'
-import {SizeContainer} from './SizeContainer'
 import {WaveformCanvas} from './WaveformCanvas'
 
 export function Visualizer({
   audioBuffer,
   style,
   tailwindColor,
+  waveformWidth,
   waveformHeight,
   cursorColor,
   isLoading,
-  id,
 }: {
+  /**
+   * An `AudioBuffer` that will be passed to the `WaveformCanvas` component.
+   * This is the audio data to be visualized.
+   */
   audioBuffer?: AudioBuffer
+
+  /**
+   * Different visualization styles for the waveform.
+   */
   style?: WaveformStyle
+
+  /**
+   * An optional `TailwindColor` to color the waveform.
+   */
   tailwindColor?: TailwindColor
+
+  /**
+   * Width of the waveform.
+   */
+  waveformWidth: number
+
+  /**
+   * Height of the waveform.
+   */
   waveformHeight: number
+
+  /**
+   * Color of the vertical cursor that appears when mousing around the waveform.
+   */
   cursorColor: string
+
+  /**
+   * Is the `audioBuffer` still loading or not.
+   */
   isLoading?: boolean
-  id: string
 }) {
-  const containerId = `${id}-size-container`
+  const id = useId()
   const canvasId = `${id}-waveform-canvas`
   const canvasReflectionId = `${id}-waveform-reflection-canvas`
   const isReflection = style === 'reflection'
@@ -35,10 +64,10 @@ export function Visualizer({
   const MULTIPLIER = audioBuffer ? 0.7 : 0.5
 
   return (
-    <SizeContainer id={containerId} canvasId={canvasId}>
+    <div className="relative">
       <WaveformCanvas
         canvasId={canvasId}
-        containerId={containerId}
+        width={waveformWidth}
         height={isReflection ? waveformHeight * MULTIPLIER : waveformHeight}
         audioBuffer={audioBuffer}
         tailwindColor={tailwindColor}
@@ -50,7 +79,7 @@ export function Visualizer({
       {isReflection && (
         <WaveformCanvas
           canvasId={canvasReflectionId}
-          containerId={containerId}
+          width={waveformWidth}
           height={waveformHeight * (1 - MULTIPLIER)}
           audioBuffer={audioBuffer}
           tailwindColor={tailwindColor}
@@ -70,6 +99,6 @@ export function Visualizer({
           cursorColor={cursorColor}
         />
       )}
-    </SizeContainer>
+    </div>
   )
 }

@@ -5,7 +5,11 @@ import {highlightColorObj} from '../../constants'
 import {usePrevious} from '../../hooks/usePrevious'
 import {selectedBeatIdAtom} from '../Beats/state'
 import {Spinner} from '../Spinner'
-import {audioBufferAtomFamily} from '../Visualizer/state'
+import {SizeContainer} from '../Visualizer/SizeContainer'
+import {
+  audioBufferAtomFamily,
+  sizeContainerAtomFamily,
+} from '../Visualizer/state'
 import {Visualizer} from '../Visualizer/Visualizer'
 
 export function Waveform() {
@@ -15,24 +19,28 @@ export function Waveform() {
   const hasData = audioBufferRes.state === 'hasData'
   const audioBuffer = hasData ? audioBufferRes.data?.audioBuffer : undefined
   const previousAudioBuffer = usePrevious(audioBuffer)
-  const id = useId()
+  const sizeContainerId = useId()
+  const {width, height} = useAtomValue(sizeContainerAtomFamily(sizeContainerId))
 
   return (
-    <div className="relative h-full">
+    <SizeContainer
+      sizeContainerId={sizeContainerId}
+      className="relative w-full overflow-hidden"
+    >
       <Visualizer
         audioBuffer={isLoading ? previousAudioBuffer : audioBuffer}
         style="reflection"
         tailwindColor={highlightColorObj.name}
-        waveformHeight={100}
+        waveformWidth={width}
+        waveformHeight={height}
         cursorColor="bg-[#CC57FF]"
         isLoading={isLoading}
-        id={id}
       />
       {isLoading && (
         <div className="absolute left-0 top-0 grid h-full w-full place-items-center">
           <Spinner size={48} />
         </div>
       )}
-    </div>
+    </SizeContainer>
   )
 }

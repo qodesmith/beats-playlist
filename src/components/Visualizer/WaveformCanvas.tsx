@@ -1,10 +1,8 @@
 import type {TailwindColor} from '../../tailwindColors'
 
-import {useAtom} from 'jotai'
 import {useMemo, useEffect} from 'react'
 
 import {audioBufferToNumbers} from './audioBufferToNumbers'
-import {widthAtomFamily} from './state'
 import {tailwindColors} from '../../tailwindColors'
 
 /**
@@ -22,7 +20,7 @@ export type WaveformStyle = 'center' | 'reflection'
 
 export function WaveformCanvas({
   canvasId,
-  containerId,
+  width,
   height,
   audioBuffer,
   tailwindColor,
@@ -31,48 +29,61 @@ export function WaveformCanvas({
   isReflection,
   isLoading,
 }: {
+  /**
+   * And `id` that will be added to the underlying `<canvas />` element.
+   */
   canvasId: string
-  containerId: string
+
+  /**
+   * Width of the canvas.
+   */
+  width: number
+
+  /**
+   * Height of the canvas.
+   */
   height: number
+
+  /**
+   * The underlying audio data used to draw the waveform on the canvas.
+   */
   audioBuffer?: AudioBuffer
+
+  /**
+   * An optional `TailwindColor` to color the waveform.
+   */
   tailwindColor?: TailwindColor
+
+  /**
+   * How wide each waveform bar on the canvas will be.
+   */
   barWidth: number
+
+  /**
+   * Different visualization styles for the waveform
+   */
   style?: WaveformStyle
+
+  /**
+   * Is this canvas an additional "reflection" below another canvas.
+   */
   isReflection?: boolean
+
+  /**
+   * Is the `audioBuffer` still loading or not.
+   */
   isLoading: boolean
 }) {
-  const [width, setWidth] = useAtom(widthAtomFamily(canvasId))
   const waveformData = useMemo(() => {
-    if (width !== undefined) {
-      const barCount = width / barWidth
+    const barCount = width / barWidth
 
-      return !audioBuffer
-        ? Array.from<number>({length: barCount}).fill(0)
-        : audioBufferToNumbers(audioBuffer, barCount)
-    }
+    return !audioBuffer
+      ? Array.from<number>({length: barCount}).fill(0)
+      : audioBufferToNumbers(audioBuffer, barCount)
   }, [audioBuffer, barWidth, width])
 
-  // Set the initial width
+  // Effect to draw the canvas.
   useEffect(() => {
-    setWidthToCanvasContainersWidth(containerId, setWidth)
-  }, [containerId, setWidth])
-
-  // Recalculate width when the screen resizes
-  useEffect(() => {
-    const handleResize = () => {
-      setWidthToCanvasContainersWidth(containerId, setWidth)
-    }
-
-    window.addEventListener('resize', handleResize)
-
-    return () => {
-      window.removeEventListener('resize', handleResize)
-    }
-  }, [containerId, setWidth])
-
-  useEffect(() => {
-    if (width === undefined || waveformData === undefined) return
-
     const canvas = document.getElementById(canvasId) as HTMLCanvasElement | null
     if (!canvas) {
       throw new Error(
@@ -149,20 +160,5 @@ export function WaveformCanvas({
     return 1
   })()
 
-  return width !== undefined ? <canvas id={canvasId} style={{opacity}} /> : null
-}
-
-function setWidthToCanvasContainersWidth(
-  containerId: string,
-  setWidth: (value: number) => void
-) {
-  const container = document.getElementById(containerId)
-  if (!container) {
-    throw new Error(
-      'Canvas container not found when trying to set initial width'
-    )
-  }
-
-  const containerWidth = container.getBoundingClientRect().width
-  setWidth(containerWidth)
+  return <canvas id={canvasId} style={{opacity}} />
 }
