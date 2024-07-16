@@ -1,5 +1,5 @@
-import {Next, Play, Previous, Repeat} from './ControlIcons'
-import {Waveform} from './Waveform'
+import {Next, Play, Previous, Repeat} from './Player/ControlIcons'
+import {Waveform} from './Player/Waveform'
 
 export function Footer() {
   return (

@@ -1,5 +1,5 @@
 import {BeatList} from './Beats/BeatList'
-import {Footer} from './Footer/Footer'
+import {Footer} from './Footer'
 import {Header} from './Header'
 
 export function HomePage() {
