@@ -97,6 +97,7 @@ export function Visualizer({
             isReflection ? waveformHeight * MULTIPLIER : waveformHeight
           }
           cursorColor={cursorColor}
+          cursorWidth={2}
         />
       )}
     </div>

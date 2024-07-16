@@ -1,13 +1,22 @@
+import clsx from 'clsx'
 import {useCallback, useRef, useState} from 'react'
 
-const CURSOR_WIDTH = 1
+const cursorWidthClasses = {
+  1: 'w-px',
+  2: 'w-[2px]',
+  3: 'w-[3px]',
+  4: 'w-[4px]',
+  5: 'w-[5px]',
+}
 
 export function Cursor({
   cursorHeight,
   cursorColor,
+  cursorWidth = 1,
 }: {
   cursorHeight: number
   cursorColor: string
+  cursorWidth?: 1 | 2 | 3 | 4 | 5
 }) {
   const [shouldShow, setShouldShow] = useState<boolean>(false)
   const [left, setLeft] = useState<number>(0)
@@ -16,13 +25,13 @@ export function Cursor({
     (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       const domRect = containerRef.current?.getBoundingClientRect()
       const offsetLeft = domRect?.left ?? 0
-      const maxValue = (domRect?.width ?? Infinity) - CURSOR_WIDTH
+      const maxValue = (domRect?.width ?? Infinity) - cursorWidth
       const calculatedValue = e.clientX - offsetLeft
       const newValue = calculatedValue < 0 ? 0 : calculatedValue
 
       setLeft(Math.min(newValue, maxValue))
     },
-    []
+    [cursorWidth]
   )
   const handleMouseEnter = useCallback(() => {
     setShouldShow(true)
@@ -30,6 +39,11 @@ export function Cursor({
   const handleMouseLeave = useCallback(() => {
     setShouldShow(false)
   }, [])
+  const cursorCls = clsx(
+    'absolute h-full',
+    cursorWidthClasses[cursorWidth],
+    cursorColor
+  )
 
   return (
     <div
@@ -41,7 +55,7 @@ export function Cursor({
     >
       {shouldShow && (
         <div
-          className={`absolute h-full w-px ${cursorColor}`}
+          className={cursorCls}
           style={{left, height: cursorHeight ?? '100%'}}
         />
       )}
