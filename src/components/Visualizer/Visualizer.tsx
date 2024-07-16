@@ -12,6 +12,7 @@ export function Visualizer({
   waveformHeight,
   cursorColor,
   isLoading,
+  id,
 }: {
   audioBuffer?: AudioBuffer
   style?: WaveformStyle
@@ -19,9 +20,11 @@ export function Visualizer({
   waveformHeight: number
   cursorColor: string
   isLoading?: boolean
+  id: string
 }) {
-  const containerId = 'container'
-  const canvasId = 'waveform-canvas'
+  const containerId = `${id}-size-container`
+  const canvasId = `${id}-waveform-canvas`
+  const canvasReflectionId = `${id}-waveform-reflection-canvas`
   const isReflection = style === 'reflection'
   const BAR_WIDTH = 1
 
@@ -46,7 +49,7 @@ export function Visualizer({
       />
       {isReflection && (
         <WaveformCanvas
-          canvasId={`${canvasId}-reflection`}
+          canvasId={canvasReflectionId}
           containerId={containerId}
           height={waveformHeight * (1 - MULTIPLIER)}
           audioBuffer={audioBuffer}
