@@ -25,7 +25,7 @@ export function Waveform() {
   return (
     <SizeContainer
       sizeContainerId={sizeContainerId}
-      className="relative w-full overflow-hidden"
+      className="relative h-full w-full overflow-hidden"
     >
       <Visualizer
         audioBuffer={isLoading ? previousAudioBuffer : audioBuffer}

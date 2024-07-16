@@ -3,14 +3,16 @@ import {Waveform} from './Player/Waveform'
 
 export function Footer() {
   return (
-    <footer className="grid h-[100px] flex-shrink-0 grid-cols-[200px_1fr]">
-      <div className="flex h-full items-center justify-center">
+    <footer className="h-[130px]">
+      <div className="h-[100px]">
+        <Waveform />
+      </div>
+      <div className="flex items-center justify-center">
         <Previous />
         <Play />
         <Next />
         <Repeat />
       </div>
-      <Waveform />
     </footer>
   )
 }
