@@ -1,17 +1,19 @@
 import {useAtomValue} from 'jotai'
 
 import {highlightColorObj} from '../../constants'
-import {useBeatAudioBuffer} from '../../hooks/useBeatAudioBuffer'
 import {usePrevious} from '../../hooks/usePrevious'
 import {selectedBeatIdAtom} from '../Beats/state'
 import {Spinner} from '../Spinner'
+import {audioBufferAtomFamily} from '../Visualizer/state'
 import {Visualizer} from '../Visualizer/Visualizer'
 
 export function Waveform() {
   const beatId = useAtomValue(selectedBeatIdAtom)
-  const {fetchStatus, data: {audioBuffer} = {}} = useBeatAudioBuffer(beatId)
+  const audioBufferRes = useAtomValue(audioBufferAtomFamily(beatId))
+  const isLoading = audioBufferRes.state === 'loading'
+  const hasData = audioBufferRes.state === 'hasData'
+  const audioBuffer = hasData ? audioBufferRes.data?.audioBuffer : undefined
   const previousAudioBuffer = usePrevious(audioBuffer)
-  const isLoading = fetchStatus === 'fetching'
 
   return (
     <div className="relative h-full">
