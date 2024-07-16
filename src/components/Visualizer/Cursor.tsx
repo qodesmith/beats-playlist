@@ -2,7 +2,13 @@ import {useCallback, useRef, useState} from 'react'
 
 const CURSOR_WIDTH = 1
 
-export function Cursor({cursorHeight}: {cursorHeight?: number}) {
+export function Cursor({
+  cursorHeight,
+  cursorColor,
+}: {
+  cursorHeight: number
+  cursorColor: string
+}) {
   const [shouldShow, setShouldShow] = useState<boolean>(false)
   const [left, setLeft] = useState<number>(0)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -35,7 +41,7 @@ export function Cursor({cursorHeight}: {cursorHeight?: number}) {
     >
       {shouldShow && (
         <div
-          className="absolute h-full w-px bg-red-600"
+          className={`absolute h-full w-px ${cursorColor}`}
           style={{left, height: cursorHeight ?? '100%'}}
         />
       )}
