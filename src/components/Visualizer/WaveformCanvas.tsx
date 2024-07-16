@@ -29,21 +29,26 @@ export function WaveformCanvas({
   barWidth,
   style,
   isReflection,
+  isLoading,
 }: {
   canvasId: string
   containerId: string
   height: number
-  audioBuffer: AudioBuffer
+  audioBuffer?: AudioBuffer
   tailwindColor?: TailwindColor
   barWidth: number
   style?: WaveformStyle
   isReflection?: boolean
+  isLoading: boolean
 }) {
   const [width, setWidth] = useAtom(widthAtomFamily(canvasId))
   const waveformData = useMemo(() => {
     if (width !== undefined) {
       const barCount = width / barWidth
-      return audioBufferToNumbers(audioBuffer, barCount)
+
+      return !audioBuffer
+        ? Array.from<number>({length: barCount}).fill(0)
+        : audioBufferToNumbers(audioBuffer, barCount)
     }
   }, [audioBuffer, barWidth, width])
 
@@ -100,10 +105,9 @@ export function WaveformCanvas({
     ctx.imageSmoothingEnabled = false
 
     const waveformDataLength = waveformData.length
-    const color = tailwindColor
-      ? tailwindColors[tailwindColor]
-      : window.getComputedStyle(document.body).color
-    ctx.fillStyle = color
+    const bodyColor = window.getComputedStyle(document.body).color
+    const color = tailwindColor ? tailwindColors[tailwindColor] : bodyColor
+    ctx.fillStyle = isLoading || !audioBuffer ? bodyColor : color
 
     /**
      * NOTE - the DOM shows terrible performance when setting the opacity filter
@@ -114,7 +118,9 @@ export function WaveformCanvas({
 
     for (let i = 0; i < waveformDataLength; i++) {
       const waveformHeight = waveformData[i] // 0 - 1
-      const barHeight = waveformHeight * canvas.height
+      const barHeight = audioBuffer
+        ? waveformHeight * canvas.height
+        : canvas.height - (canvas.height - 1)
       const x = barWidth * i
       const y = isReflection
         ? 0
@@ -123,9 +129,11 @@ export function WaveformCanvas({
       ctx.fillRect(x, y, barWidth, barHeight)
     }
   }, [
+    audioBuffer,
     barWidth,
     canvasId,
     height,
+    isLoading,
     isReflection,
     style,
     tailwindColor,
@@ -133,9 +141,15 @@ export function WaveformCanvas({
     width,
   ])
 
-  return width !== undefined ? (
-    <canvas id={canvasId} style={{opacity: isReflection ? 0.2 : 1}} />
-  ) : null
+  const opacity = (() => {
+    if (!audioBuffer) return 0.5
+    if (isLoading && isReflection) return 0.1
+    if (isLoading) return 0.5
+    if (isReflection) return 0.2
+    return 1
+  })()
+
+  return width !== undefined ? <canvas id={canvasId} style={{opacity}} /> : null
 }
 
 function setWidthToCanvasContainersWidth(

@@ -1,25 +1,12 @@
-import {useAtomValue} from 'jotai'
-import {Suspense} from 'react'
-
-import {highlightColorObj} from '../../constants'
-import {selectedBeatIdAtom} from '../Beats/state'
-import {Visualizer} from '../Visualizer/Visualizer'
+import {Waveform} from './Waveform'
 
 export function Footer() {
-  const beatId = useAtomValue(selectedBeatIdAtom)
-
-  if (!beatId) return null
-
   return (
-    <footer>
-      <Suspense fallback="Loading waveform...">
-        <Visualizer
-          beatId={beatId}
-          style="center"
-          tailwindColor={highlightColorObj.name}
-        />
-        <div>Play controls</div>
-      </Suspense>
+    <footer className="grid h-[100px] flex-shrink-0 grid-cols-[200px_1fr]">
+      <div className="flex h-full items-center justify-center">
+        Play controls
+      </div>
+      <Waveform />
     </footer>
   )
 }

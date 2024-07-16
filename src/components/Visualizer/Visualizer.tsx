@@ -1,62 +1,72 @@
 import type {WaveformStyle} from './WaveformCanvas'
 import type {TailwindColor} from '../../tailwindColors'
 
-import {useAtomValue} from 'jotai'
-import {useId} from 'react'
-
 import {Cursor} from './Cursor'
 import {SizeContainer} from './SizeContainer'
 import {WaveformCanvas} from './WaveformCanvas'
-import {audioBufferFamily} from '../Beats/state'
 
 export function Visualizer({
-  beatId,
+  audioBuffer,
   style,
   tailwindColor,
+  waveformHeight,
+  cursorColor,
+  isLoading,
 }: {
-  beatId: string
+  audioBuffer?: AudioBuffer
   style?: WaveformStyle
   tailwindColor?: TailwindColor
+  waveformHeight: number
+  cursorColor: string
+  isLoading?: boolean
 }) {
-  const {audioBuffer} = useAtomValue(audioBufferFamily(beatId))
-  const containerId = useId()
-  const canvasId = useId()
-  const canvasId2 = useId()
+  const containerId = 'container'
+  const canvasId = 'waveform-canvas'
   const isReflection = style === 'reflection'
-  const HEIGHT = 40
   const BAR_WIDTH = 1
+
+  /**
+   * When there's no audioBuffer we want to show a straight line. 0.5 ensures
+   * we're positioning the line at half the waveform height.
+   */
+  const MULTIPLIER = audioBuffer ? 0.7 : 0.5
 
   return (
     <SizeContainer id={containerId} canvasId={canvasId}>
       <WaveformCanvas
-        // In dev, this will force the canvas to redraw when HMR happens
-        key={import.meta.env.DEV ? Math.random() : undefined}
         canvasId={canvasId}
         containerId={containerId}
-        height={isReflection ? HEIGHT * 0.8 : HEIGHT}
+        height={isReflection ? waveformHeight * MULTIPLIER : waveformHeight}
         audioBuffer={audioBuffer}
         tailwindColor={tailwindColor}
         barWidth={BAR_WIDTH}
         style={style}
         isReflection={false}
+        isLoading={!!isLoading}
       />
       {isReflection && (
         <WaveformCanvas
-          // In dev, this will force the canvas to redraw when HMR happens
-          key={import.meta.env.DEV ? Math.random() : undefined}
-          canvasId={canvasId2}
+          canvasId={`${canvasId}-reflection`}
           containerId={containerId}
-          height={HEIGHT * 0.2}
+          height={waveformHeight * (1 - MULTIPLIER)}
           audioBuffer={audioBuffer}
           tailwindColor={tailwindColor}
           barWidth={BAR_WIDTH}
           style={style}
           isReflection
+          isLoading={!!isLoading}
         />
       )}
 
       {/* Keep this on the bottom so it's z-index is above the waveforms */}
-      <Cursor cursorHeight={isReflection ? HEIGHT * 0.8 : HEIGHT} />
+      {!isLoading && audioBuffer && (
+        <Cursor
+          cursorHeight={
+            isReflection ? waveformHeight * MULTIPLIER : waveformHeight
+          }
+          cursorColor={cursorColor}
+        />
+      )}
     </SizeContainer>
   )
 }
