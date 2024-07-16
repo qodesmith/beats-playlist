@@ -1,11 +1,12 @@
+import {QueryClientProvider} from '@tanstack/react-query'
 import {Provider as JotaiProvider} from 'jotai'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 
-import './main.css'
-
-import {store} from './appFoundation'
+import {queryClient, store} from './appFoundation'
 import {HomePage} from './components/HomePage'
+
+import './main.css'
 
 document.documentElement.classList.add('h-full')
 document.body.classList.add(
@@ -27,7 +28,9 @@ root.classList.add('h-full')
 ReactDOM.createRoot(root).render(
   <React.StrictMode>
     <JotaiProvider store={store}>
-      <HomePage />
+      <QueryClientProvider client={queryClient}>
+        <HomePage />
+      </QueryClientProvider>
     </JotaiProvider>
   </React.StrictMode>
 )
