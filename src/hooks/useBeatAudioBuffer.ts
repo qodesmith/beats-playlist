@@ -1,7 +1,5 @@
 import {useQuery} from '@tanstack/react-query'
 
-import {setAudioBufferFetched} from '../components/Beats/state'
-
 export function useBeatAudioBuffer(id: string | undefined) {
   return useQuery({
     queryKey: ['useBeatAudioBuffer', id],
@@ -10,7 +8,6 @@ export function useBeatAudioBuffer(id: string | undefined) {
         .then(res => res.arrayBuffer())
         .then(arrayBuffer => new AudioContext().decodeAudioData(arrayBuffer))
         .then(audioBuffer => {
-          setAudioBufferFetched()
           const rms = calculateRMS(audioBuffer)
           return {audioBuffer, rms}
         })
