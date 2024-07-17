@@ -6,15 +6,12 @@ import {usePrevious} from '../../hooks/usePrevious'
 import {selectedBeatIdAtom} from '../Beats/state'
 import {Spinner} from '../Spinner'
 import {SizeContainer} from '../Visualizer/SizeContainer'
-import {
-  audioBufferAtomFamily,
-  sizeContainerAtomFamily,
-} from '../Visualizer/state'
+import {audioDataAtomFamily, sizeContainerAtomFamily} from '../Visualizer/state'
 import {Visualizer} from '../Visualizer/Visualizer'
 
 export function Waveform() {
   const beatId = useAtomValue(selectedBeatIdAtom)
-  const audioBufferRes = useAtomValue(audioBufferAtomFamily(beatId))
+  const audioBufferRes = useAtomValue(audioDataAtomFamily(beatId))
   const isLoading = audioBufferRes.state === 'loading'
   const hasData = audioBufferRes.state === 'hasData'
   const audioBuffer = hasData ? audioBufferRes.data?.audioBuffer : undefined

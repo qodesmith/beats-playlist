@@ -8,20 +8,20 @@ export const sizeContainerAtomFamily = atomFamily((_id: string) => {
   return atom({width: 0, height: 0})
 })
 
-export const audioBufferAtomFamily = atomFamily((id: string | undefined) => {
-  const audioBufferAtom = atom(async () => {
+export const audioDataAtomFamily = atomFamily((id: string | undefined) => {
+  const audioDataAtom = atom(async () => {
     if (id === undefined) return undefined
 
-    return fetch(`/beats/${id}`)
-      .then(res => res.arrayBuffer())
-      .then(arrayBuffer => new AudioContext().decodeAudioData(arrayBuffer))
-      .then(audioBuffer => {
-        const rms = calculateRMS(audioBuffer)
-        return {audioBuffer, rms}
-      })
+    const res = await fetch(`/beats/${id}`)
+    const arrayBuffer = await res.arrayBuffer()
+    const audioContext = new AudioContext()
+    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
+    const rms = calculateRMS(audioBuffer)
+
+    return {audioContext, audioBuffer, rms}
   })
 
-  return loadable(audioBufferAtom)
+  return loadable(audioDataAtom)
 })
 
 function calculateRMS(audioBuffer: AudioBuffer) {
