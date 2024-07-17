@@ -6,9 +6,7 @@ import {atom} from 'jotai'
 export const metadataAtom = atom<Promise<Video[]>>(() => {
   return fetch('/metadata')
     .then(res => res.json())
-    .then((metadata: Video[]) => {
-      return metadata.filter(({audioFileExtension}) => !!audioFileExtension)
-    })
+    .then(({metadata}: {metadata: Video[]}) => metadata)
 })
 
 export const metadataStatsSelector = atom<

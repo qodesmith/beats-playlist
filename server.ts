@@ -1,8 +1,12 @@
+import type {Video} from '@qodestack/dl-yt-playlist'
+
 import {serverTiming} from '@elysiajs/server-timing'
 import {Elysia} from 'elysia'
 
-const port = Bun.env.SERVER_PORT
-if (port === undefined) {
+const SERVER_PORT = Bun.env.SERVER_PORT
+const MAX_DURATION_SECONDS = Number(Bun.env.MAX_DURATION_SECONDS) || 60 * 8
+
+if (SERVER_PORT === undefined) {
   throw new Error('SERVER_PORT not defined')
 }
 
@@ -14,7 +18,16 @@ const app = new Elysia()
 
   // API
   .get('/metadata', async (/*{query}*/) => {
-    return Bun.file('/beats/metadata.json')
+    const metadata: Video[] = await Bun.file('/beats/metadata.json').json()
+
+    // Filter out videos we don't have an mp3 file for or that are too long.
+    const filteredVideos = metadata.filter(
+      ({audioFileExtension, durationInSeconds}) => {
+        return !!audioFileExtension && durationInSeconds <= MAX_DURATION_SECONDS
+      }
+    )
+
+    return {metadata: filteredVideos}
 
     // Paginated version:
     // const page = Number(query.page) || 1
@@ -39,7 +52,7 @@ const app = new Elysia()
     Bun.file(`/beats/thumbnails/${id}.jpg`)
   )
   .get('/beats/:id', ({params: {id}}) => Bun.file(`/beats/audio/${id}.mp3`))
-  .listen(port)
+  .listen(SERVER_PORT)
 
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
