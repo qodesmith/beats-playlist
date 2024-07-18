@@ -91,10 +91,12 @@ export function Repeat({
   size = 20,
   fill = 'white',
   one,
+  onClick,
 }: {
   size?: number
   fill?: string
   one?: boolean
+  onClick: () => void
 }) {
   if (one) {
     return (
@@ -103,6 +105,7 @@ export function Repeat({
         height={size}
         viewBox="0 0 16 16"
         className="hover:cursor-pointer"
+        onClick={onClick}
       >
         <path
           fill={fill}
@@ -122,6 +125,7 @@ export function Repeat({
       height={size}
       viewBox="0 0 16 16"
       className="hover:cursor-pointer"
+      onClick={onClick}
     >
       <path
         fill={fill}
