@@ -42,14 +42,15 @@ function localUnraidApiPaths(): PluginOption {
         if (!req.url) return next()
         const url = new URL(req.url, `http://${req.headers.host}`)
 
-        // Check if the URL matches the pattern /beats/:filename
-        const beatsMatch = url.pathname.match(/^\/beats\/([^/]+)$/)
-
-        if (beatsMatch) {
-          // Rewrite the URL to /beats/audio/:filename
-          req.url = `/beats/audio/${beatsMatch[1]}`
+        if (url.pathname.startsWith('/beats/')) {
+          const upatedPath = url.pathname.replace('/beats/', '/beats/audio/')
+          req.url = `${upatedPath}.mp3`
         } else if (url.pathname === '/metadata') {
-          req.url = '/beats/metadata.json'
+          res.writeHead(200, {'Content-Type': 'application/json'})
+          const metadata = JSON.parse(
+            fs.readFileSync('./public/beats/metadata.json', {encoding: 'utf8'})
+          )
+          return res.end(JSON.stringify({metadata}))
 
           // Mimic the server behavior for paginated metadata results.
           // const metadata: Video[] = JSON.parse(
@@ -70,6 +71,12 @@ function localUnraidApiPaths(): PluginOption {
 
           // res.writeHead(200, {'Content-Type': 'application/json'})
           // res.end(responseData)
+        } else if (url.pathname.endsWith('[small]')) {
+          const updatedPath = url.pathname.replace(
+            '/thumbnails/',
+            '/beats/thumbnails/'
+          )
+          req.url = `${updatedPath}.jpg`
         }
 
         next()
