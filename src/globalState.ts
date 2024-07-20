@@ -5,15 +5,13 @@ import {atomFamily, atomWithStorage, loadable} from 'jotai/utils'
 
 import {calculateRMS, secondsToPlainSentence} from './utils'
 
+export const isAppInitializedAtom = atom<boolean>(false)
+
 //////////////
 // METADATA //
 //////////////
 
-export const metadataAtom = atom<Promise<Video[]>>(() => {
-  return fetch('/metadata')
-    .then(res => res.json())
-    .then(({metadata}: {metadata: Video[]}) => metadata)
-})
+export const metadataAtom = atom<Video[]>([])
 
 export const metadataStatsSelector = atom<
   Promise<{

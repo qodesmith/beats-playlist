@@ -3,6 +3,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 
 import {HomePage} from './components/HomePage'
+import {initApp} from './initApp'
 import {store} from './store'
 
 import './main.css'
@@ -23,6 +24,8 @@ document.body.classList.add(
 )
 const root = document.getElementById('root')!
 root.classList.add('h-full')
+
+initApp()
 
 ReactDOM.createRoot(root).render(
   <React.StrictMode>
