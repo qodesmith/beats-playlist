@@ -1,7 +1,7 @@
 import {useAtomValue} from 'jotai'
 import {Suspense} from 'react'
 
-import {metadataStatsSelector} from './Beats/state'
+import {metadataStatsSelector} from '../globalState'
 
 export function Header() {
   return (

@@ -3,8 +3,8 @@ import clsx from 'clsx'
 import {useAtom, useAtomValue} from 'jotai'
 import {Suspense, useCallback} from 'react'
 
-import {metadataAtom, selectedBeatIdAtom} from './state'
-import {highlightColorObj} from '../../constants'
+import {highlightColorObj} from '../constants'
+import {metadataAtom, selectedBeatIdAtom} from '../globalState'
 
 export function BeatList() {
   return (

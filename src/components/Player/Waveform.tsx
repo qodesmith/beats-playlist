@@ -2,16 +2,19 @@ import {useAtomValue} from 'jotai'
 import {useId} from 'react'
 
 import {highlightColorObj} from '../../constants'
+import {
+  getAudioDataLoadableAtomFamily,
+  selectedBeatIdAtom,
+  sizeContainerAtomFamily,
+} from '../../globalState'
 import {usePrevious} from '../../hooks/usePrevious'
-import {selectedBeatIdAtom} from '../Beats/state'
 import {Spinner} from '../Spinner'
 import {SizeContainer} from '../Visualizer/SizeContainer'
-import {audioDataAtomFamily, sizeContainerAtomFamily} from '../Visualizer/state'
 import {Visualizer} from '../Visualizer/Visualizer'
 
 export function Waveform() {
   const beatId = useAtomValue(selectedBeatIdAtom)
-  const audioBufferRes = useAtomValue(audioDataAtomFamily(beatId))
+  const audioBufferRes = useAtomValue(getAudioDataLoadableAtomFamily(beatId))
   const isLoading = audioBufferRes.state === 'loading'
   const hasData = audioBufferRes.state === 'hasData'
   const audioBuffer = hasData ? audioBufferRes.data?.audioBuffer : undefined

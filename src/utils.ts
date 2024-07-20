@@ -1,3 +1,42 @@
+import {pluralize} from '@qodestack/utils'
+
+export function secondsToPlainSentence(totalSeconds: number): string {
+  if (totalSeconds < 0) {
+    throw new Error('Input must be a non-negative number')
+  }
+
+  const hours = Math.floor(totalSeconds / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  const seconds = totalSeconds % 60
+
+  const parts: string[] = []
+
+  if (hours > 0) {
+    parts.push(pluralize(hours, 'hour'))
+  }
+
+  if (minutes > 0) {
+    parts.push(pluralize(minutes, 'minute'))
+  }
+
+  if (seconds > 0 || parts.length === 0) {
+    parts.push(pluralize(seconds, 'second'))
+  }
+
+  return parts.join(', ')
+}
+
+export function calculateRMS(audioBuffer: AudioBuffer) {
+  const data = audioBuffer.getChannelData(0)
+  let sum = 0
+
+  for (let i = 0; i < data.length; i++) {
+    sum += data[i] * data[i]
+  }
+
+  return Math.sqrt(sum / data.length)
+}
+
 /**
  * Converts an audio buffer to an array of numbers ranging from 0 - 1. These
  * numbers will drive the visualization of audio waveforms.

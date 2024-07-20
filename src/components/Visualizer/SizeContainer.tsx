@@ -3,7 +3,7 @@ import type {ReactNode} from 'react'
 import {useSetAtom} from 'jotai'
 import {useEffect, useRef} from 'react'
 
-import {sizeContainerAtomFamily} from './state'
+import {sizeContainerAtomFamily} from '../../globalState'
 
 /**
  * This component simply renders its children in a div and calculates the width

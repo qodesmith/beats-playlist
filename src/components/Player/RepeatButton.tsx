@@ -1,7 +1,7 @@
 import {useAtomValue, useSetAtom} from 'jotai'
 
 import {Repeat} from './ControlIcons'
-import {cycleRepeatStateAtom, repeatStateSelector} from './state'
+import {cycleRepeatStateAtom, repeatStateSelector} from '../../globalState'
 
 export function RepeatButton({
   fill,

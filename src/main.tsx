@@ -2,8 +2,8 @@ import {Provider as JotaiProvider} from 'jotai'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 
-import {store} from './appFoundation'
 import {HomePage} from './components/HomePage'
+import {store} from './store'
 
 import './main.css'
 

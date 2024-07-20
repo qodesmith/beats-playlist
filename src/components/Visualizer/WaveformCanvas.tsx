@@ -2,8 +2,8 @@ import type {TailwindColor} from '../../tailwindColors'
 
 import {useMemo, useEffect} from 'react'
 
-import {audioBufferToNumbers} from './audioBufferToNumbers'
 import {tailwindColors} from '../../tailwindColors'
+import {audioBufferToNumbers} from '../../utils'
 
 /**
  * Two things we want to do with a canvas element:

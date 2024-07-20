@@ -1,4 +1,4 @@
-import {BeatList} from './Beats/BeatList'
+import {BeatList} from './BeatList'
 import {Footer} from './Footer'
 import {Header} from './Header'
 
