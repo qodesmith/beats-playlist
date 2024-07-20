@@ -1,4 +1,10 @@
-export function AudioLoader({size}: {size: number}) {
+export function AudioLoader({
+  size,
+  fill = 'white',
+}: {
+  size: number
+  fill?: string
+}) {
   /**
    * By Sam Herbert (@sherb), for everyone. More @ http://goo.gl/7AJzbL
    * https://samherbert.net/svg-loaders/
@@ -14,7 +20,7 @@ export function AudioLoader({size}: {size: number}) {
       height={size}
       viewBox="0 0 55 50"
       xmlns="http://www.w3.org/2000/svg"
-      fill="#FFF"
+      fill={fill}
     >
       <g transform="matrix(1 0 0 -1 0 50)">
         <rect width="10" height="12.5" rx="3">
