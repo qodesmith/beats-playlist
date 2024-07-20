@@ -13,13 +13,11 @@ export const isAppInitializedAtom = atom<boolean>(false)
 
 export const metadataAtom = atom<Video[]>([])
 
-export const metadataStatsSelector = atom<
-  Promise<{
-    totalBeats: number
-    totalTime: string
-  }>
->(async get => {
-  const metadata = await get(metadataAtom)
+export const metadataStatsSelector = atom<{
+  totalBeats: number
+  totalTime: string
+}>(get => {
+  const metadata = get(metadataAtom)
   const totalBeats = metadata.length
   const totalSeconds = metadata.reduce<number>((acc, beat) => {
     return acc + beat.durationInSeconds
