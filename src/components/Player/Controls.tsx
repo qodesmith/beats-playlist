@@ -18,6 +18,12 @@ export function Controls({
   baseSize: number
 }) {
   const beatId = useAtomValue(selectedBeatIdAtom)
+
+  return <ControlsBody key={beatId} baseSize={baseSize} />
+}
+
+function ControlsBody({baseSize}: {baseSize: number}) {
+  const beatId = useAtomValue(selectedBeatIdAtom)
   const audioDataRes = useAtomValue(getAudioDataLoadableAtomFamily(beatId))
   const hasData = audioDataRes.state === 'hasData'
   const audioCtx = hasData ? audioDataRes.data?.audioContext : undefined
