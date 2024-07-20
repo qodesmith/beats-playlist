@@ -12,8 +12,6 @@ export function AudioLoader({
    *
    * The height has been adjusted (and the <rect>'s proportionally) by ChatGPT.
    */
-  //
-  //
   return (
     <svg
       width={size + size * 0.1}
