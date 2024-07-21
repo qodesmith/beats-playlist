@@ -5,13 +5,28 @@ import {atomFamily, atomWithStorage, loadable} from 'jotai/utils'
 
 import {calculateRMS, secondsToPlainSentence} from './utils'
 
+////////////////////////
+// APP INITIALIZATION //
+////////////////////////
+
 export const isAppInitializedAtom = atom<boolean>(false)
 
 //////////////
 // METADATA //
 //////////////
 
-export const metadataAtom = atom<Video[]>([])
+type VideoWithIndex = Video & {index: number}
+
+export const metadataAtom = atom<VideoWithIndex[]>([])
+
+export const metadataObjAtom = atom<Record<string, VideoWithIndex>>(get => {
+  const metadata = get(metadataAtom)
+
+  return metadata.reduce<Record<string, VideoWithIndex>>((acc, item) => {
+    acc[item.id] = item
+    return acc
+  }, {})
+})
 
 export const metadataStatsSelector = atom<{
   totalBeats: number
@@ -27,6 +42,15 @@ export const metadataStatsSelector = atom<{
 })
 
 export const selectedBeatIdAtom = atom<string | undefined>(undefined)
+
+export const selectedBeatIndexAtom = atom<number | undefined>(get => {
+  const metadataObj = get(metadataObjAtom)
+  const beatId = get(selectedBeatIdAtom)
+
+  if (beatId) {
+    return metadataObj[beatId].index
+  }
+})
 
 ////////////
 // REPEAT //

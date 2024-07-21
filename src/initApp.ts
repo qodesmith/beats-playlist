@@ -15,7 +15,15 @@ export function initApp() {
   const metadataPromise = fetch('/metadata')
     .then(res => res.json())
     .then(({metadata}: {metadata: Video[]}) => {
-      store.set(metadataAtom, metadata)
+      store.set(
+        metadataAtom,
+
+        /**
+         * Adding the `index` property to the videos will power the previous
+         * and next play functionality.
+         */
+        metadata.map((v, index) => ({...v, index}))
+      )
     })
 
   Promise.all([oneSecondPromise, metadataPromise]).then(() => {
