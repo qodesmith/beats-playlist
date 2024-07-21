@@ -2,15 +2,13 @@ export function Play({
   size = 40,
   circleFill = 'white',
   triangleFill = 'black',
-  onClick,
 }: {
   size?: number
   circleFill?: string
   triangleFill?: string
-  onClick?: () => void
 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 50 50" onClick={onClick}>
+    <svg width={size} height={size} viewBox="0 0 50 50">
       <g className="hover:cursor-pointer">
         <circle cx="25" cy="25" r="24" fill={circleFill} stroke="black" />
         <path d="M20 15 L20 35 L35 25 Z" fill={triangleFill} stroke="black" />
@@ -23,15 +21,13 @@ export function Pause({
   size = 40,
   circleFill = 'white',
   pauseFill = 'black',
-  onClick,
 }: {
   size?: number
   circleFill?: string
   pauseFill?: string
-  onClick?: () => void
 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 50 50" onClick={onClick}>
+    <svg width={size} height={size} viewBox="0 0 50 50">
       <g className="hover:cursor-pointer">
         <circle cx="25" cy="25" r="24" fill={circleFill} stroke="black" />
         <rect x="16" y="15" width="6" height="20" fill={pauseFill} />
@@ -91,12 +87,10 @@ export function Repeat({
   size = 20,
   fill = 'white',
   one,
-  onClick,
 }: {
   size?: number
   fill?: string
   one?: boolean
-  onClick: () => void
 }) {
   if (one) {
     return (
@@ -105,7 +99,6 @@ export function Repeat({
         height={size}
         viewBox="0 0 16 16"
         className="hover:cursor-pointer"
-        onClick={onClick}
       >
         <path
           fill={fill}
@@ -125,7 +118,6 @@ export function Repeat({
       height={size}
       viewBox="0 0 16 16"
       className="hover:cursor-pointer"
-      onClick={onClick}
     >
       <path
         fill={fill}
