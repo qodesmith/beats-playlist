@@ -1,12 +1,14 @@
-import {useAtomValue} from 'jotai'
-import {useCallback, useEffect, useRef, useState} from 'react'
+import {useAtomValue, useSetAtom} from 'jotai'
+import {Suspense} from 'react'
 
 import {Next, Pause, Play, Previous} from './ControlIcons'
 import {RepeatButton} from './RepeatButton'
 import {
-  getAudioDataLoadableAtomFamily,
+  nextBeatAtom,
+  previousBeatAtom,
   selectedBeatIdAtom,
 } from '../../globalState'
+import {useAudioThing} from '../../hooks/useAudioThing'
 
 export function Controls({
   baseSize,
@@ -17,115 +19,55 @@ export function Controls({
    */
   baseSize: number
 }) {
-  const beatId = useAtomValue(selectedBeatIdAtom)
+  return (
+    <Suspense fallback={<DisabledControls baseSize={baseSize} />}>
+      <ControlsBody baseSize={baseSize} />
+    </Suspense>
+  )
+}
 
-  return <ControlsBody key={beatId} baseSize={baseSize} />
+function DisabledControls({baseSize}: {baseSize: number}) {
+  const fill = 'gray'
+  const handlePrevious = useSetAtom(previousBeatAtom)
+  const handleNext = useSetAtom(nextBeatAtom)
+
+  return (
+    <div className="flex items-center justify-center gap-4">
+      <button onClick={handlePrevious}>
+        <Previous size={baseSize * 3} fill={fill} />
+      </button>
+      <Play size={baseSize * 4} circleFill={fill} />
+      <button onClick={handleNext}>
+        <Next size={baseSize * 3} fill={fill} />
+      </button>
+      <RepeatButton forceDisabled />
+    </div>
+  )
 }
 
 function ControlsBody({baseSize}: {baseSize: number}) {
   const beatId = useAtomValue(selectedBeatIdAtom)
-  const audioDataRes = useAtomValue(getAudioDataLoadableAtomFamily(beatId))
-  const hasData = audioDataRes.state === 'hasData'
-  const audioCtx = hasData ? audioDataRes.data?.audioContext : undefined
-  const audioBuffer = hasData ? audioDataRes.data?.audioBuffer : undefined
   const fill = beatId ? 'white' : 'gray'
-  const [audioCtxState, setAudioCtxState] = useState<
-    AudioContextState | undefined
-  >()
-  const [audioSource, setAudioSource] = useState<AudioBufferSourceNode>()
-  const initialAudioSourceCreatedRef = useRef<boolean>(false)
-  const togglePlay = useCallback(() => {
-    if (audioCtx?.state === 'running') {
-      audioCtx.suspend()
-    } else {
-      audioCtx?.resume()
-    }
-  }, [audioCtx])
-
-  // Initial audio source creation.
-  useEffect(() => {
-    if (!initialAudioSourceCreatedRef.current && audioCtx && audioBuffer) {
-      const newAudioSource = createAudioBufferSource({audioCtx, audioBuffer})
-      newAudioSource.loop = true
-      setAudioSource(newAudioSource)
-    }
-  }, [audioBuffer, audioCtx])
-
-  /**
-   * Auto start playing the audio:
-   * - On initial mount
-   * - Whenever the audio source changes.
-   */
-  useEffect(() => {
-    if (audioSource) {
-      audioSource.start()
-      setAudioCtxState('running')
-    }
-
-    return () => {
-      audioSource?.stop()
-    }
-  }, [audioSource, beatId])
-
-  // Sync audioCtx state with local state.
-  useEffect(() => {
-    if (audioCtx) {
-      audioCtx.onstatechange = () => {
-        setAudioCtxState(audioCtx.state)
-      }
-
-      return () => {
-        audioCtx.onstatechange = null
-      }
-    }
-  }, [audioCtx])
-
-  // For single song looping - create new audio source.
-  useEffect(() => {
-    // function handleEnded() {
-    //   // Use the store to avoid component re-renders from changes in the value.
-    //   const repeatState = store.get(repeatStateSelector)
-    //   const shouldRestartAudio =
-    //     repeatState === 'single' && audioCtx && audioBuffer
-    //   if (shouldRestartAudio) {
-    //     const newAudioSource = createAudioBufferSource({audioCtx, audioBuffer})
-    //     setAudioSource(newAudioSource)
-    //   }
-    // }
-    // if (audioSource) {
-    //   audioSource.addEventListener('ended', handleEnded)
-    //   return () => {
-    //     audioSource.removeEventListener('ended', handleEnded)
-    //   }
-    // }
-  }, [audioBuffer, audioCtx, audioSource])
+  const [audio, playState] = useAudioThing()
+  const handlePrevious = useSetAtom(previousBeatAtom)
+  const handleNext = useSetAtom(nextBeatAtom)
 
   return (
     <div className="flex items-center justify-center gap-4">
-      <Previous size={baseSize * 3} fill={fill} />
-      {audioCtxState === 'running' ? (
-        <Pause size={baseSize * 4} onClick={togglePlay} circleFill={fill} />
-      ) : (
-        <Play size={baseSize * 4} onClick={togglePlay} circleFill={fill} />
-      )}
-      <Next size={baseSize * 3} fill={fill} />
+      <button onClick={handlePrevious}>
+        <Previous size={baseSize * 3} fill={fill} />
+      </button>
+      <button onClick={() => audio?.togglePlay()}>
+        {playState === 'playing' ? (
+          <Pause size={baseSize * 4} circleFill={fill} />
+        ) : (
+          <Play size={baseSize * 4} circleFill={fill} />
+        )}
+      </button>
+      <button onClick={handleNext}>
+        <Next size={baseSize * 3} fill={fill} />
+      </button>
       <RepeatButton />
     </div>
   )
-
-  return
-}
-
-function createAudioBufferSource({
-  audioCtx,
-  audioBuffer,
-}: {
-  audioCtx: AudioContext
-  audioBuffer: AudioBuffer
-}) {
-  const audioSource = audioCtx.createBufferSource()
-  audioSource.buffer = audioBuffer
-  audioSource.connect(audioCtx.destination)
-
-  return audioSource
 }
