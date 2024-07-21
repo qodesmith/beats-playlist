@@ -1,3 +1,4 @@
+import type {AudioThing} from './AudioThing'
 import type {Video} from '@qodestack/dl-yt-playlist'
 
 import {atom} from 'jotai'
@@ -52,6 +53,31 @@ export const selectedBeatIndexAtom = atom<number | undefined>(get => {
   }
 })
 
+const previousOrNextBeatAtom = atom(
+  null,
+  (get, set, type: 'previous' | 'next') => {
+    const value = type === 'next' ? 1 : -1
+    const currentBeatIndex = get(selectedBeatIndexAtom)
+
+    if (currentBeatIndex !== undefined) {
+      const nextBeatIndex = currentBeatIndex + value
+      const metadata = get(metadataAtom)
+      const backToTop = nextBeatIndex === metadata.length
+      const newBeatId = metadata[backToTop ? 0 : nextBeatIndex].id
+
+      set(selectedBeatIdAtom, newBeatId)
+    }
+  }
+)
+
+export const previousBeatAtom = atom(null, (_get, set) => {
+  set(previousOrNextBeatAtom, 'previous')
+})
+
+export const nextBeatAtom = atom(null, (_get, set) => {
+  set(previousOrNextBeatAtom, 'next')
+})
+
 ////////////
 // REPEAT //
 ////////////
@@ -69,8 +95,11 @@ export const cycleRepeatStateAtom = atom(null, (get, set) => {
   const currentRepeatState = get(repeatStateAtom)
   const idx = repeatStates.indexOf(currentRepeatState)
   const nextIdx = (idx + 1) % repeatStates.length
+  const nextState = repeatStates[nextIdx]
+  const audioThing = get(audioThingAtom)
 
-  set(repeatStateAtom, repeatStates[nextIdx])
+  set(repeatStateAtom, nextState)
+  audioThing?.setRepeat(nextState === 'single')
 })
 
 ////////////////////
@@ -98,10 +127,20 @@ export const audioDataAtomFamily = atomFamily((id: string | undefined) => {
     const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
     const rms = calculateRMS(audioBuffer)
 
-    return {audioContext, audioBuffer, rms}
+    /**
+     * Why don't we also return `audioContext` from this atom? Since it's
+     * cached, we would be re-using the audioContext any time we played the same
+     * beat again. This will throw errors in the console. Instead, we let
+     * consumers create their own audioContext if need be.
+     */
+    return {audioBuffer, rms}
   })
 })
 
 export function getAudioDataLoadableAtomFamily(id: string | undefined) {
   return loadable(audioDataAtomFamily(id))
 }
+
+export const currentAudioStateAtom = atom<'stopped' | 'playing'>('stopped')
+
+export const audioThingAtom = atom<AudioThing | undefined>(undefined)
