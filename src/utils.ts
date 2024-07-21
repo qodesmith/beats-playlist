@@ -81,3 +81,17 @@ export function audioBufferToNumbers(
 
   return finalNumbers
 }
+
+export function createAudioBufferSource({
+  audioContext,
+  audioBuffer,
+}: {
+  audioContext: AudioContext
+  audioBuffer: AudioBuffer
+}) {
+  const audioSource = audioContext.createBufferSource()
+  audioSource.buffer = audioBuffer
+  audioSource.connect(audioContext.destination)
+
+  return audioSource
+}
