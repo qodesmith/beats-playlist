@@ -59,16 +59,16 @@ export class AudioThing {
   setPlayPosition(position: number) {
     // Calculate the new start time in the buffer
     const newTime = this.#audioBuffer.duration * position
+    const playState = store.get(currentAudioStateAtom)
 
     // Stop the current playback
-    this.#audioSource.stop()
+    if (playState === 'playing') {
+      this.#audioSource.stop()
+    }
     this.createAudioSource()
 
     // Update the pausedTime to the new start time
     this.#pausedTime = newTime
-
-    // Check if the audio is currently playing
-    const playState = store.get(currentAudioStateAtom)
 
     if (playState === 'playing') {
       // If playing, start the playback from the new time
@@ -83,7 +83,6 @@ export class AudioThing {
       // play the next song if loop is engaged. Maybe if loop isn't engaged then
       // set this atom here.
       store.set(currentAudioStateAtom, 'stopped')
-      store.set(audioThingAtom, undefined)
     })
   }
 
