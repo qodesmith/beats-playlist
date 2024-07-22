@@ -1,10 +1,12 @@
 import type {WaveformStyle} from './WaveformCanvas'
 import type {TailwindColor} from '../../tailwindColors'
 
-import {useId} from 'react'
+import {useAtomValue} from 'jotai'
+import {useCallback, useId} from 'react'
 
 import {Cursor} from './Cursor'
 import {WaveformCanvas} from './WaveformCanvas'
+import {audioThingAtom} from '../../globalState'
 
 export function Visualizer({
   audioBuffer,
@@ -56,6 +58,7 @@ export function Visualizer({
   const canvasReflectionId = `${id}-waveform-reflection-canvas`
   const isReflection = style === 'reflection'
   const BAR_WIDTH = 1
+  const audioThing = useAtomValue(audioThingAtom)
 
   /**
    * When there's no audioBuffer we want to show a straight line. 0.5 ensures
@@ -63,8 +66,19 @@ export function Visualizer({
    */
   const MULTIPLIER = audioBuffer ? 0.7 : 0.5
 
+  const handleClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      const {width, left} = e.currentTarget.getBoundingClientRect()
+      const offsetX = e.clientX - left
+      const position = offsetX / width
+
+      audioThing?.setPlayPosition(position)
+    },
+    [audioThing]
+  )
+
   return (
-    <div className="relative">
+    <div className="relative" onClick={handleClick}>
       <WaveformCanvas
         canvasId={canvasId}
         width={waveformWidth}
