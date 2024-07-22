@@ -50,6 +50,7 @@ export function BeatList() {
               <div className={counterCls}>{i + 1}</div>
 
               {/* THUMBNAIL */}
+              {/* TODO - fix gray background on mobile (stretches vertically) */}
               <div
                 className="flex w-[40px] items-center justify-center overflow-hidden rounded"
                 onError={handleImageError}
