@@ -29,6 +29,9 @@ export class AudioThing {
     this.#pausedTime = 0
 
     store.set(audioThingAtom, this)
+
+    // TODO - use the rms value to adjust song volume for consistency btwn songs
+    console.log(this.#rms)
   }
 
   private createAudioSource() {
@@ -76,6 +79,9 @@ export class AudioThing {
 
   remove() {
     this.#audioContext.close().then(() => {
+      // TODO - don't set 'stopped' here - use this atom value to automatically
+      // play the next song if loop is engaged. Maybe if loop isn't engaged then
+      // set this atom here.
       store.set(currentAudioStateAtom, 'stopped')
       store.set(audioThingAtom, undefined)
     })
