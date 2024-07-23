@@ -28,20 +28,25 @@ export function BeatList() {
   }, [setAudioState])
 
   return (
-    <div className="flex flex-grow flex-col overflow-y-auto pb-4">
+    <div className="flex w-full flex-grow flex-col overflow-y-auto overflow-x-hidden pb-4">
       {metadata.map(
         (
           {id, title, channelName, dateAddedToPlaylist, durationInSeconds},
           i
         ) => {
           const isCurrentBeat = beatId === id
-          const counterCls = clsx('flex items-center justify-end', {
-            'opacity-50': !isCurrentBeat,
-            [highlightColorObj.text]: isCurrentBeat,
+          const counterCls = clsx(
+            'flex items-center justify-end hidden md:block',
+            {
+              'opacity-50': !isCurrentBeat,
+              [highlightColorObj.text]: isCurrentBeat,
+            }
+          )
+          const titleCls = clsx('w-full truncate', {
+            [highlightColorObj.text]: beatId === id,
           })
-          const titleCls = clsx(beatId === id && highlightColorObj.text)
           const containerCls = clsx(
-            'grid grid-cols-[4ch_44px_1fr] gap-4 md:grid-cols-[4ch_44px_1fr_10ch_5ch] rounded md:p-2 scroll-mt-10',
+            'grid grid-cols-[44px_1fr] gap-4 md:grid-cols-[4ch_44px_1fr_10ch_5ch] rounded py-2 md:p-2 scroll-mt-10',
             {
               'hover:bg-neutral-800': !isCurrentBeat,
               'bg-neutral-700': isCurrentBeat,
@@ -68,7 +73,7 @@ export function BeatList() {
               </div>
 
               {/* TITLE / ARTIST */}
-              <div className="flex flex-col items-start">
+              <div className="flex w-full flex-col items-start overflow-hidden">
                 <div className={titleCls}>{title}</div>
                 <div className="cursor-pointer p-0.5 pl-0 text-sm opacity-50 md:p-1 md:pl-0">
                   {channelName || <>&mdash;</>}
