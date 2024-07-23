@@ -14,7 +14,7 @@ export function RandomizeListButton({className}: {className?: string}) {
 
   useEffect(() => {
     const selectedBeatId = store.get(selectedBeatIdAtom)
-    scrollBeatIntoView(selectedBeatId)
+    scrollBeatIntoView(selectedBeatId, {behavior: 'instant'})
   }, [metadata])
 
   return (
