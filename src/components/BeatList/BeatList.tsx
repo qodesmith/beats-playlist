@@ -9,7 +9,7 @@ import {
   metadataAtom,
   selectedBeatIdAtom,
 } from '../../globalState'
-import {DotsVertical} from '../DotsVertical'
+import {TripleDots} from '../TripleDots'
 
 export function BeatList() {
   const metadata = useAtomValue(metadataAtom)
@@ -61,7 +61,7 @@ export function BeatList() {
               {/* COUNTER / DOTS */}
               <div className={counterCls}>{i + 1}</div>
               <button className="px-2 md:hidden">
-                <DotsVertical />
+                <TripleDots />
               </button>
 
               {/* THUMBNAIL */}
