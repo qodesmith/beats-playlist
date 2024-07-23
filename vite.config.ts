@@ -18,6 +18,7 @@ export default defineConfig(({command}) => ({
   clearScreen: false,
   server: {
     open: true,
+    host: '0.0.0.0',
     proxy: UNRAID_API
       ? {
           '/beats': UNRAID_API,
