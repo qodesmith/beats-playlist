@@ -9,6 +9,7 @@ import {
   metadataAtom,
   selectedBeatIdAtom,
 } from '../../globalState'
+import {scrollBeatIntoView} from '../../utils'
 import {TripleDots} from '../TripleDots'
 
 export function BeatList() {
@@ -54,6 +55,7 @@ export function BeatList() {
           const playBeat = () => {
             setPlaying()
             setBeatId(id)
+            scrollBeatIntoView(id, {behavior: 'smooth', block: 'nearest'})
           }
 
           return (
