@@ -12,6 +12,18 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   plugins: ['react-refresh', '@typescript-eslint', 'import'],
   rules: {
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      {
+        vars: 'all',
+        args: 'after-used',
+        ignoreRestSiblings: true,
+        varsIgnorePattern: '^_', // Ignore variables starting with _
+        argsIgnorePattern: '^_', // Ignore function arguments starting with _
+        caughtErrorsIgnorePattern: '^_', // Ignore caught errors starting with _
+        destructuredArrayIgnorePattern: '^_', // Ignore destructured array items starting with _
+      },
+    ],
     'react-refresh/only-export-components': [
       'warn',
       {allowConstantExport: true},
