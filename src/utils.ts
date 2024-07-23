@@ -102,7 +102,6 @@ export function getRandomBeatId() {
   const randomIndex = Math.floor(Math.random() * ids.length)
 
   const randomId = ids[randomIndex]
-  console.log({randomId})
   return randomId
 }
 
