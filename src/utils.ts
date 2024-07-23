@@ -116,6 +116,6 @@ export function scrollBeatIntoView(
   if (beatId) {
     document
       .getElementById(beatId)
-      ?.scrollIntoView(options ?? {behavior: 'smooth', block: 'center'})
+      ?.scrollIntoView({behavior: 'smooth', block: 'center', ...options})
   }
 }

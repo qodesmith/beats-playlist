@@ -24,13 +24,9 @@ type VideoWithIndex = Video & {index: number}
 
 export const metadataAtom = atom<VideoWithIndex[]>([])
 
-export const metadataObjAtom = atom<Record<string, VideoWithIndex>>(get => {
-  const metadata = get(metadataAtom)
-
-  return metadata.reduce<Record<string, VideoWithIndex>>((acc, item) => {
-    acc[item.id] = item
-    return acc
-  }, {})
+const metadataItemSelector = atom(get => {
+  const beatId = get(selectedBeatIdAtom)
+  return get(metadataAtom).find(v => v.id === beatId)
 })
 
 export const metadataStatsSelector = atom<{
@@ -67,12 +63,21 @@ const previousOrNextBeatAtom = atom(
         ? getRandomBeatId()
         : metadata.at(toLastBeat ? -1 : backToTop ? 0 : nextBeatIndex)?.id
       const audioThing = get(audioThingAtom)
+      const randomBeatIndex = get(metadataAtom).findIndex(
+        v => v.id === newBeatId
+      )
+      const indexDifference = Math.abs(
+        (isShuffling ? randomBeatIndex : nextBeatIndex) - currentBeatIndex
+      )
 
       // Ensure the previous audio is stopped before we continue to the new one.
       audioThing?.remove()
 
       // Use the power of the DOM to scroll smoothly to our beat!
-      scrollBeatIntoView(newBeatId)
+      scrollBeatIntoView(
+        newBeatId,
+        indexDifference < 10 ? undefined : {behavior: 'instant'}
+      )
 
       set(selectedBeatIdAtom, newBeatId)
     }
@@ -145,7 +150,7 @@ export const audioDataAtomFamily = atomFamily((id: string | undefined) => {
     const arrayBuffer = await res.arrayBuffer()
     const audioContext = new AudioContext()
     const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
-    const {lufs} = get(metadataObjAtom)[id]
+    const {lufs} = get(metadataItemSelector)!
 
     /**
      * Why don't we also return `audioContext` from this atom? Since it's
