@@ -59,8 +59,8 @@ function ControlsBody({baseSize}: {baseSize: number}) {
   const handleNext = useSetAtom(nextBeatAtom)
 
   return (
-    <div className="flex items-center justify-center gap-4">
-      <button onClick={handlePrevious}>
+    <div className="flex items-center justify-center gap-4 pb-4">
+      <button onClick={handlePrevious} className="p-1">
         <Previous size={baseSize * 3} fill={fill} />
       </button>
       <button onClick={() => audio?.togglePlay()}>
@@ -70,10 +70,13 @@ function ControlsBody({baseSize}: {baseSize: number}) {
           <Play size={baseSize * 4} circleFill={fill} />
         )}
       </button>
-      <button onClick={handleNext}>
-        <Next size={baseSize * 3} fill={fill} />
-      </button>
-      <RepeatButton />
+
+      <div className="relative flex items-center self-stretch">
+        <button onClick={handleNext} className="p-1">
+          <Next size={baseSize * 3} fill={fill} />
+        </button>
+        <RepeatButton />
+      </div>
     </div>
   )
 }

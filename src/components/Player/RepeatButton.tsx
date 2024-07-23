@@ -16,7 +16,10 @@ export function RepeatButton({
   const cycleRepeat = useSetAtom(cycleRepeatStateAtom)
 
   return (
-    <button onClick={forceDisabled ? undefined : cycleRepeat}>
+    <button
+      onClick={forceDisabled ? undefined : cycleRepeat}
+      className="absolute left-full top-0 ml-4 h-full p-1"
+    >
       <Repeat
         one={repeatState === 'single'}
         fill={repeatState === 'off' || forceDisabled ? disabledFill : fill}
