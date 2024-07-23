@@ -4,6 +4,7 @@ import {Suspense} from 'react'
 import {Next, Pause, Play, Previous} from './ControlIcons'
 import {RepeatButton} from './RepeatButton'
 import {
+  currentAudioStateAtom,
   nextBeatAtom,
   previousBeatAtom,
   selectedBeatIdAtom,
@@ -30,13 +31,18 @@ function DisabledControls({baseSize}: {baseSize: number}) {
   const fill = 'gray'
   const handlePrevious = useSetAtom(previousBeatAtom)
   const handleNext = useSetAtom(nextBeatAtom)
+  const playState = useAtomValue(currentAudioStateAtom)
 
   return (
     <div className="flex items-center justify-center gap-4">
       <button onClick={handlePrevious}>
         <Previous size={baseSize * 3} fill={fill} />
       </button>
-      <Play size={baseSize * 4} circleFill={fill} />
+      {playState === 'playing' ? (
+        <Pause size={baseSize * 4} circleFill={fill} />
+      ) : (
+        <Play size={baseSize * 4} circleFill={fill} />
+      )}
       <button onClick={handleNext}>
         <Next size={baseSize * 3} fill={fill} />
       </button>
