@@ -5,10 +5,12 @@ import {cycleRepeatStateAtom, repeatStateSelector} from '../../globalState'
 
 export function RepeatButton({
   fill,
+  size,
   disabledFill = 'gray',
   forceDisabled = false,
 }: {
   fill?: string
+  size?: number
   disabledFill?: string
   forceDisabled?: boolean
 }) {
@@ -16,13 +18,11 @@ export function RepeatButton({
   const cycleRepeat = useSetAtom(cycleRepeatStateAtom)
 
   return (
-    <button
-      onClick={forceDisabled ? undefined : cycleRepeat}
-      className="absolute left-full top-0 ml-4 h-full p-1"
-    >
+    <button onClick={forceDisabled ? undefined : cycleRepeat}>
       <Repeat
         one={repeatState === 'single'}
         fill={repeatState === 'off' || forceDisabled ? disabledFill : fill}
+        size={size}
       />
     </button>
   )
