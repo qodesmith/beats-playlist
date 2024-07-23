@@ -4,7 +4,7 @@ import {useCallback} from 'react'
 
 import {metadataAtom} from '../globalState'
 
-export function RandomizeListButton() {
+export function RandomizeListButton({className}: {className?: string}) {
   const setMetadata = useSetAtom(metadataAtom)
   const randomizeList = useCallback(() => {
     setMetadata(metadata => {
@@ -17,5 +17,9 @@ export function RandomizeListButton() {
     })
   }, [setMetadata])
 
-  return <button onClick={randomizeList}>🎲</button>
+  return (
+    <button onClick={randomizeList} className={className}>
+      🎲
+    </button>
+  )
 }
