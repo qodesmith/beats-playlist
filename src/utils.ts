@@ -28,13 +28,14 @@ export function secondsToPlainSentence(totalSeconds: number): string {
 
 export function calculateRMS(audioBuffer: AudioBuffer) {
   const data = audioBuffer.getChannelData(0)
+  const bufferLength = data.length
   let sum = 0
 
-  for (let i = 0; i < data.length; i++) {
+  for (let i = 0; i < bufferLength; i++) {
     sum += data[i] * data[i]
   }
 
-  return Math.sqrt(sum / data.length)
+  return Math.sqrt(sum / bufferLength)
 }
 
 /**
@@ -80,18 +81,4 @@ export function audioBufferToNumbers(
   const finalNumbers = averages.map(num => num / maxAvg)
 
   return finalNumbers
-}
-
-export function createAudioBufferSource({
-  audioContext,
-  audioBuffer,
-}: {
-  audioContext: AudioContext
-  audioBuffer: AudioBuffer
-}) {
-  const audioSource = audioContext.createBufferSource()
-  audioSource.buffer = audioBuffer
-  audioSource.connect(audioContext.destination)
-
-  return audioSource
 }
