@@ -3,12 +3,12 @@ import clsx from 'clsx'
 import {useAtom, useAtomValue, useSetAtom} from 'jotai'
 import {useCallback} from 'react'
 
-import {highlightColorObj} from '../constants'
+import {highlightColorObj} from '../../constants'
 import {
   currentAudioStateAtom,
   metadataAtom,
   selectedBeatIdAtom,
-} from '../globalState'
+} from '../../globalState'
 
 export function BeatList() {
   const metadata = useAtomValue(metadataAtom)
@@ -29,14 +29,6 @@ export function BeatList() {
 
   return (
     <div className="flex flex-grow flex-col overflow-y-auto pb-4">
-      {/* HEADER ROW */}
-      <div className="sticky top-0 z-50 grid h-[40px] flex-shrink-0 grid-cols-[4ch_40px_1fr] gap-4 rounded bg-[rgba(255,255,255,.1)] font-bold backdrop-blur-md backdrop-filter md:grid-cols-[4ch_40px_1fr_10ch_5ch] md:p-2">
-        <div className="flex items-center justify-end">#</div>
-        <div />
-        <div>Name</div>
-        <div className="text-end">Date Added</div>
-        <div>Time</div>
-      </div>
       {metadata.map(
         (
           {id, title, channelName, dateAddedToPlaylist, durationInSeconds},
@@ -49,41 +41,36 @@ export function BeatList() {
           })
           const titleCls = clsx(beatId === id && highlightColorObj.text)
           const containerCls = clsx(
-            'grid grid-cols-[4ch_40px_1fr] gap-4 md:grid-cols-[4ch_40px_1fr_10ch_5ch] rounded md:p-2 scroll-mt-10',
+            'grid grid-cols-[4ch_44px_1fr] gap-4 md:grid-cols-[4ch_44px_1fr_10ch_5ch] rounded md:p-2 scroll-mt-10',
             {
               'hover:bg-neutral-800': !isCurrentBeat,
               'bg-neutral-700': isCurrentBeat,
             }
           )
           const dateAdded = new Date(dateAddedToPlaylist).toLocaleDateString()
-          const loadWaveform = () => {
+          const playBeat = () => {
             setPlaying()
             setBeatId(id)
           }
 
           return (
-            <div
-              key={id}
-              id={id}
-              className={containerCls}
-              onClick={loadWaveform}
-            >
+            <div key={id} id={id} className={containerCls}>
               {/* COUNTER */}
               <div className={counterCls}>{i + 1}</div>
 
               {/* THUMBNAIL */}
-              {/* TODO - fix gray background on mobile (stretches vertically) */}
               <div
-                className="h-[40px] w-[40px] place-self-center overflow-hidden rounded"
+                className="h-11 w-11 cursor-pointer place-self-center overflow-hidden rounded"
                 onError={handleImageError}
+                onClick={playBeat}
               >
-                <img src={`/thumbnails/${id}[small]`} className="rounded" />
+                <img src={`/thumbnails/${id}[small]`} className="h-11 w-11" />
               </div>
 
               {/* TITLE / ARTIST */}
-              <div className="flex flex-col">
+              <div className="flex flex-col items-start">
                 <div className={titleCls}>{title}</div>
-                <div className="text-sm opacity-50">
+                <div className="cursor-pointer p-0.5 pl-0 text-sm opacity-50 md:p-1 md:pl-0">
                   {channelName || <>&mdash;</>}
                 </div>
               </div>
