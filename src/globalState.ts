@@ -73,7 +73,9 @@ const previousOrNextBeatAtom = atom(
       audioThing?.remove()
 
       // Use the power of the DOM to scroll smoothly to our beat!
-      document.getElementById(newBeatId)?.scrollIntoView({behavior: 'smooth'})
+      document
+        .getElementById(newBeatId)
+        ?.scrollIntoView({behavior: 'smooth', block: 'center'})
 
       set(selectedBeatIdAtom, newBeatId)
     }

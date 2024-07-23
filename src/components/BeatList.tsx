@@ -21,6 +21,14 @@ export function BeatList() {
 
   return (
     <div className="flex flex-grow flex-col overflow-y-auto pb-4">
+      {/* HEADER ROW */}
+      <div className="sticky top-0 z-50 grid h-[40px] flex-shrink-0 grid-cols-[4ch_40px_1fr] gap-4 rounded bg-[rgba(255,255,255,.1)] font-bold backdrop-blur-md backdrop-filter md:grid-cols-[4ch_40px_1fr_10ch_5ch] md:p-2">
+        <div className="flex items-center justify-end">#</div>
+        <div />
+        <div>Name</div>
+        <div className="text-end">Date Added</div>
+        <div>Time</div>
+      </div>
       {metadata.map(
         (
           {id, title, channelName, dateAddedToPlaylist, durationInSeconds},
@@ -33,7 +41,7 @@ export function BeatList() {
           })
           const titleCls = clsx(beatId === id && highlightColorObj.text)
           const containerCls = clsx(
-            'grid grid-cols-[4ch_40px_1fr] gap-4 md:grid-cols-[4ch_40px_1fr_10ch_5ch] rounded md:p-2',
+            'grid grid-cols-[4ch_40px_1fr] gap-4 md:grid-cols-[4ch_40px_1fr_10ch_5ch] rounded md:p-2 scroll-mt-10',
             {
               'hover:bg-neutral-800': !isCurrentBeat,
               'bg-neutral-700': isCurrentBeat,
