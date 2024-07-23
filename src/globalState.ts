@@ -91,9 +91,9 @@ export const nextBeatAtom = atom(null, (_get, set) => {
   set(previousOrNextBeatAtom, 'next')
 })
 
-////////////
-// REPEAT //
-////////////
+//////////////
+// CONTROLS //
+//////////////
 
 const repeatStates = ['off', 'on', 'single'] as const
 
@@ -113,6 +113,15 @@ export const cycleRepeatStateAtom = atom(null, (get, set) => {
 
   set(repeatStateAtom, nextState)
   audioThing?.setRepeat(nextState === 'single')
+})
+
+const shuffleStateAtom = atomWithStorage<boolean>('shuffleState', false)
+
+export const shuffleStateSelector = atom(get => get(shuffleStateAtom))
+
+export const toggleShuffleAtom = atom(null, (get, set) => {
+  const currentShuffleState = get(shuffleStateAtom)
+  set(shuffleStateAtom, !currentShuffleState)
 })
 
 ////////////////////
