@@ -9,6 +9,7 @@ import {
   metadataAtom,
   selectedBeatIdAtom,
 } from '../../globalState'
+import {DotsVertical} from '../DotsVertical'
 
 export function BeatList() {
   const metadata = useAtomValue(metadataAtom)
@@ -35,23 +36,20 @@ export function BeatList() {
           i
         ) => {
           const isCurrentBeat = beatId === id
-          const counterCls = clsx(
-            'flex items-center justify-end hidden md:block',
+          const containerCls = clsx(
+            'grid grid-cols-[auto_44px_1fr] gap-2 md:gap-4 md:grid-cols-[4ch_44px_1fr_10ch_5ch] rounded py-2 md:p-2 scroll-mt-10',
             {
-              'opacity-50': !isCurrentBeat,
-              [highlightColorObj.text]: isCurrentBeat,
+              'md:hover:bg-neutral-800': !isCurrentBeat,
+              'md:bg-neutral-700': isCurrentBeat,
             }
           )
+          const counterCls = clsx('hidden md:flex items-center justify-end', {
+            'opacity-50': !isCurrentBeat,
+            [highlightColorObj.text]: isCurrentBeat,
+          })
           const titleCls = clsx('w-full truncate', {
             [highlightColorObj.text]: beatId === id,
           })
-          const containerCls = clsx(
-            'grid grid-cols-[44px_1fr] gap-4 md:grid-cols-[4ch_44px_1fr_10ch_5ch] rounded py-2 md:p-2 scroll-mt-10',
-            {
-              'hover:bg-neutral-800': !isCurrentBeat,
-              'bg-neutral-700': isCurrentBeat,
-            }
-          )
           const dateAdded = new Date(dateAddedToPlaylist).toLocaleDateString()
           const playBeat = () => {
             setPlaying()
@@ -60,8 +58,11 @@ export function BeatList() {
 
           return (
             <div key={id} id={id} className={containerCls}>
-              {/* COUNTER */}
+              {/* COUNTER / DOTS */}
               <div className={counterCls}>{i + 1}</div>
+              <button className="px-2 md:hidden">
+                <DotsVertical />
+              </button>
 
               {/* THUMBNAIL */}
               <div
