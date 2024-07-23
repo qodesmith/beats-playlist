@@ -1,8 +1,9 @@
 import {useAtomValue, useSetAtom} from 'jotai'
 import {Suspense} from 'react'
 
-import {Next, Pause, Play, Previous, Shuffle} from './ControlIcons'
+import {Next, Pause, Play, Previous} from './ControlIcons'
 import {RepeatButton} from './RepeatButton'
+import {ShuffleButton} from './ShuffleButton'
 import {
   currentAudioStateAtom,
   nextBeatAtom,
@@ -59,11 +60,11 @@ function ControlsBody({baseSize}: {baseSize: number}) {
   const handleNext = useSetAtom(nextBeatAtom)
 
   return (
-    // <div className="flex items-center justify-center gap-4 pb-4">
     <div className="grid grid-cols-[repeat(5,32px)] justify-center gap-4 pb-4">
-      <button className="flex w-full items-center justify-center">
-        <Shuffle size={baseSize * 3 * 0.7} />
-      </button>
+      <ShuffleButton
+        baseSize={baseSize}
+        className="flex w-full items-center justify-center"
+      />
       <button onClick={handlePrevious}>
         <Previous size={baseSize * 3} fill={fill} />
       </button>
