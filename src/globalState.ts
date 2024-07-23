@@ -63,7 +63,10 @@ const previousOrNextBeatAtom = atom(
       const nextBeatIndex = currentBeatIndex + value
       const metadata = get(metadataAtom)
       const backToTop = nextBeatIndex === metadata.length
-      const newBeatId = metadata[backToTop ? 0 : nextBeatIndex].id
+      const toLastBeat = nextBeatIndex < 0
+      const newBeatId = metadata.at(
+        toLastBeat ? -1 : backToTop ? 0 : nextBeatIndex
+      )!.id
       const audioThing = get(audioThingAtom)
 
       // Ensure the previous audio is stopped before we continue to the new one.
@@ -81,6 +84,7 @@ export const previousBeatAtom = atom(null, (_get, set) => {
   set(previousOrNextBeatAtom, 'previous')
 })
 
+// TODO - rename to `setNextBeatAtom` and others
 export const nextBeatAtom = atom(null, (_get, set) => {
   set(previousOrNextBeatAtom, 'next')
 })
