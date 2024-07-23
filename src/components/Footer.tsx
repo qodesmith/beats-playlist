@@ -3,7 +3,7 @@ import {Waveform} from './Player/Waveform'
 
 export function Footer() {
   return (
-    <footer className="h-[130px]">
+    <footer>
       <div className="h-[100px]">
         <Waveform />
       </div>
