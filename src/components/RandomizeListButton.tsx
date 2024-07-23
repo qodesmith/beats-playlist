@@ -1,21 +1,21 @@
 import {shuffleArray} from '@qodestack/utils'
-import {useSetAtom} from 'jotai'
-import {useCallback} from 'react'
+import {useAtom} from 'jotai'
+import {useCallback, useEffect} from 'react'
 
-import {metadataAtom} from '../globalState'
+import {metadataAtom, selectedBeatIdAtom} from '../globalState'
+import {store} from '../store'
+import {scrollBeatIntoView} from '../utils'
 
 export function RandomizeListButton({className}: {className?: string}) {
-  const setMetadata = useSetAtom(metadataAtom)
+  const [metadata, setMetadata] = useAtom(metadataAtom)
   const randomizeList = useCallback(() => {
-    setMetadata(metadata => {
-      const shuffledArray = shuffleArray(metadata)
-      shuffledArray.forEach((item, i) => {
-        item.index = i
-      })
-
-      return shuffledArray
-    })
+    setMetadata(metadata => shuffleArray(metadata))
   }, [setMetadata])
+
+  useEffect(() => {
+    const selectedBeatId = store.get(selectedBeatIdAtom)
+    scrollBeatIntoView(selectedBeatId)
+  }, [metadata])
 
   return (
     <button onClick={randomizeList} className={className}>

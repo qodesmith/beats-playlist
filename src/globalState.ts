@@ -4,7 +4,11 @@ import type {Video} from '@qodestack/dl-yt-playlist'
 import {atom} from 'jotai'
 import {atomFamily, atomWithStorage, loadable} from 'jotai/utils'
 
-import {getRandomBeatId, secondsToPlainSentence} from './utils'
+import {
+  getRandomBeatId,
+  scrollBeatIntoView,
+  secondsToPlainSentence,
+} from './utils'
 
 ////////////////////////
 // APP INITIALIZATION //
@@ -44,39 +48,31 @@ export const metadataStatsSelector = atom<{
 
 export const selectedBeatIdAtom = atom<string>()
 
-export const selectedBeatIndexAtom = atom<number | undefined>(get => {
-  const metadataObj = get(metadataObjAtom)
-  const beatId = get(selectedBeatIdAtom)
-
-  if (beatId) {
-    return metadataObj[beatId].index
-  }
-})
-
 const previousOrNextBeatAtom = atom(
   null,
   (get, set, type: 'previous' | 'next') => {
     const value = type === 'next' ? 1 : -1
-    const currentBeatIndex = get(selectedBeatIndexAtom)
+    const metadata = get(metadataAtom)
+    const selectedBeatId = get(selectedBeatIdAtom)
+    const currentBeatIndex = selectedBeatId
+      ? metadata.findIndex(v => v.id === selectedBeatId)
+      : undefined
 
-    if (currentBeatIndex !== undefined) {
+    if (currentBeatIndex !== undefined && currentBeatIndex !== -1) {
       const nextBeatIndex = currentBeatIndex + value
-      const metadata = get(metadataAtom)
       const backToTop = nextBeatIndex === metadata.length
       const toLastBeat = nextBeatIndex < 0
       const isShuffling = get(shuffleStateSelector)
       const newBeatId = isShuffling
         ? getRandomBeatId()
-        : metadata.at(toLastBeat ? -1 : backToTop ? 0 : nextBeatIndex)!.id
+        : metadata.at(toLastBeat ? -1 : backToTop ? 0 : nextBeatIndex)?.id
       const audioThing = get(audioThingAtom)
 
       // Ensure the previous audio is stopped before we continue to the new one.
       audioThing?.remove()
 
       // Use the power of the DOM to scroll smoothly to our beat!
-      document
-        .getElementById(newBeatId)
-        ?.scrollIntoView({behavior: 'smooth', block: 'center'})
+      scrollBeatIntoView(newBeatId)
 
       set(selectedBeatIdAtom, newBeatId)
     }
@@ -129,9 +125,10 @@ export const toggleShuffleAtom = atom(null, (get, set) => {
 // SIZE CONTAINER //
 ////////////////////
 
-// We don't actually use the `_id` param. Jotai uses it under the hood to
-// identity the various atoms in the family. It's for tracking purposes only.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+/**
+ * Jotai uses the `_id` param under the hood to identify the various atoms in
+ * the family. It's for tracking purposes only so we don't consume it.
+ */
 export const sizeContainerAtomFamily = atomFamily((_id: string) => {
   return atom({width: 0, height: 0})
 })

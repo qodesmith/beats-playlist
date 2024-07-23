@@ -105,3 +105,17 @@ export function getRandomBeatId() {
   console.log({randomId})
   return randomId
 }
+
+/**
+ * Scroll a beat into view.
+ */
+export function scrollBeatIntoView(
+  beatId: string | undefined,
+  options?: ScrollIntoViewOptions
+) {
+  if (beatId) {
+    document
+      .getElementById(beatId)
+      ?.scrollIntoView(options ?? {behavior: 'smooth', block: 'center'})
+  }
+}
