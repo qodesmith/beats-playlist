@@ -4,7 +4,7 @@ import type {Video} from '@qodestack/dl-yt-playlist'
 import {atom} from 'jotai'
 import {atomFamily, atomWithStorage, loadable} from 'jotai/utils'
 
-import {secondsToPlainSentence} from './utils'
+import {getRandomBeatId, secondsToPlainSentence} from './utils'
 
 ////////////////////////
 // APP INITIALIZATION //
@@ -64,9 +64,10 @@ const previousOrNextBeatAtom = atom(
       const metadata = get(metadataAtom)
       const backToTop = nextBeatIndex === metadata.length
       const toLastBeat = nextBeatIndex < 0
-      const newBeatId = metadata.at(
-        toLastBeat ? -1 : backToTop ? 0 : nextBeatIndex
-      )!.id
+      const isShuffling = get(shuffleStateSelector)
+      const newBeatId = isShuffling
+        ? getRandomBeatId()
+        : metadata.at(toLastBeat ? -1 : backToTop ? 0 : nextBeatIndex)!.id
       const audioThing = get(audioThingAtom)
 
       // Ensure the previous audio is stopped before we continue to the new one.
