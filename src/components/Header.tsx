@@ -1,6 +1,6 @@
 import {useAtomValue} from 'jotai'
-import {Suspense} from 'react'
 
+import {RandomizeListButton} from './RandomizeListButton'
 import {metadataStatsSelector} from '../globalState'
 
 export function Header() {
@@ -9,10 +9,9 @@ export function Header() {
       <h1 className="text-5xl font-bold">Beats Playlist</h1>
       <div className="text-sm">
         <p className="italic opacity-50">Dope beats from YouTube</p>
-        <Suspense fallback="Loading stats...">
-          <HeaderMetadataStats />
-        </Suspense>
+        <HeaderMetadataStats />
       </div>
+      <RandomizeListButton />
     </header>
   )
 }
