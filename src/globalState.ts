@@ -64,6 +64,13 @@ const previousOrNextBeatAtom = atom(
       const metadata = get(metadataAtom)
       const backToTop = nextBeatIndex === metadata.length
       const newBeatId = metadata[backToTop ? 0 : nextBeatIndex].id
+      const audioThing = get(audioThingAtom)
+
+      // Ensure the previous audio is stopped before we continue to the new one.
+      audioThing?.remove()
+
+      // Use the power of the DOM to scroll smoothly to our beat!
+      document.getElementById(newBeatId)?.scrollIntoView({behavior: 'smooth'})
 
       set(selectedBeatIdAtom, newBeatId)
     }
