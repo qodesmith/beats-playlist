@@ -42,7 +42,7 @@ export const metadataStatsSelector = atom<{
   return {totalTime: secondsToPlainSentence(totalSeconds), totalBeats}
 })
 
-export const selectedBeatIdAtom = atom<string | undefined>(undefined)
+export const selectedBeatIdAtom = atom<string>()
 
 export const selectedBeatIndexAtom = atom<number | undefined>(get => {
   const metadataObj = get(metadataObjAtom)
@@ -165,4 +165,4 @@ export function getAudioDataLoadableAtomFamily(id: string | undefined) {
 
 export const currentAudioStateAtom = atom<'stopped' | 'playing'>('stopped')
 
-export const audioThingAtom = atom<AudioThing | undefined>(undefined)
+export const audioThingAtom = atom<AudioThing>()
