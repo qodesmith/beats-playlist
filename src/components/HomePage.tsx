@@ -2,7 +2,7 @@ import {AnimatePresence, motion} from 'framer-motion'
 import {useAtomValue} from 'jotai'
 
 import {AudioLoader} from './AudioLoader'
-import {BeatList} from './BeatList'
+import {BeatList} from './BeatList/BeatList'
 import {Footer} from './Footer'
 import {Header} from './Header'
 import {isAppInitializedAtom} from '../globalState'
