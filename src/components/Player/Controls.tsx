@@ -29,25 +29,28 @@ export function Controls({
 }
 
 function DisabledControls({baseSize}: {baseSize: number}) {
-  const fill = 'gray'
   const handlePrevious = useSetAtom(previousBeatAtom)
   const handleNext = useSetAtom(nextBeatAtom)
   const playState = useAtomValue(currentAudioStateAtom)
 
   return (
-    <div className="flex items-center justify-center gap-4">
+    <div className="grid grid-cols-[repeat(5,32px)] justify-center gap-4 pb-4">
+      <ShuffleButton
+        baseSize={baseSize}
+        className="flex w-full items-center justify-center"
+      />
       <button onClick={handlePrevious}>
-        <Previous size={baseSize * 3} fill={fill} />
+        <Previous size={baseSize * 3} />
       </button>
       {playState === 'playing' ? (
-        <Pause size={baseSize * 4} circleFill={fill} />
+        <Pause size={baseSize * 4} circleFill="gray" />
       ) : (
-        <Play size={baseSize * 4} circleFill={fill} />
+        <Play size={baseSize * 4} circleFill="gray" />
       )}
       <button onClick={handleNext}>
-        <Next size={baseSize * 3} fill={fill} />
+        <Next size={baseSize * 3} />
       </button>
-      <RepeatButton forceDisabled />
+      <RepeatButton size={baseSize * 2.5 * 0.9} />
     </div>
   )
 }

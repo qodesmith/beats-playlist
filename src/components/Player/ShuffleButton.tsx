@@ -12,7 +12,7 @@ export function ShuffleButton({
 }: {
   baseSize?: number
   disabledFill?: string
-  forceDisabled?: string
+  forceDisabled?: boolean
   fill?: string
   className?: string
 }) {
