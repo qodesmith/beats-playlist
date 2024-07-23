@@ -15,7 +15,8 @@ document.body.classList.add(
   'text-white',
 
   // Other styles.
-  'p-4',
+  'p-2',
+  'md:p-2',
   'bg-gradient-to-b',
   'from-neutral-900',
   'to-black',
