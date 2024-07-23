@@ -33,7 +33,7 @@ export function BeatList() {
           })
           const titleCls = clsx(beatId === id && highlightColorObj.text)
           const containerCls = clsx(
-            'grid grid-cols-[4ch_40px_1fr_10ch_5ch] gap-4 rounded p-2',
+            'grid grid-cols-[4ch_40px_1fr] gap-4 md:grid-cols-[4ch_40px_1fr_10ch_5ch] rounded md:p-2',
             {
               'hover:bg-neutral-800': !isCurrentBeat,
               'bg-neutral-700': isCurrentBeat,
@@ -45,14 +45,19 @@ export function BeatList() {
           }
 
           return (
-            <div key={id} className={containerCls} onClick={loadWaveform}>
+            <div
+              key={id}
+              id={id}
+              className={containerCls}
+              onClick={loadWaveform}
+            >
               {/* COUNTER */}
               <div className={counterCls}>{i + 1}</div>
 
               {/* THUMBNAIL */}
               {/* TODO - fix gray background on mobile (stretches vertically) */}
               <div
-                className="flex w-[40px] items-center justify-center overflow-hidden rounded"
+                className="h-[40px] w-[40px] place-self-center overflow-hidden rounded"
                 onError={handleImageError}
               >
                 <img src={`/thumbnails/${id}[small]`} className="rounded" />
@@ -67,10 +72,12 @@ export function BeatList() {
               </div>
 
               {/* DATE ADDED */}
-              <div className="flex items-center justify-end">{dateAdded}</div>
+              <div className="hidden items-center justify-end md:flex">
+                {dateAdded}
+              </div>
 
               {/* DURATION */}
-              <div className="flex items-center justify-start">
+              <div className="hidden items-center justify-start md:flex">
                 {secondsToDuration(durationInSeconds)}
               </div>
             </div>
