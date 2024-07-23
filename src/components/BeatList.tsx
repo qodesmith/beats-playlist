@@ -1,10 +1,14 @@
 import {secondsToDuration} from '@qodestack/utils'
 import clsx from 'clsx'
-import {useAtom, useAtomValue} from 'jotai'
+import {useAtom, useAtomValue, useSetAtom} from 'jotai'
 import {useCallback} from 'react'
 
 import {highlightColorObj} from '../constants'
-import {metadataAtom, selectedBeatIdAtom} from '../globalState'
+import {
+  currentAudioStateAtom,
+  metadataAtom,
+  selectedBeatIdAtom,
+} from '../globalState'
 
 export function BeatList() {
   const metadata = useAtomValue(metadataAtom)
@@ -18,6 +22,10 @@ export function BeatList() {
     },
     []
   )
+  const setAudioState = useSetAtom(currentAudioStateAtom)
+  const setPlaying = useCallback(() => {
+    setAudioState('playing')
+  }, [setAudioState])
 
   return (
     <div className="flex flex-grow flex-col overflow-y-auto pb-4">
@@ -49,6 +57,7 @@ export function BeatList() {
           )
           const dateAdded = new Date(dateAddedToPlaylist).toLocaleDateString()
           const loadWaveform = () => {
+            setPlaying()
             setBeatId(id)
           }
 
