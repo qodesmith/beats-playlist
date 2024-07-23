@@ -2,7 +2,12 @@ import type {audioDataAtomFamily} from './globalState'
 import type {ExtractAtomValue} from 'jotai'
 
 import {TARGET_LUFS} from './constants'
-import {audioThingAtom, currentAudioStateAtom} from './globalState'
+import {
+  audioThingAtom,
+  currentAudioStateAtom,
+  nextBeatAtom,
+  repeatStateSelector,
+} from './globalState'
 import {store} from './store'
 
 type AudioThingInput = NonNullable<
@@ -41,8 +46,28 @@ export class AudioThing {
   private createAudioSource() {
     const audioSource = this.#audioContext.createBufferSource()
     audioSource.buffer = this.#audioBuffer
+    audioSource.onended = () => this.onEnded()
 
     return audioSource
+  }
+
+  private onEnded() {
+    const {duration} = this.#audioBuffer
+    const {currentTime} = this.#audioContext
+    const actualEndTime = currentTime - this.#startTime + this.#pausedTime
+    const songHasEnded = actualEndTime >= duration
+    const repeatState = store.get(repeatStateSelector)
+
+    if (songHasEnded) {
+      if (repeatState === 'on') {
+        store.set(nextBeatAtom)
+      } else if (repeatState === 'single') {
+        this.setPlayPosition(0)
+      } else {
+        store.set(currentAudioStateAtom, 'stopped')
+        this.setPlayPosition(0)
+      }
+    }
   }
 
   private connectAudioSource() {
