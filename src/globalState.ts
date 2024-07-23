@@ -4,7 +4,7 @@ import type {Video} from '@qodestack/dl-yt-playlist'
 import {atom} from 'jotai'
 import {atomFamily, atomWithStorage, loadable} from 'jotai/utils'
 
-import {calculateRMS, secondsToPlainSentence} from './utils'
+import {secondsToPlainSentence} from './utils'
 
 ////////////////////////
 // APP INITIALIZATION //
@@ -118,14 +118,14 @@ export const sizeContainerAtomFamily = atomFamily((_id: string) => {
 ////////////////
 
 export const audioDataAtomFamily = atomFamily((id: string | undefined) => {
-  return atom(async () => {
+  return atom(async get => {
     if (id === undefined) return undefined
 
     const res = await fetch(`/beats/${id}`)
     const arrayBuffer = await res.arrayBuffer()
     const audioContext = new AudioContext()
     const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
-    const rms = calculateRMS(audioBuffer)
+    const {lufs} = get(metadataObjAtom)[id]
 
     /**
      * Why don't we also return `audioContext` from this atom? Since it's
@@ -133,7 +133,7 @@ export const audioDataAtomFamily = atomFamily((id: string | undefined) => {
      * beat again. This will throw errors in the console. Instead, we let
      * consumers create their own audioContext if need be.
      */
-    return {audioBuffer, rms}
+    return {audioBuffer, lufs}
   })
 })
 
