@@ -20,8 +20,7 @@ document.body.classList.add(
   'bg-gradient-to-b',
   'from-neutral-900',
   'to-black',
-  'h-full',
-  'overflow-hidden'
+  'h-full'
 )
 const root = document.getElementById('root')!
 root.classList.add('h-full')
