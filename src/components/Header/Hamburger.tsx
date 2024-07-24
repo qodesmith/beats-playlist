@@ -1,14 +1,16 @@
 import clsx from 'clsx'
+import {useAtomValue} from 'jotai'
+
+import {isMenuOpenAtom} from '../../globalState'
 
 export function Hamburger({
-  isOpen,
   size = 30,
   fill = 'white',
 }: {
-  isOpen: boolean
   size?: number
   fill?: string
 }) {
+  const isOpen = useAtomValue(isMenuOpenAtom)
   const baseCls = 'transition-all duration-200 origin-center'
   const outerBase = 'translate-x-1/2 w-0 opacity-0'
   const topCls = clsx(baseCls, {

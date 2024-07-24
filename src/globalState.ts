@@ -169,3 +169,9 @@ export function getAudioDataLoadableAtomFamily(id: string | undefined) {
 export const currentAudioStateAtom = atom<'stopped' | 'playing'>('stopped')
 
 export const audioThingAtom = atom<AudioThing>()
+
+//////////
+// MENU //
+//////////
+
+export const isMenuOpenAtom = atom<boolean>(false)
