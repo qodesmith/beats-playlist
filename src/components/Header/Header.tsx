@@ -1,6 +1,6 @@
 import {useAtomValue} from 'jotai'
 
-import {MenuButton} from './MenuButton'
+import {HeaderButtonAndMenu} from './HeaderButtonAndMenu'
 import {RandomizeListButton} from './RandomizeListButton'
 import {metadataStatsSelector} from '../../globalState'
 
@@ -16,7 +16,7 @@ export function Header() {
       </div>
       <div className="flex h-10 gap-2">
         <RandomizeListButton />
-        <MenuButton />
+        <HeaderButtonAndMenu />
       </div>
     </header>
   )
