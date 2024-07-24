@@ -78,7 +78,7 @@ export function BeatList() {
               {/* TITLE / ARTIST */}
               <div className="flex w-full flex-col items-start overflow-hidden">
                 <div className={titleCls}>{title}</div>
-                <div className="cursor-pointer p-0.5 pl-0 text-sm opacity-50 md:p-1 md:pl-0">
+                <div className="cursor-pointer p-0.5 pl-0 text-sm text-neutral-500 md:p-1 md:pl-0">
                   {channelName || <>&mdash;</>}
                 </div>
               </div>
