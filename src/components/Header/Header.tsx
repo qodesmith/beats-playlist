@@ -23,13 +23,17 @@ export function Header() {
 }
 
 function HeaderMetadataStats() {
-  const {totalBeats, totalTime} = useAtomValue(metadataStatsSelector)
+  const {totalBeats, totalTime, artistCount} = useAtomValue(
+    metadataStatsSelector
+  )
 
   return (
     <div className="flex gap-3 opacity-50">
-      <div>{totalBeats} beats</div>
+      <div className="text-nowrap">{totalBeats} beats</div>
       <div>|</div>
-      <div>{totalTime}</div>
+      <div className="text-nowrap">{artistCount} artists</div>
+      <div>|</div>
+      <div className="text-nowrap">{totalTime}</div>
     </div>
   )
 }

@@ -29,17 +29,41 @@ const metadataItemSelector = atom(get => {
   return get(metadataAtom).find(v => v.id === beatId)
 })
 
-export const metadataStatsSelector = atom<{
-  totalBeats: number
-  totalTime: string
-}>(get => {
+export const metadataStatsSelector = atom(get => {
   const metadata = get(metadataAtom)
   const totalBeats = metadata.length
   const totalSeconds = metadata.reduce<number>((acc, beat) => {
     return acc + beat.durationInSeconds
   }, 0)
+  const {artistCount} = get(artistStatsSelector)
 
-  return {totalTime: secondsToPlainSentence(totalSeconds), totalBeats}
+  return {
+    totalTime: secondsToPlainSentence({totalSeconds, excludeSeconds: true}),
+    totalBeats,
+    artistCount,
+  }
+})
+
+export const artistStatsSelector = atom(get => {
+  const metadata = get(metadataAtom)
+  const artistsDataObj = metadata.reduce<Record<string, number>>(
+    (acc, {channelName}) => {
+      if (!acc[channelName]) {
+        acc[channelName] = 0
+      }
+
+      acc[channelName]++
+
+      return acc
+    },
+    {}
+  )
+  const artistData = Object.entries(artistsDataObj)
+    .map(([name, count]) => ({name, count}))
+    .sort((a, b) => b.count - a.count)
+  const artistCount = artistData.length
+
+  return {artistCount, artistData}
 })
 
 export const selectedBeatIdAtom = atom<string>()

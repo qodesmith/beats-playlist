@@ -3,7 +3,13 @@ import {pluralize} from '@qodestack/utils'
 import {metadataAtom, selectedBeatIdAtom} from './globalState'
 import {store} from './store'
 
-export function secondsToPlainSentence(totalSeconds: number): string {
+export function secondsToPlainSentence({
+  totalSeconds,
+  excludeSeconds,
+}: {
+  totalSeconds: number
+  excludeSeconds?: boolean
+}): string {
   if (totalSeconds < 0) {
     throw new Error('Input must be a non-negative number')
   }
@@ -22,7 +28,7 @@ export function secondsToPlainSentence(totalSeconds: number): string {
     parts.push(pluralize(minutes, 'minute'))
   }
 
-  if (seconds > 0 || parts.length === 0) {
+  if (!excludeSeconds && (seconds > 0 || parts.length === 0)) {
     parts.push(pluralize(seconds, 'second'))
   }
 
