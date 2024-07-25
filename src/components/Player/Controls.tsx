@@ -34,7 +34,7 @@ function DisabledControls({baseSize}: {baseSize: number}) {
   const playState = useAtomValue(currentAudioStateAtom)
 
   return (
-    <div className="grid grid-cols-[repeat(5,32px)] justify-center gap-4 pb-4">
+    <div className="grid grid-cols-[repeat(5,1fr)] place-items-center justify-center gap-4 pb-4 md:grid-cols-[repeat(5,32px)]">
       <ShuffleButton
         baseSize={baseSize}
         className="flex w-full items-center justify-center"
