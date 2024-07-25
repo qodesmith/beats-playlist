@@ -8,6 +8,7 @@ import {Cursor} from './Cursor'
 import {WaveformCanvas} from './WaveformCanvas'
 import {audioThingAtom} from '../../globalState'
 
+// TODO - implement an oscilloscope with the Web Audio API - https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Visualizations_with_Web_Audio_API
 export function Visualizer({
   audioBuffer,
   style,
