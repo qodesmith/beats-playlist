@@ -15,6 +15,8 @@ type AudioThingInput = NonNullable<
 >
 
 export class AudioThing {
+  // @ts-expect-error - the id is for dev purposes only
+  #id: number
   #audioContext: AudioContext
   #audioBuffer: AudioBuffer
   #lufs: number | null
@@ -27,6 +29,7 @@ export class AudioThing {
     const audioContext = new AudioContext()
     const {audioBuffer, lufs} = data
 
+    this.#id = Math.random()
     this.#audioContext = audioContext
     this.#audioBuffer = audioBuffer
     this.#lufs = lufs
