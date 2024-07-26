@@ -7,12 +7,10 @@ export function ShuffleButton({
   baseSize = 8,
   fill = 'white',
   disabledFill = 'gray',
-  forceDisabled,
   className,
 }: {
   baseSize?: number
   disabledFill?: string
-  forceDisabled?: boolean
   fill?: string
   className?: string
 }) {
@@ -23,7 +21,7 @@ export function ShuffleButton({
     <button className={className} onClick={toggleShuffle}>
       <Shuffle
         size={baseSize * 3 * 0.7}
-        fill={!toggleState || forceDisabled ? disabledFill : fill}
+        fill={!toggleState ? disabledFill : fill}
       />
     </button>
   )
