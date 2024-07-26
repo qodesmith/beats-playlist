@@ -1,14 +1,14 @@
 import {pluralize} from '@qodestack/utils'
 
-import {metadataAtom, selectedBeatIdAtom} from './globalState'
+import {metadataSelector, selectedBeatIdAtom} from './globalState'
 import {store} from './store'
 
 export function secondsToPlainSentence({
   totalSeconds,
-  excludeSeconds,
+  excluded = [],
 }: {
   totalSeconds: number
-  excludeSeconds?: boolean
+  excluded?: ('hour' | 'minute' | 'second')[]
 }): string {
   if (totalSeconds < 0) {
     throw new Error('Input must be a non-negative number')
@@ -21,15 +21,21 @@ export function secondsToPlainSentence({
   const parts: string[] = []
 
   if (hours > 0) {
-    parts.push(pluralize(hours, 'hour'))
+    if (!excluded.includes('hour')) {
+      parts.push(pluralize(hours, 'hour'))
+    }
   }
 
   if (minutes > 0) {
-    parts.push(pluralize(minutes, 'minute'))
+    if (!excluded.includes('minute')) {
+      parts.push(pluralize(minutes, 'minute'))
+    }
   }
 
-  if (!excludeSeconds && (seconds > 0 || parts.length === 0)) {
-    parts.push(pluralize(seconds, 'second'))
+  if (seconds > 0 || parts.length === 0) {
+    if (!excluded.includes('second')) {
+      parts.push(pluralize(seconds, 'second'))
+    }
   }
 
   return parts.join(', ')
@@ -97,7 +103,7 @@ export function audioBufferToNumbers(
  */
 export function getRandomBeatId() {
   const selectedId = store.get(selectedBeatIdAtom)
-  const ids = store.get(metadataAtom).reduce<string[]>((acc, item) => {
+  const ids = store.get(metadataSelector).reduce<string[]>((acc, item) => {
     // Ensure we don't pick the currently selected id.
     if (selectedId !== item.id) {
       acc.push(item.id)
