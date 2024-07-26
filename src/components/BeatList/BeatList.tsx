@@ -78,7 +78,11 @@ export function BeatList() {
                 <div className={titleCls}>{title}</div>
                 <div
                   className={artistCls}
-                  onClick={() => setSelectedArtist(channelName)}
+                  onClick={() => {
+                    setSelectedArtist(v => {
+                      return v === undefined ? channelName : undefined
+                    })
+                  }}
                 >
                   {channelName || <>&mdash;</>}
                 </div>
