@@ -6,6 +6,7 @@ import {BeatList} from './BeatList/BeatList'
 import {Footer} from './Footer'
 import {Header} from './Header/Header'
 import {isAppInitializedAtom} from '../globalState'
+import {NowPlaying} from './NowPlaying'
 
 const duration = 0.5
 const opacity0 = {opacity: 0}
@@ -26,6 +27,7 @@ export function HomePage() {
           transition={{duration}}
         >
           <Header />
+          <NowPlaying />
           <BeatList />
           <Footer />
         </motion.div>
