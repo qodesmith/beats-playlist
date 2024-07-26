@@ -279,21 +279,41 @@ export const sizeContainerAtomFamily = atomFamily((_id: string) => {
 ////////////////
 
 export const audioDataAtomFamily = atomFamily((id: string | undefined) => {
-  return atom(async get => {
+  return atom(async _get_DO_NOT_USE___AVOID_JOTAI_RERENDERS => {
     if (id === undefined) return undefined
 
     const res = await fetch(`/beats/${id}`)
     const arrayBuffer = await res.arrayBuffer()
     const audioContext = new AudioContext()
     const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
-    const {lufs} = get(metadataItemSelector)!
+
+    /**
+     * !!! WARNING !!!
+     * Do NOT use the `get` function from this atom selector!!!!
+     *
+     * TL;DR
+     * `get(...)` declares dependencies from this atom in the atomFamily
+     * and will cause it to "re-render", or in our case re-fetch, whenever the
+     * dependency changes. Use the store directly instead to get data.
+     *
+     * The problem with using `get(metadataItemSelector)`:
+     *
+     * - Select beat 1 - request beat 1
+     * - Select beat 2 - request beat 1, request beat 2
+     * - Select beat 3 - request beat 1, request beat 2, request beat 3
+     * #NightMare
+     *
+     * We still need the data from `metadataItemSelector`, but we don't need
+     * Jotai to re-render for us. `store.get` to the rescue.
+     */
+    const {lufs} = store.get(metadataItemSelector) ?? {}
 
     /**
      * Because audioContexts are not garbage collected by default when they go
-     * out of scope. Because of this, we explicitly close the context to allow
-     * the garbage collector to clean it up. It has served its purpose.
+     * out of scope, we explicitly close the context to allow the garbage
+     * collector to clean it up. It has served its purpose.
      */
-    // audioContext.close()
+    audioContext.close()
 
     /**
      * Why don't we also return `audioContext` from this atom? Since data in
@@ -301,7 +321,7 @@ export const audioDataAtomFamily = atomFamily((id: string | undefined) => {
      * played the same beat again. This will throw errors in the console.
      * Instead, we let consumers create their own audioContext if need be. The
      * audioContext in this atom is solely used to decode the arrayBuffer into
-     * and audioBuffer and is then discarded.
+     * an audioBuffer and it's then discarded.
      */
     return {audioBuffer, lufs}
   })
