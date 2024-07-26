@@ -1,20 +1,21 @@
 import {secondsToDuration} from '@qodestack/utils'
 import clsx from 'clsx'
-import {useAtom, useAtomValue, useSetAtom} from 'jotai'
+import {useAtomValue, useSetAtom} from 'jotai'
 import {useCallback} from 'react'
 
 import {highlightColorObj} from '../../constants'
 import {
-  currentAudioStateAtom,
-  metadataAtom,
+  handleThumbnailClickAtom,
+  metadataSelector,
+  selectedArtistAtom,
   selectedBeatIdAtom,
 } from '../../globalState'
-import {scrollBeatIntoView} from '../../utils'
 import {TripleDots} from '../TripleDots'
 
 export function BeatList() {
-  const metadata = useAtomValue(metadataAtom)
-  const [beatId, setBeatId] = useAtom(selectedBeatIdAtom)
+  const metadata = useAtomValue(metadataSelector)
+  const setSelectedArtist = useSetAtom(selectedArtistAtom)
+  const selectedBeatId = useAtomValue(selectedBeatIdAtom)
   const handleImageError = useCallback(
     (e: React.SyntheticEvent<HTMLDivElement, Event>) => {
       const img = e.target as HTMLImageElement
@@ -24,10 +25,7 @@ export function BeatList() {
     },
     []
   )
-  const setAudioState = useSetAtom(currentAudioStateAtom)
-  const setPlaying = useCallback(() => {
-    setAudioState('playing')
-  }, [setAudioState])
+  const handleThumbnailClick = useSetAtom(handleThumbnailClickAtom)
 
   return (
     <div className="flex w-full flex-grow flex-col overflow-y-auto overflow-x-hidden pb-4">
@@ -36,7 +34,8 @@ export function BeatList() {
           {id, title, channelName, dateAddedToPlaylist, durationInSeconds},
           i
         ) => {
-          const isCurrentBeat = beatId === id
+          const beatNum = i + 1
+          const isCurrentBeat = selectedBeatId === id
           const containerCls = clsx(
             'grid grid-cols-[auto_44px_1fr] gap-2 md:gap-4 md:grid-cols-[4ch_44px_1fr_10ch_5ch] rounded py-2 md:p-2 scroll-mt-10',
             {
@@ -49,19 +48,18 @@ export function BeatList() {
             [highlightColorObj.text]: isCurrentBeat,
           })
           const titleCls = clsx('w-full truncate', {
-            [highlightColorObj.text]: beatId === id,
+            [highlightColorObj.text]: isCurrentBeat,
           })
+          const artistCls = clsx(
+            highlightColorObj.textHover,
+            'cursor-pointer p-0.5 pl-0 text-sm text-neutral-500 md:p-1 md:pl-0'
+          )
           const dateAdded = new Date(dateAddedToPlaylist).toLocaleDateString()
-          const playBeat = () => {
-            setPlaying()
-            setBeatId(id)
-            scrollBeatIntoView(id, {behavior: 'smooth', block: 'nearest'})
-          }
 
           return (
             <div key={id} id={id} className={containerCls}>
               {/* COUNTER / DOTS */}
-              <div className={counterCls}>{i + 1}</div>
+              <div className={counterCls}>{beatNum}</div>
               <button className="px-2 md:hidden">
                 <TripleDots />
               </button>
@@ -70,7 +68,7 @@ export function BeatList() {
               <div
                 className="h-11 w-11 cursor-pointer place-self-center overflow-hidden rounded"
                 onError={handleImageError}
-                onClick={playBeat}
+                onClick={() => handleThumbnailClick(id)}
               >
                 <img src={`/thumbnails/${id}[small]`} className="h-11 w-11" />
               </div>
@@ -78,7 +76,10 @@ export function BeatList() {
               {/* TITLE / ARTIST */}
               <div className="flex w-full flex-col items-start overflow-hidden">
                 <div className={titleCls}>{title}</div>
-                <div className="cursor-pointer p-0.5 pl-0 text-sm text-neutral-500 md:p-1 md:pl-0">
+                <div
+                  className={artistCls}
+                  onClick={() => setSelectedArtist(channelName)}
+                >
                   {channelName || <>&mdash;</>}
                 </div>
               </div>

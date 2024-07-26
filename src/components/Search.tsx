@@ -1,6 +1,6 @@
 import {useAtomValue} from 'jotai'
 
-import {metadataAtom} from '../globalState'
+import {metadataSelector} from '../globalState'
 
 // TODO - implement an actual search
 /**
@@ -8,7 +8,7 @@ import {metadataAtom} from '../globalState'
  * typed into the input.
  */
 export function Search() {
-  const metadata = useAtomValue(metadataAtom)
+  const metadata = useAtomValue(metadataSelector)
 
   return (
     <div>
