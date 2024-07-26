@@ -3,9 +3,8 @@ import type {ExtractAtomValue} from 'jotai'
 
 import {TARGET_LUFS} from './constants'
 import {
-  audioThingAtom,
   currentAudioStateAtom,
-  nextBeatAtom,
+  handleNextClickAtom,
   repeatStateSelector,
 } from './globalState'
 import {store} from './store'
@@ -16,7 +15,7 @@ type AudioThingInput = NonNullable<
 
 export class AudioThing {
   // @ts-expect-error - the id is for dev purposes only
-  #id: number
+  #id: string
   #audioContext: AudioContext
   #audioBuffer: AudioBuffer
   #lufs: number | null
@@ -25,11 +24,13 @@ export class AudioThing {
   #startTime: number
   #pausedTime: number
 
-  constructor(data: AudioThingInput) {
+  constructor(data: AudioThingInput | undefined, id: string) {
+    if (!data) throw new Error(`No audio data found for id: ${id}`)
+
     const audioContext = new AudioContext()
     const {audioBuffer, lufs} = data
 
-    this.#id = Math.random()
+    this.#id = id
     this.#audioContext = audioContext
     this.#audioBuffer = audioBuffer
     this.#lufs = lufs
@@ -38,12 +39,7 @@ export class AudioThing {
     this.#startTime = 0
     this.#pausedTime = 0
 
-    this.connectAudioSource()
-    store.set(audioThingAtom, this)
-
-    if (store.get(currentAudioStateAtom) === 'playing') {
-      this.#audioSource.start()
-    }
+    this.connectAudio()
   }
 
   private createAudioSource() {
@@ -63,7 +59,7 @@ export class AudioThing {
 
     if (songHasEnded) {
       if (repeatState === 'on') {
-        store.set(nextBeatAtom)
+        store.set(handleNextClickAtom)
       } else if (repeatState === 'single') {
         this.setPlayPosition(0)
       } else {
@@ -73,7 +69,7 @@ export class AudioThing {
     }
   }
 
-  private connectAudioSource() {
+  private connectAudio() {
     this.#audioSource
       .connect(this.#gainNode)
       .connect(this.#audioContext.destination)
@@ -124,7 +120,7 @@ export class AudioThing {
       this.#pausedTime += this.#audioContext.currentTime - this.#startTime
       this.#audioSource.stop()
       this.#audioSource = this.createAudioSource()
-      this.connectAudioSource()
+      this.connectAudio()
     } else {
       store.set(currentAudioStateAtom, 'playing')
       this.#startTime = this.#audioContext.currentTime
@@ -142,7 +138,7 @@ export class AudioThing {
       this.#audioSource.stop()
     }
     this.#audioSource = this.createAudioSource()
-    this.connectAudioSource()
+    this.connectAudio()
 
     // Update the pausedTime to the new start time
     this.#pausedTime = newTime
@@ -155,17 +151,10 @@ export class AudioThing {
   }
 
   remove() {
-    /**
-     * Avoid calling the `close()` method twice. The useAudioThing hook will
-     * call `.remove()` when unmounting. The next / previous buttons will call
-     * `.remove()` as well - this avoids multiple audio contexts from playing
-     * simultaneously when furiously clicking next / previous. Having this
-     * conditional ensures the audio is closed before another plays - either by
-     * the React unmount lifecycle (in useAudioThing) or imeratively by the
-     * next / previous handlers. First call wins.
-     */
     if (this.#audioContext.state !== 'closed') {
-      void this.#audioContext.close()
+      this.#audioSource.disconnect()
+      this.#gainNode.disconnect()
+      this.#audioContext.close()
     }
   }
 
