@@ -1,4 +1,4 @@
-import type {AudioThing} from './AudioThing'
+import {AudioThing} from './AudioThing'
 import type {Video} from '@qodestack/dl-yt-playlist'
 
 import {atom} from 'jotai'
@@ -9,28 +9,91 @@ import {
   scrollBeatIntoView,
   secondsToPlainSentence,
 } from './utils'
+import {shuffleArray} from '@qodestack/utils'
+import {store} from './store'
 
 ////////////////////////
 // APP INITIALIZATION //
 ////////////////////////
 
+/**
+ * The only place outside this module that consumes this object is the store.
+ * This object will be frozen right after it is written to. A number of atoms
+ * consume this data as well since they don't need a shuffled version for their
+ * purposes.
+ */
+export const _initialMetadata: {readonly data: Video[]} = {data: []}
+
+/**
+ * This atom will resolve to true once the initial fetch calls in `initApp` have
+ * resolved. This helps avoid a lot of atoms in the app from being async and
+ * needing suspense to render properly.
+ */
 export const isAppInitializedAtom = atom<boolean>(false)
 
 //////////////
 // METADATA //
 //////////////
 
-type VideoWithIndex = Video & {index: number}
+/**
+ * The single source of truth for metadata. It will handle returning the
+ * original unsorted array or the shuffled array.
+ */
+export const metadataSelector = atom<Video[]>(get => {
+  const selectedArtist = get(selectedArtistAtom)
+  const metadata = get(_isMetadataShuffledAtom)
+    ? get(_shuffledMetadataSelector)
+    : _initialMetadata.data
 
-export const metadataAtom = atom<VideoWithIndex[]>([])
+  return selectedArtist
+    ? metadata.filter(v => v.channelName === selectedArtist)
+    : metadata
+})
 
-const metadataItemSelector = atom(get => {
+const _isMetadataShuffledAtom = atom(false)
+
+/**
+ * Solely used to re-trigger shuffling the metadata.
+ */
+const _shuffledMetadataCounterAtom = atom(0)
+
+/**
+ * A shuffled version of the metadata array.
+ */
+const _shuffledMetadataSelector = atom(get => {
+  /**
+   * We use this dependency to trigger re-shuffles of the metadata. If the
+   * dependency value doesn't change, this atom will return a stable, shuffled
+   * array if consumers re-render.
+   */
+  get(_shuffledMetadataCounterAtom)
+  return shuffleArray(_initialMetadata.data)
+})
+
+/**
+ * A write-only atom that returns a function to trigger shuffling the metadata.
+ *
+ * ```jsx
+ * const handleShuffleMetadata = useAtomValue(shuffleMetadataAtom)
+ * <button onClick={handleShuffleMetadata}>Shuffle metadata</button>
+ * ```
+ */
+export const shuffleMetadataAtom = atom(null, (get, set) => {
+  const num = get(_shuffledMetadataCounterAtom)
+  set(_isMetadataShuffledAtom, true)
+  set(_shuffledMetadataCounterAtom, num + 1)
+})
+
+/**
+ * Metadata for the currently selected beat.
+ */
+export const metadataItemSelector = atom(get => {
   const beatId = get(selectedBeatIdAtom)
-  return get(metadataAtom).find(v => v.id === beatId)
+  return get(metadataSelector).find(v => v.id === beatId)
 })
 
 export const metadataStatsSelector = atom(get => {
-  const metadata = get(metadataAtom)
+  const metadata = _initialMetadata.data
   const totalBeats = metadata.length
   const totalSeconds = metadata.reduce<number>((acc, beat) => {
     return acc + beat.durationInSeconds
@@ -38,14 +101,14 @@ export const metadataStatsSelector = atom(get => {
   const {artistCount} = get(artistStatsSelector)
 
   return {
-    totalTime: secondsToPlainSentence({totalSeconds, excludeSeconds: true}),
+    totalTime: secondsToPlainSentence({totalSeconds, excluded: ['second']}),
     totalBeats,
     artistCount,
   }
 })
 
-export const artistStatsSelector = atom(get => {
-  const metadata = get(metadataAtom)
+export const artistStatsSelector = atom(() => {
+  const metadata = _initialMetadata.data
   const artistsDataObj = metadata.reduce<Record<string, number>>(
     (acc, {channelName}) => {
       if (!acc[channelName]) {
@@ -68,58 +131,107 @@ export const artistStatsSelector = atom(get => {
 
 export const selectedBeatIdAtom = atom<string>()
 
-const previousOrNextBeatAtom = atom(
-  null,
-  (get, set, type: 'previous' | 'next') => {
-    const value = type === 'next' ? 1 : -1
-    const metadata = get(metadataAtom)
-    const selectedBeatId = get(selectedBeatIdAtom)
-    const currentBeatIndex = selectedBeatId
-      ? metadata.findIndex(v => v.id === selectedBeatId)
-      : undefined
-
-    if (currentBeatIndex !== undefined && currentBeatIndex !== -1) {
-      const nextBeatIndex = currentBeatIndex + value
-      const backToTop = nextBeatIndex === metadata.length
-      const toLastBeat = nextBeatIndex < 0
-      const isShuffling = get(shuffleStateSelector)
-      const newBeatId = isShuffling
-        ? getRandomBeatId()
-        : metadata.at(toLastBeat ? -1 : backToTop ? 0 : nextBeatIndex)?.id
-      const audioThing = get(audioThingAtom)
-      const randomBeatIndex = get(metadataAtom).findIndex(
-        v => v.id === newBeatId
-      )
-      const indexDifference = Math.abs(
-        (isShuffling ? randomBeatIndex : nextBeatIndex) - currentBeatIndex
-      )
-
-      // Ensure the previous audio is stopped before we continue to the new one.
-      audioThing?.remove()
-
-      // Use the power of the DOM to scroll smoothly to our beat!
-      scrollBeatIntoView(
-        newBeatId,
-        indexDifference < 10 ? undefined : {behavior: 'instant'}
-      )
-
-      set(selectedBeatIdAtom, newBeatId)
-    }
-  }
-)
-
-export const previousBeatAtom = atom(null, (_get, set) => {
-  set(previousOrNextBeatAtom, 'previous')
-})
-
-// TODO - rename to `setNextBeatAtom` and others
-export const nextBeatAtom = atom(null, (_get, set) => {
-  set(previousOrNextBeatAtom, 'next')
-})
+export const selectedArtistAtom = atom<string>()
 
 //////////////
 // CONTROLS //
 //////////////
+
+/**
+ * Helper function for controls to play a new beat:
+ * - Triggers fetching a beat via `audioDataAtomFamily`
+ * - Creates a `new AudioThing()` and stores it in state
+ * - Set the current audio state to 'stopped'
+ * - Toggle play on the new audioThing
+ */
+async function genNewAudioThingAndPlay(id: string): Promise<void> {
+  store.set(selectedBeatIdAtom, id)
+
+  void store.get(audioDataAtomFamily(id)).then(audioData => {
+    const newAudioThing = new AudioThing(audioData, id)
+
+    store.set(audioThingAtom, newAudioThing)
+    store.set(currentAudioStateAtom, 'stopped')
+    newAudioThing.togglePlay()
+  })
+}
+
+export const handlePlayPauseAtom = atom(null, get => {
+  const audioThing = get(audioThingAtom)
+
+  if (audioThing) {
+    audioThing.togglePlay()
+  } else {
+    // This should never be undefined here. The app initializes with a beat id.
+    const selectedBeatId = get(selectedBeatIdAtom)!
+    void genNewAudioThingAndPlay(selectedBeatId)
+  }
+})
+
+export const handleThumbnailClickAtom = atom(null, (get, _set, id: string) => {
+  const selectedBeatId = get(selectedBeatIdAtom)
+
+  /**
+   * No beat selected - play a new beat.
+   * Given the architecture, I don't think this will ever be the case.
+   */
+  if (!selectedBeatId) {
+    scrollBeatIntoView(id, {behavior: 'smooth', block: 'nearest'})
+    return void genNewAudioThingAndPlay(id)
+  }
+
+  /**
+   * Clicking the same beat.
+   */
+  if (id === selectedBeatId) return
+
+  /**
+   * Clicking a new beat (i.e. an old one is already playing or paused).
+   */
+  const audioThing = get(audioThingAtom)
+  audioThing?.remove()
+  scrollBeatIntoView(id, {behavior: 'smooth', block: 'nearest'})
+  void genNewAudioThingAndPlay(id)
+})
+
+const _handlePreviousOrNextClickAtom = atom(
+  null,
+  (get, _set, type: 'previous' | 'next') => {
+    const audioThing = get(audioThingAtom)
+    audioThing?.remove()
+
+    const selectedBeatId = get(selectedBeatIdAtom)
+    if (!selectedBeatId) return
+
+    const dirValue = type === 'next' ? 1 : -1
+    const metadata = get(metadataSelector)
+
+    const newIndex = (() => {
+      const currentIndex = metadata.findIndex(v => v.id === selectedBeatId)
+      if (currentIndex === -1) return 0
+
+      const lastIndex = metadata.length - 1
+      const nextIndex = currentIndex + dirValue
+
+      if (nextIndex < 0) return lastIndex
+      if (nextIndex === lastIndex) return 0
+      return nextIndex
+    })()
+
+    const isShuffleOn = get(shuffleStateSelector)
+    const newBeatId = isShuffleOn ? getRandomBeatId() : metadata[newIndex].id
+    scrollBeatIntoView(newBeatId, {behavior: 'smooth', block: 'nearest'})
+    return void genNewAudioThingAndPlay(newBeatId)
+  }
+)
+
+export const handlePreviousClickAtom = atom(null, (_get, set) => {
+  set(_handlePreviousOrNextClickAtom, 'previous')
+})
+
+export const handleNextClickAtom = atom(null, (_get, set) => {
+  set(_handlePreviousOrNextClickAtom, 'next')
+})
 
 const repeatStates = ['off', 'on', 'single'] as const
 
@@ -177,10 +289,19 @@ export const audioDataAtomFamily = atomFamily((id: string | undefined) => {
     const {lufs} = get(metadataItemSelector)!
 
     /**
-     * Why don't we also return `audioContext` from this atom? Since it's
-     * cached, we would be re-using the audioContext any time we played the same
-     * beat again. This will throw errors in the console. Instead, we let
-     * consumers create their own audioContext if need be.
+     * Because audioContexts are not garbage collected by default when they go
+     * out of scope. Because of this, we explicitly close the context to allow
+     * the garbage collector to clean it up. It has served its purpose.
+     */
+    // audioContext.close()
+
+    /**
+     * Why don't we also return `audioContext` from this atom? Since data in
+     * this atom is cached, we would be re-using the audioContext any time we
+     * played the same beat again. This will throw errors in the console.
+     * Instead, we let consumers create their own audioContext if need be. The
+     * audioContext in this atom is solely used to decode the arrayBuffer into
+     * and audioBuffer and is then discarded.
      */
     return {audioBuffer, lufs}
   })
