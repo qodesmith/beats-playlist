@@ -145,9 +145,18 @@ export const selectedArtistAtom = atom<string>()
  * - Toggle play on the new audioThing
  */
 async function genNewAudioThingAndPlay(id: string): Promise<void> {
+  store.get(audioThingAtom)?.remove() // Ensure the old one is stopped.
   store.set(selectedBeatIdAtom, id)
 
   void store.get(audioDataAtomFamily(id)).then(audioData => {
+    /**
+     * Avoid race conditions.
+     * Theoretically, a previous slower request might resolve after a 2nd
+     * request has completed. We wouldn't want that old request to then replace
+     * the audio. `selectedBeatIdAtom` will always be up to date.
+     */
+    if (id !== store.get(selectedBeatIdAtom)) return
+
     const newAudioThing = new AudioThing(audioData, id)
 
     store.set(audioThingAtom, newAudioThing)
