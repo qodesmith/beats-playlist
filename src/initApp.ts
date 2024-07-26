@@ -15,9 +15,9 @@ export function initApp() {
 
   /**
    * Kick off a fetch request for all the beats metadata while the app is
-   * mounting. Also queue up the first beat.
+   * mounting, then queue up the first beat.
    */
-  const dataPromise = fetch('/metadata')
+  const initAppPromise = fetch('/metadata')
     .then(res => res.json())
     .then(({metadata}: {metadata: Video[]}) => {
       /**
@@ -37,7 +37,7 @@ export function initApp() {
       return store.get(audioDataAtomFamily(firstBeatId))
     })
 
-  Promise.all([oneSecondPromise, dataPromise]).then(() => {
+  Promise.all([oneSecondPromise, initAppPromise]).then(() => {
     store.set(isAppInitializedAtom, true)
   })
 }
