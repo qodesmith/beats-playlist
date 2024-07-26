@@ -1,8 +1,7 @@
 import {useAtomValue} from 'jotai'
 
-import {HeaderButtonAndMenu} from './HeaderButtonAndMenu'
-import {RandomizeListButton} from './RandomizeListButton'
 import {metadataStatsSelector} from '../../globalState'
+import {HeaderButtonGroup} from './HeaderButtonGroup'
 
 export function Header() {
   return (
@@ -14,10 +13,7 @@ export function Header() {
           <HeaderMetadataStats />
         </div>
       </div>
-      <div className="flex h-10 gap-2">
-        <RandomizeListButton />
-        <HeaderButtonAndMenu />
-      </div>
+      <HeaderButtonGroup />
     </header>
   )
 }
