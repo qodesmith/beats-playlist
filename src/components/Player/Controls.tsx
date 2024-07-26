@@ -1,77 +1,39 @@
 import {useAtomValue, useSetAtom} from 'jotai'
-import {Suspense} from 'react'
 
 import {Next, Pause, Play, Previous} from './ControlIcons'
 import {RepeatButton} from './RepeatButton'
 import {ShuffleButton} from './ShuffleButton'
 import {
   currentAudioStateAtom,
-  nextBeatAtom,
-  previousBeatAtom,
+  handleNextClickAtom,
+  handlePlayPauseAtom,
+  handlePreviousClickAtom,
   selectedBeatIdAtom,
 } from '../../globalState'
-import {useAudioThing} from '../../hooks/useAudioThing'
 
-export function Controls({
-  baseSize,
-}: {
-  /**
-   * This value determines the size of the icons. Each icon's size will be a
-   * multiple of this value so they will proportionally stay the same.
-   */
-  baseSize: number
-}) {
-  return (
-    <Suspense fallback={<DisabledControls baseSize={baseSize} />}>
-      <ControlsBody baseSize={baseSize} />
-    </Suspense>
-  )
-}
-
-function DisabledControls({baseSize}: {baseSize: number}) {
-  const handlePrevious = useSetAtom(previousBeatAtom)
-  const handleNext = useSetAtom(nextBeatAtom)
-  const playState = useAtomValue(currentAudioStateAtom)
-
-  return (
-    <div className="grid grid-cols-[repeat(5,1fr)] place-items-center justify-center gap-4 pb-4 md:grid-cols-[repeat(5,32px)]">
-      <ShuffleButton
-        baseSize={baseSize}
-        className="flex w-full items-center justify-center"
-      />
-      <button onClick={handlePrevious}>
-        <Previous size={baseSize * 3} />
-      </button>
-      {playState === 'playing' ? (
-        <Pause size={baseSize * 4} circleFill="gray" />
-      ) : (
-        <Play size={baseSize * 4} circleFill="gray" />
-      )}
-      <button onClick={handleNext}>
-        <Next size={baseSize * 3} />
-      </button>
-      <RepeatButton size={baseSize * 2.5 * 0.9} />
-    </div>
-  )
-}
-
-function ControlsBody({baseSize}: {baseSize: number}) {
+export function Controls({baseSize}: {baseSize: number}) {
   const beatId = useAtomValue(selectedBeatIdAtom)
   const fill = beatId ? 'white' : 'gray'
-  const [audio, playState] = useAudioThing()
-  const handlePrevious = useSetAtom(previousBeatAtom)
-  const handleNext = useSetAtom(nextBeatAtom)
+  const handlePrevious = useSetAtom(handlePreviousClickAtom)
+  const handleNext = useSetAtom(handleNextClickAtom)
+  const playState = useAtomValue(currentAudioStateAtom)
+  const handlePlayPause = useSetAtom(handlePlayPauseAtom)
 
   return (
     <div className="grid grid-cols-[repeat(5,1fr)] place-items-center justify-center gap-4 pb-4 md:grid-cols-[repeat(5,32px)]">
+      {/* SHUFFLE */}
       <ShuffleButton
         baseSize={baseSize}
         className="flex w-full items-center justify-center"
       />
+
+      {/* PREVIOUS */}
       <button onClick={handlePrevious}>
         <Previous size={baseSize * 3} fill={fill} />
       </button>
-      <button onClick={() => audio?.togglePlay()}>
+
+      {/* PLAY / PAUSE */}
+      <button onClick={handlePlayPause}>
         {playState === 'playing' ? (
           <Pause size={baseSize * 4} circleFill={fill} />
         ) : (
@@ -79,6 +41,7 @@ function ControlsBody({baseSize}: {baseSize: number}) {
         )}
       </button>
 
+      {/* NEXT */}
       <button onClick={handleNext}>
         <Next size={baseSize * 3} fill={fill} />
       </button>
