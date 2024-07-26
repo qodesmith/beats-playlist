@@ -2,7 +2,12 @@ import type {Video} from '@qodestack/dl-yt-playlist'
 
 import {wait} from '@qodestack/utils'
 
-import {isAppInitializedAtom, metadataAtom} from './globalState'
+import {
+  _initialMetadata,
+  audioDataAtomFamily,
+  isAppInitializedAtom,
+  selectedBeatIdAtom,
+} from './globalState'
 import {store} from './store'
 
 export function initApp() {
@@ -10,23 +15,29 @@ export function initApp() {
 
   /**
    * Kick off a fetch request for all the beats metadata while the app is
-   * mounting.
+   * mounting. Also queue up the first beat.
    */
-  const metadataPromise = fetch('/metadata')
+  const dataPromise = fetch('/metadata')
     .then(res => res.json())
     .then(({metadata}: {metadata: Video[]}) => {
-      store.set(
-        metadataAtom,
+      /**
+       * This is a plain JavaScript object. Instead of setting the data in an
+       * atom, we store it in an object and use it as the source of truth for a
+       * selector. All consumers will read from the selector to get the data,
+       * mitigating against changing the original array.
+       */
+      // @ts-expect-error - this is the only place that mutates this object.
+      _initialMetadata.data = metadata
+      Object.freeze(_initialMetadata)
+      Object.freeze(_initialMetadata.data)
 
-        /**
-         * Adding the `index` property to the videos will power the previous
-         * and next play functionality.
-         */
-        metadata.map((v, index) => ({...v, index}))
-      )
+      const firstBeatId = metadata[0].id
+      store.set(selectedBeatIdAtom, firstBeatId)
+
+      return store.get(audioDataAtomFamily(firstBeatId))
     })
 
-  Promise.all([oneSecondPromise, metadataPromise]).then(() => {
+  Promise.all([oneSecondPromise, dataPromise]).then(() => {
     store.set(isAppInitializedAtom, true)
   })
 }
