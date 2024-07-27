@@ -45,12 +45,16 @@ const app = new Elysia()
     //   data: paginatedMetadata,
     // }
   })
-  .get('/thumbnails-small/:id', ({params: {id}}) =>
-    Bun.file(`/beats/thumbnails/${id}[small].jpg`)
-  )
-  .get('/thumbnails/:id', ({params: {id}}) =>
-    Bun.file(`/beats/thumbnails/${id}.jpg`)
-  )
+  .get('/thumbnails/:id', ({params: {id}}) => {
+    return new Response(Bun.file(`/beats/thumbnails/${id}.jpg`), {
+      headers: {
+        // Cache for 1 year
+        'Cache-Control': 'public, max-age=31536000',
+        // Set expiration date
+        Expires: new Date(Date.now() + 31536000000).toUTCString(),
+      },
+    })
+  })
   .get('/beats/:id', ({params: {id}}) => Bun.file(`/beats/audio/${id}.mp3`))
   .listen(SERVER_PORT)
 
