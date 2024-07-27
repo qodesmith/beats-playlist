@@ -12,7 +12,8 @@
     "createColors": "bun run createTailwindColors.ts 2> /dev/null",
     "buildDocker": "docker build -t qodesmith/beats-playlist:1.0.0 --platform=linux/amd64 .",
     "pushDocker": "docker push qodesmith/beats-playlist:1.0.0",
-    "deploy": "bun run build && bun run buildDocker && bun run pushDocker"
+    "deploy": "bun run build && bun run buildDocker && bun run pushDocker",
+    "deployServerOnly": "bun run buildDocker && bun run pushDocker"
   },
   "dependencies": {
     "@elysiajs/server-timing": "^1.1.0",
