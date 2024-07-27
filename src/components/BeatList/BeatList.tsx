@@ -70,7 +70,7 @@ export function BeatList() {
                 onError={handleImageError}
                 onClick={() => handleThumbnailClick(id)}
               >
-                <img src={`/thumbnails/${id}[small]`} className="h-11 w-11" />
+                <img src={`/thumbnails-small/${id}`} className="h-11 w-11" />
               </div>
 
               {/* TITLE / ARTIST */}
