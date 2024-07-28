@@ -1,11 +1,11 @@
-import {HeaderButtonAndMenu} from './HeaderButtonAndMenu'
+// import {HeaderButtonAndMenu} from './HeaderButtonAndMenu'
 import {RandomizeListButton} from './RandomizeListButton'
 
 export function HeaderButtonGroup() {
   return (
-    <div className="flex h-10 gap-2">
+    <div className="absolute right-2 flex h-10 gap-2 md:relative">
       <RandomizeListButton />
-      <HeaderButtonAndMenu />
+      {/* <HeaderButtonAndMenu /> */}
     </div>
   )
 }
