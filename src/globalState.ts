@@ -373,7 +373,7 @@ export const audioDataAtomFamily = atomFamily((id: string | undefined) => {
      * We still need the data from `metadataItemSelector`, but we don't need
      * Jotai to re-render for us. `store.get` to the rescue.
      */
-    const {lufs} = store.get(metadataItemSelector) ?? {}
+    const lufs = store.get(metadataItemSelector)?.lufs ?? null
 
     /**
      * Because audioContexts are not garbage collected by default when they go
