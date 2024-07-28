@@ -17,7 +17,7 @@ import {store} from './store'
 ////////////////////////
 
 /**
- * The only place outside this module that consumes this object is the store.
+ * The only place outside this module that consumes this object is `initApp`.
  * This object will be frozen right after it is written to. A number of atoms
  * consume this data as well since they don't need a shuffled version for their
  * purposes.
@@ -138,15 +138,49 @@ export const selectedArtistAtom = atom<string>()
 //////////////
 
 /**
+ * A subscription that tracks play history for the previous button.
+ */
+store.sub(selectedBeatIdAtom, () => {
+  const isPreviousTriggered = store.get(_isPreviousTriggeredAtom)
+  const id = store.get(selectedBeatIdAtom)
+  const selectedArtist = store.get(selectedArtistAtom)
+
+  if (id && !isPreviousTriggered) {
+    store.set(_beatHistoryAtom, [
+      ...store.get(_beatHistoryAtom),
+      {id, selectedArtist},
+    ])
+  }
+})
+
+/**
+ * History used by the previous button.
+ */
+const _beatHistoryAtom = atom<
+  {id: string; selectedArtist: string | undefined}[]
+>([])
+
+export const isPreviousDisabledSelector = atom(
+  get => get(_beatHistoryAtom).length <= 1
+)
+
+/**
  * Helper function for controls to play a new beat:
  * - Triggers fetching a beat via `audioDataAtomFamily`
  * - Creates a `new AudioThing()` and stores it in state
  * - Set the current audio state to 'stopped'
  * - Toggle play on the new audioThing
  */
-async function genNewAudioThingAndPlay(id: string): Promise<void> {
+async function genNewAudioThingAndPlay(
+  id: string,
+  resetIsPrev?: boolean
+): Promise<void> {
   store.get(audioThingAtom)?.remove() // Ensure the old one is stopped.
   store.set(selectedBeatIdAtom, id)
+
+  if (resetIsPrev) {
+    store.set(_isPreviousTriggeredAtom, false)
+  }
 
   void store.get(audioDataAtomFamily(id)).then(audioData => {
     /**
@@ -205,36 +239,60 @@ export const handleThumbnailClickAtom = atom(null, (get, _set, id: string) => {
 
 const _handlePreviousOrNextClickAtom = atom(
   null,
-  (get, _set, type: 'previous' | 'next') => {
+  (get, set, type: 'previous' | 'next') => {
     const audioThing = get(audioThingAtom)
     audioThing?.remove()
 
     const selectedBeatId = get(selectedBeatIdAtom)
-    if (!selectedBeatId) return
+    if (!selectedBeatId) return // This should never be the case.
 
-    const dirValue = type === 'next' ? 1 : -1
     const metadata = get(metadataSelector)
-
+    const isPrevious = type === 'previous'
     const newIndex = (() => {
       const currentIndex = metadata.findIndex(v => v.id === selectedBeatId)
+
+      /**
+       * Use the first beat if we can't find the current one. This can happen
+       * if we're playing a beat by artist A, then select artist B which filters
+       * the playlist, no longer include artist A (but it's still playing).
+       */
       if (currentIndex === -1) return 0
 
       const lastIndex = metadata.length - 1
-      const nextIndex = currentIndex + dirValue
+      const nextIndex = currentIndex + 1
 
-      if (nextIndex < 0) return lastIndex
-      if (nextIndex === lastIndex) return 0
-      return nextIndex
+      return nextIndex === lastIndex ? 0 : nextIndex
+    })()
+
+    const previousId = (() => {
+      if (isPrevious) {
+        const beatHistory = get(_beatHistoryAtom)
+
+        // -2 because the last entry is the current one.
+        const previousItemId = beatHistory.at(-2)?.id
+        const otherItems = beatHistory.slice(0, -1)
+
+        set(_beatHistoryAtom, otherItems)
+
+        return previousItemId
+      }
     })()
 
     const isShuffleOn = get(shuffleStateSelector)
-    const newBeatId = isShuffleOn ? getRandomBeatId() : metadata[newIndex].id
+    const newBeatId =
+      previousId ?? (isShuffleOn ? getRandomBeatId() : metadata[newIndex].id)
     scrollBeatIntoView(newBeatId, {behavior: 'smooth', block: 'nearest'})
-    return void genNewAudioThingAndPlay(newBeatId)
+    return void genNewAudioThingAndPlay(newBeatId, isPrevious)
   }
 )
 
-export const handlePreviousClickAtom = atom(null, (_get, set) => {
+const _isPreviousTriggeredAtom = atom<boolean>(false)
+
+export const handlePreviousClickAtom = atom(null, (get, set) => {
+  const isPreviousDisabled = get(isPreviousDisabledSelector)
+  if (isPreviousDisabled) return
+
+  set(_isPreviousTriggeredAtom, true)
   set(_handlePreviousOrNextClickAtom, 'previous')
 })
 

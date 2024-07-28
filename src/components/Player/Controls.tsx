@@ -8,6 +8,7 @@ import {
   handleNextClickAtom,
   handlePlayPauseAtom,
   handlePreviousClickAtom,
+  isPreviousDisabledSelector,
   selectedBeatIdAtom,
 } from '../../globalState'
 
@@ -18,6 +19,7 @@ export function Controls({baseSize}: {baseSize: number}) {
   const handleNext = useSetAtom(handleNextClickAtom)
   const playState = useAtomValue(currentAudioStateAtom)
   const handlePlayPause = useSetAtom(handlePlayPauseAtom)
+  const isPreviousDisabled = useAtomValue(isPreviousDisabledSelector)
 
   return (
     <div className="grid grid-cols-[repeat(5,1fr)] place-items-center justify-center gap-4 pb-4 md:grid-cols-[repeat(5,32px)]">
@@ -28,8 +30,11 @@ export function Controls({baseSize}: {baseSize: number}) {
       />
 
       {/* PREVIOUS */}
-      <button onClick={handlePrevious}>
-        <Previous size={baseSize * 3} fill={fill} />
+      <button onClick={isPreviousDisabled ? undefined : handlePrevious}>
+        <Previous
+          size={baseSize * 3}
+          fill={isPreviousDisabled ? 'gray' : fill}
+        />
       </button>
 
       {/* PLAY / PAUSE */}
