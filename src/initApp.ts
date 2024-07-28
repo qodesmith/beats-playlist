@@ -5,10 +5,12 @@ import {wait} from '@qodestack/utils'
 import {
   _initialMetadata,
   audioDataAtomFamily,
+  audioThingAtom,
   isAppInitializedAtom,
   selectedBeatIdAtom,
 } from './globalState'
 import {store} from './store'
+import {AudioThing} from './AudioThing'
 
 export function initApp() {
   const oneSecondPromise = wait(1000)
@@ -34,7 +36,11 @@ export function initApp() {
       const firstBeatId = metadata[0].id
       store.set(selectedBeatIdAtom, firstBeatId)
 
-      return store.get(audioDataAtomFamily(firstBeatId))
+      return store.get(audioDataAtomFamily(firstBeatId)).then(audioData => {
+        if (audioData) {
+          store.set(audioThingAtom, new AudioThing(audioData, firstBeatId))
+        }
+      })
     })
 
   Promise.all([oneSecondPromise, initAppPromise]).then(() => {
