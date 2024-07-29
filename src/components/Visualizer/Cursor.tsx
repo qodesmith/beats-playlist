@@ -47,6 +47,7 @@ export function Cursor({
 
   return (
     <div
+      id="cursor-container"
       className="absolute top-0 size-full opacity-75"
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
@@ -55,6 +56,7 @@ export function Cursor({
     >
       {shouldShow && (
         <div
+          id="cursor"
           className={cursorCls}
           style={{left, height: cursorHeight ?? '100%'}}
         />
