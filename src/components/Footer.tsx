@@ -1,3 +1,4 @@
+import {AudioTimeSlider} from './Player/AudioTimeSlider'
 import {Controls} from './Player/Controls'
 import {Waveform} from './Player/Waveform'
 
@@ -11,6 +12,8 @@ export function Footer() {
       <div className="h-[100px]">
         <Waveform />
       </div>
+
+      <AudioTimeSlider />
 
       {/* CONTROLS - only one will show at a time */}
       <div className="hidden md:block">

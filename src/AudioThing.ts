@@ -137,6 +137,9 @@ export class AudioThing {
     }
   }
 
+  /**
+   * Takes a number from 0 - 1.
+   */
   setPlayPosition(position: number) {
     // Calculate the new start time in the buffer
     const newTime = this.#audioBuffer.duration * position
@@ -179,7 +182,10 @@ export class AudioThing {
         ? this.#audioContext.currentTime - this.#startTime + this.#pausedTime
         : this.#pausedTime
 
-    store.set(timeProgressAtom, secondsToDuration(time))
+    store.set(timeProgressAtom, {
+      rawTime: +time.toFixed(1),
+      formattedTime: secondsToDuration(time),
+    })
   }
 
   private startCalculatingProgress(): void {

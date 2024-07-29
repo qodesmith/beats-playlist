@@ -329,11 +329,16 @@ export const toggleShuffleAtom = atom(null, (get, set) => {
   set(shuffleStateAtom, !currentShuffleState)
 })
 
+export const isSliderDraggingAtom = atom<boolean>(false)
+
 /**
  * This atom powers the time progress indicator in the footer. It is updated by
  * the AudioThing class.
  */
-export const timeProgressAtom = atomWithReset<string>('0:00')
+export const timeProgressAtom = atomWithReset<{
+  rawTime: number
+  formattedTime: string
+}>({rawTime: 0, formattedTime: '0:00'})
 
 ////////////////////
 // SIZE CONTAINER //
