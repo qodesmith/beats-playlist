@@ -1,16 +1,16 @@
-import {AudioThing} from './AudioThing'
 import type {Video} from '@qodestack/dl-yt-playlist'
 
+import {shuffleArray} from '@qodestack/utils'
 import {atom} from 'jotai'
 import {atomFamily, atomWithReset, atomWithStorage, loadable} from 'jotai/utils'
 
+import {AudioThing} from './AudioThing'
+import {store} from './store'
 import {
   getRandomBeatId,
   scrollBeatIntoView,
   secondsToPlainSentence,
 } from './utils'
-import {shuffleArray} from '@qodestack/utils'
-import {store} from './store'
 
 ////////////////////////
 // APP INITIALIZATION //

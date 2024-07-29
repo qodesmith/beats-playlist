@@ -1,12 +1,13 @@
-import {useCallback, useLayoutEffect, useState} from 'react'
-import {HeaderButton} from './HeaderButton'
-import {scrollBeatIntoView} from '../../utils'
 import {useAtomValue, useSetAtom} from 'jotai'
+import {useCallback, useLayoutEffect, useState} from 'react'
+
+import {HeaderButton} from './HeaderButton'
 import {
   isMenuOpenAtom,
   metadataSelector,
   selectedBeatIdAtom,
 } from '../../globalState'
+import {scrollBeatIntoView} from '../../utils'
 
 export function HeaderMenu({
   id,
@@ -20,7 +21,7 @@ export function HeaderMenu({
   const selectedBeatId = useAtomValue(selectedBeatIdAtom)
   const [mobileHeight, setMobileHeight] = useState<number>()
   const setMenuState = useSetAtom(isMenuOpenAtom)
-  const closeMenu = useCallback(() => setMenuState(false), [])
+  const closeMenu = useCallback(() => setMenuState(false), [setMenuState])
 
   /**
    * The button that renders this component is absolutely positioned. Since we

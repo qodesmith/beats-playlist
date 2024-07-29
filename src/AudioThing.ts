@@ -1,6 +1,9 @@
 import type {audioDataAtomFamily} from './globalState'
 import type {ExtractAtomValue} from 'jotai'
 
+import {secondsToDuration} from '@qodestack/utils'
+import {RESET} from 'jotai/utils'
+
 import {TARGET_LUFS} from './constants'
 import {
   currentAudioStateAtom,
@@ -9,8 +12,6 @@ import {
   timeProgressAtom,
 } from './globalState'
 import {store} from './store'
-import {secondsToDuration} from '@qodestack/utils'
-import {RESET} from 'jotai/utils'
 
 type AudioThingInput = NonNullable<
   Awaited<ExtractAtomValue<ReturnType<typeof audioDataAtomFamily>>>

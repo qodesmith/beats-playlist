@@ -1,9 +1,9 @@
 import type {Video} from '@qodestack/dl-yt-playlist'
 
 import {serverTiming} from '@elysiajs/server-timing'
-import {Elysia, mapResponse} from 'elysia'
-import compressible from 'compressible'
 import {gzipSync} from 'bun'
+import compressible from 'compressible'
+import {Elysia, mapResponse} from 'elysia'
 
 const SERVER_PORT = Bun.env.SERVER_PORT
 const MAX_DURATION_SECONDS = Number(Bun.env.MAX_DURATION_SECONDS) || 60 * 8

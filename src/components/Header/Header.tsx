@@ -1,7 +1,7 @@
 import {useAtomValue} from 'jotai'
 
-import {metadataStatsSelector} from '../../globalState'
 import {HeaderButtonGroup} from './HeaderButtonGroup'
+import {metadataStatsSelector} from '../../globalState'
 
 export function Header() {
   return (

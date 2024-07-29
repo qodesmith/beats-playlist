@@ -2,6 +2,7 @@ import type {Video} from '@qodestack/dl-yt-playlist'
 
 import {wait} from '@qodestack/utils'
 
+import {AudioThing} from './AudioThing'
 import {
   _initialMetadata,
   audioDataAtomFamily,
@@ -10,7 +11,6 @@ import {
   selectedBeatIdAtom,
 } from './globalState'
 import {store} from './store'
-import {AudioThing} from './AudioThing'
 
 export function initApp() {
   const oneSecondPromise = wait(1000)

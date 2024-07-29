@@ -1,9 +1,10 @@
-import {useAtom, useAtomValue} from 'jotai'
-import {metadataItemSelector, selectedArtistAtom} from '../globalState'
-import {highlightColorObj} from '../constants'
 import clsx from 'clsx'
-import {CloseButton} from './CloseButton'
+import {useAtom, useAtomValue} from 'jotai'
 import {useCallback} from 'react'
+
+import {CloseButton} from './CloseButton'
+import {highlightColorObj} from '../constants'
+import {metadataItemSelector, selectedArtistAtom} from '../globalState'
 
 export function NowPlaying() {
   const [selectedArtist, setSelectedArtist] = useAtom(selectedArtistAtom)
@@ -16,7 +17,7 @@ export function NowPlaying() {
   })
   const clearArtist = useCallback(() => {
     setSelectedArtist(undefined)
-  }, [])
+  }, [setSelectedArtist])
 
   return (
     <div className="flex gap-2 pb-2">

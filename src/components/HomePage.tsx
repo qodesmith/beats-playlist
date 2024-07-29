@@ -5,8 +5,8 @@ import {AudioLoader} from './AudioLoader'
 import {BeatList} from './BeatList/BeatList'
 import {Footer} from './Footer'
 import {Header} from './Header/Header'
-import {isAppInitializedAtom} from '../globalState'
 import {NowPlaying} from './NowPlaying'
+import {isAppInitializedAtom} from '../globalState'
 
 const duration = 0.5
 const opacity0 = {opacity: 0}

@@ -1,6 +1,8 @@
-import twConfig from './tailwind.config'
-import defaultColors from 'tailwindcss/colors'
 import fs from 'node:fs'
+
+import defaultColors from 'tailwindcss/colors'
+
+import twConfig from './tailwind.config'
 
 function filterOutGetters<T extends object>(obj: T) {
   const result = {}
