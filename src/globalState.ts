@@ -371,7 +371,6 @@ export const setTimeProgressAtom = atom(
 export const progressWidthSelector = atom(get => {
   const {rawTime} = get(timeProgressAtom)
   const duration = get(metadataItemSelector)?.durationInSeconds ?? 0
-  console.log({rawTimeFromSelector: rawTime})
   return rawTime / duration
 })
 
