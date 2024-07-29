@@ -1,7 +1,9 @@
 import type {TailwindColor} from '../../tailwindColors'
 
+import {useAtomValue} from 'jotai'
 import {useMemo, useEffect} from 'react'
 
+import {progressWidthSelector} from '../../globalState'
 import {tailwindColors} from '../../tailwindColors'
 import {audioBufferToNumbers} from '../../utils'
 
@@ -74,6 +76,7 @@ export function WaveformCanvas({
    */
   isLoading: boolean
 }) {
+  const progressWidth = useAtomValue(progressWidthSelector)
   const waveformData = useMemo(() => {
     const barCount = width / barWidth
 
@@ -118,7 +121,6 @@ export function WaveformCanvas({
     const waveformDataLength = waveformData.length
     const bodyColor = window.getComputedStyle(document.body).color
     const color = tailwindColor ? tailwindColors[tailwindColor] : bodyColor
-    ctx.fillStyle = isLoading || !audioBuffer ? bodyColor : color
 
     /**
      * NOTE - the DOM shows terrible performance when setting the opacity filter
@@ -127,7 +129,12 @@ export function WaveformCanvas({
      */
     // if (isReflection) ctx.filter = 'opacity(.2)'
 
+    const progressWidthCutoff = waveformDataLength * progressWidth
+
     for (let i = 0; i < waveformDataLength; i++) {
+      const loadedColor = i <= progressWidthCutoff ? color : 'gray'
+      ctx.fillStyle = isLoading || !audioBuffer ? 'gray' : loadedColor
+
       const waveformHeight = waveformData[i] // 0 - 1
       const barHeight = audioBuffer
         ? waveformHeight * canvas.height
@@ -146,6 +153,7 @@ export function WaveformCanvas({
     height,
     isLoading,
     isReflection,
+    progressWidth,
     style,
     tailwindColor,
     waveformData,

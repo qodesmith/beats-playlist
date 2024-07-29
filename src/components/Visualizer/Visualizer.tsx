@@ -5,7 +5,6 @@ import {useAtomValue, useSetAtom} from 'jotai'
 import {useCallback, useId} from 'react'
 
 import {Cursor} from './Cursor'
-import {ProgressOverlay} from './ProgressOverlay'
 import {WaveformCanvas} from './WaveformCanvas'
 import {audioThingAtom, setTimeProgressAtom} from '../../globalState'
 
@@ -107,9 +106,6 @@ export function Visualizer({
           isLoading={!!isLoading}
         />
       )}
-
-      {/* OVERLAY CONTAINER */}
-      <ProgressOverlay />
 
       {/* Keep this on the bottom so it's z-index is above the waveforms */}
       {!isLoading && audioBuffer && (
