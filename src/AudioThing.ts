@@ -8,6 +8,7 @@ import {TARGET_LUFS} from './constants'
 import {
   currentAudioStateAtom,
   handleNextClickAtom,
+  isSliderDraggingAtom,
   repeatStateSelector,
   timeProgressAtom,
 } from './globalState'
@@ -177,6 +178,9 @@ export class AudioThing {
   }
 
   private calculateTimeProgress(): void {
+    const isSliderDragging = store.get(isSliderDraggingAtom)
+    if (isSliderDragging) return
+
     const playState = store.get(currentAudioStateAtom)
     const time =
       playState === 'playing'
