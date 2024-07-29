@@ -168,6 +168,7 @@ export class AudioThing {
       this.#audioSource.disconnect()
       this.#gainNode.disconnect()
       this.#audioContext.close()
+      store.set(timeProgressAtom, RESET)
     }
   }
 
