@@ -1,5 +1,5 @@
 import {secondsToDuration} from '@qodestack/utils'
-import {useAtom, useAtomValue, useSetAtom} from 'jotai'
+import {useAtomValue, useSetAtom} from 'jotai'
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 
 import {
@@ -7,7 +7,8 @@ import {
   isSliderDraggingAtom,
   metadataItemSelector,
   selectedBeatIdAtom,
-  timeProgressAtom,
+  setTimeProgressAtom,
+  timeProgressSelector,
 } from '../../globalState'
 import {store} from '../../store'
 
@@ -20,7 +21,8 @@ export function AudioTimeSlider() {
 }
 
 function AudioTimeSliderBody() {
-  const [{rawTime, formattedTime}, setTimeProgress] = useAtom(timeProgressAtom)
+  const {rawTime, formattedTime} = useAtomValue(timeProgressSelector)
+  const setTimeProgress = useSetAtom(setTimeProgressAtom)
   const {durationInSeconds = 0} = useAtomValue(metadataItemSelector) ?? {}
   const duration = useMemo(
     () => secondsToDuration(durationInSeconds),
@@ -33,17 +35,12 @@ function AudioTimeSliderBody() {
       const {width, left} = e.currentTarget.getBoundingClientRect()
       const offsetX = e.clientX - left
       const position = offsetX / width
-      const newRawTime = durationInSeconds * position
 
       setIsDragging(true)
       setProgressWidth(`${position * 100}%`)
-
-      setTimeProgress({
-        rawTime: +newRawTime.toFixed(1),
-        formattedTime: secondsToDuration(newRawTime),
-      })
+      setTimeProgress(position)
     },
-    [durationInSeconds, setIsDragging, setTimeProgress]
+    [setIsDragging, setTimeProgress]
   )
   const [progressWidth, setProgressWidth] = useState<string>('0%')
   const sliderContainerRef = useRef<HTMLDivElement>(null)
@@ -67,21 +64,12 @@ function AudioTimeSliderBody() {
         if (isInRange) {
           const newPosition = (clientX - left) / width
           const newWidth = `${newPosition * 100}%`
-          const newRawTime = durationInSeconds * newPosition
 
           setProgressWidth(newWidth)
-          setTimeProgress({
-            rawTime: +newRawTime.toFixed(1),
-            formattedTime: secondsToDuration(newRawTime),
-          })
+          setTimeProgress(newPosition)
         } else {
           setProgressWidth(isBeforeRange ? '0%' : '100%')
-          setTimeProgress({
-            rawTime: isBeforeRange ? 0 : durationInSeconds,
-            formattedTime: secondsToDuration(
-              isBeforeRange ? 0 : durationInSeconds
-            ),
-          })
+          setTimeProgress(isBeforeRange ? 0 : 1)
         }
       }
     }

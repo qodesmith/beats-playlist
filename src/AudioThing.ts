@@ -1,7 +1,6 @@
 import type {audioDataAtomFamily} from './globalState'
 import type {ExtractAtomValue} from 'jotai'
 
-import {secondsToDuration} from '@qodestack/utils'
 import {RESET} from 'jotai/utils'
 
 import {TARGET_LUFS} from './constants'
@@ -10,7 +9,7 @@ import {
   handleNextClickAtom,
   isSliderDraggingAtom,
   repeatStateSelector,
-  timeProgressAtom,
+  setTimeProgressAtom,
 } from './globalState'
 import {store} from './store'
 
@@ -47,7 +46,7 @@ export class AudioThing {
     this.#interval = null
 
     this.connectAudio()
-    store.set(timeProgressAtom, RESET)
+    store.set(setTimeProgressAtom, RESET)
   }
 
   private createAudioSource() {
@@ -169,7 +168,7 @@ export class AudioThing {
       this.#audioSource.disconnect()
       this.#gainNode.disconnect()
       this.#audioContext.close()
-      store.set(timeProgressAtom, RESET)
+      store.set(setTimeProgressAtom, RESET)
     }
   }
 
@@ -186,11 +185,9 @@ export class AudioThing {
       playState === 'playing'
         ? this.#audioContext.currentTime - this.#startTime + this.#pausedTime
         : this.#pausedTime
+    const position = time / this.#audioBuffer.duration
 
-    store.set(timeProgressAtom, {
-      rawTime: +time.toFixed(1),
-      formattedTime: secondsToDuration(time),
-    })
+    store.set(setTimeProgressAtom, position)
   }
 
   private startCalculatingProgress(): void {

@@ -1,12 +1,13 @@
 import type {WaveformStyle} from './WaveformCanvas'
 import type {TailwindColor} from '../../tailwindColors'
 
-import {useAtomValue} from 'jotai'
+import {useAtomValue, useSetAtom} from 'jotai'
 import {useCallback, useId} from 'react'
 
 import {Cursor} from './Cursor'
+import {ProgressOverlay} from './ProgressOverlay'
 import {WaveformCanvas} from './WaveformCanvas'
-import {audioThingAtom} from '../../globalState'
+import {audioThingAtom, setTimeProgressAtom} from '../../globalState'
 
 // TODO - implement an oscilloscope with the Web Audio API - https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Visualizations_with_Web_Audio_API
 export function Visualizer({
@@ -60,6 +61,7 @@ export function Visualizer({
   const isReflection = style === 'reflection'
   const BAR_WIDTH = 1
   const audioThing = useAtomValue(audioThingAtom)
+  const setTimeProgress = useSetAtom(setTimeProgressAtom)
 
   /**
    * When there's no audioBuffer we want to show a straight line. 0.5 ensures
@@ -74,8 +76,9 @@ export function Visualizer({
       const position = offsetX / width
 
       audioThing?.setPlayPosition(position)
+      setTimeProgress(position)
     },
-    [audioThing]
+    [audioThing, setTimeProgress]
   )
 
   return (
@@ -104,6 +107,9 @@ export function Visualizer({
           isLoading={!!isLoading}
         />
       )}
+
+      {/* OVERLAY CONTAINER */}
+      <ProgressOverlay />
 
       {/* Keep this on the bottom so it's z-index is above the waveforms */}
       {!isLoading && audioBuffer && (

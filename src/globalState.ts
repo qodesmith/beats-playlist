@@ -1,7 +1,8 @@
 import type {Video} from '@qodestack/dl-yt-playlist'
 
-import {shuffleArray} from '@qodestack/utils'
+import {secondsToDuration, shuffleArray} from '@qodestack/utils'
 import {atom} from 'jotai'
+import {RESET} from 'jotai/utils'
 import {atomFamily, atomWithReset, atomWithStorage, loadable} from 'jotai/utils'
 
 import {AudioThing} from './AudioThing'
@@ -339,10 +340,40 @@ export const isSliderDraggingAtom = atom<boolean>(false)
  * - `formattedTime` - a string in the format of `<minutes>:<seconds>`;
  *     e.x. `3:26`
  */
-export const timeProgressAtom = atomWithReset<{
+const timeProgressAtom = atomWithReset<{
   rawTime: number
   formattedTime: string
 }>({rawTime: 0, formattedTime: '0:00'})
+
+export const timeProgressSelector = atom(get => get(timeProgressAtom))
+
+/**
+ * Takes a number between 0 - 1 and updates the time progress data.
+ */
+export const setTimeProgressAtom = atom(
+  null,
+  (get, set, position: number | typeof RESET) => {
+    if (position === RESET) return set(timeProgressAtom, RESET)
+
+    const duration = get(metadataItemSelector)?.durationInSeconds ?? 0
+    const rawTime = +(position * duration).toFixed(1)
+    const formattedTime = secondsToDuration(rawTime)
+
+    set(timeProgressAtom, {rawTime, formattedTime})
+  }
+)
+
+/**
+ * Returns a value of 0 - 1 as a percentage of the audio progress. This
+ * completely relies on timeProgressAtom being updated as the music plays, which
+ * happens in the AudioTimeSlider component.
+ */
+export const progressWidthSelector = atom(get => {
+  const {rawTime} = get(timeProgressAtom)
+  const duration = get(metadataItemSelector)?.durationInSeconds ?? 0
+  console.log({rawTimeFromSelector: rawTime})
+  return rawTime / duration
+})
 
 ////////////////////
 // SIZE CONTAINER //
