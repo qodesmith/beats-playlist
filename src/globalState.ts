@@ -2,7 +2,7 @@ import {AudioThing} from './AudioThing'
 import type {Video} from '@qodestack/dl-yt-playlist'
 
 import {atom} from 'jotai'
-import {atomFamily, atomWithStorage, loadable} from 'jotai/utils'
+import {atomFamily, atomWithReset, atomWithStorage, loadable} from 'jotai/utils'
 
 import {
   getRandomBeatId,
@@ -333,7 +333,7 @@ export const toggleShuffleAtom = atom(null, (get, set) => {
  * This atom powers the time progress indicator in the footer. It is updated by
  * the AudioThing class.
  */
-export const timeProgressAtom = atom<string>('0:00')
+export const timeProgressAtom = atomWithReset<string>('0:00')
 
 ////////////////////
 // SIZE CONTAINER //

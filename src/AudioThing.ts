@@ -10,6 +10,7 @@ import {
 } from './globalState'
 import {store} from './store'
 import {secondsToDuration} from '@qodestack/utils'
+import {RESET} from 'jotai/utils'
 
 type AudioThingInput = NonNullable<
   Awaited<ExtractAtomValue<ReturnType<typeof audioDataAtomFamily>>>
@@ -44,6 +45,7 @@ export class AudioThing {
     this.#interval = null
 
     this.connectAudio()
+    store.set(timeProgressAtom, RESET)
   }
 
   private createAudioSource() {
