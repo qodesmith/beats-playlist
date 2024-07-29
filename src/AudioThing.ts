@@ -6,6 +6,7 @@ import {
   currentAudioStateAtom,
   handleNextClickAtom,
   repeatStateSelector,
+  timeProgressAtom,
 } from './globalState'
 import {store} from './store'
 
@@ -23,6 +24,7 @@ export class AudioThing {
   #gainNode: GainNode
   #startTime: number
   #pausedTime: number
+  #interval: number | null
 
   constructor(data: AudioThingInput | undefined, id: string) {
     if (!data) throw new Error(`No audio data found for id: ${id}`)
@@ -38,6 +40,7 @@ export class AudioThing {
     this.#gainNode = audioContext.createGain()
     this.#startTime = 0
     this.#pausedTime = 0
+    this.#interval = null
 
     this.connectAudio()
   }
@@ -117,12 +120,14 @@ export class AudioThing {
 
     if (playState === 'playing') {
       store.set(currentAudioStateAtom, 'stopped')
+      this.stopCalculatingProgress()
       this.#pausedTime += this.#audioContext.currentTime - this.#startTime
       this.#audioSource.stop()
       this.#audioSource = this.createAudioSource()
       this.connectAudio()
     } else {
       store.set(currentAudioStateAtom, 'playing')
+      this.startCalculatingProgress()
       this.#startTime = this.#audioContext.currentTime
       this.#audioSource.start(0, this.#pausedTime)
     }
@@ -152,6 +157,7 @@ export class AudioThing {
 
   remove() {
     if (this.#audioContext.state !== 'closed') {
+      this.stopCalculatingProgress()
       this.#audioSource.disconnect()
       this.#gainNode.disconnect()
       this.#audioContext.close()
@@ -160,5 +166,34 @@ export class AudioThing {
 
   setRepeat(value: boolean) {
     this.#audioSource.loop = value
+  }
+
+  private calculateTimeProgress(): void {
+    const playState = store.get(currentAudioStateAtom)
+    const time =
+      playState === 'playing'
+        ? this.#audioContext.currentTime - this.#startTime + this.#pausedTime
+        : this.#pausedTime
+    const minutes = Math.floor(time / 60)
+    const seconds = Math.floor(time % 60)
+    const formattedTime = `${minutes}:${seconds.toString().padStart(2, '0')}`
+
+    store.set(timeProgressAtom, formattedTime)
+  }
+
+  private startCalculatingProgress(): void {
+    const animate = () => {
+      this.calculateTimeProgress()
+      this.#interval = requestAnimationFrame(animate)
+    }
+
+    this.#interval = requestAnimationFrame(animate)
+  }
+
+  private stopCalculatingProgress(): void {
+    if (this.#interval) {
+      cancelAnimationFrame(this.#interval)
+      this.#interval = null
+    }
   }
 }
