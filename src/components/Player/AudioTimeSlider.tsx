@@ -1,5 +1,6 @@
 import {secondsToDuration} from '@qodestack/utils'
-import {useAtomValue, useSetAtom} from 'jotai'
+import clsx from 'clsx'
+import {useAtom, useAtomValue, useSetAtom} from 'jotai'
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 
 import {
@@ -28,7 +29,7 @@ function AudioTimeSliderBody() {
     () => secondsToDuration(durationInSeconds),
     [durationInSeconds]
   )
-  const setIsDragging = useSetAtom(isSliderDraggingAtom)
+  const [isDragging, setIsDragging] = useAtom(isSliderDraggingAtom)
   const handleMouseDown = useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       e.preventDefault()
@@ -44,6 +45,12 @@ function AudioTimeSliderBody() {
   )
   const [progressWidth, setProgressWidth] = useState<string>('0%')
   const sliderContainerRef = useRef<HTMLDivElement>(null)
+  const ballCls = clsx(
+    'absolute right-0 top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 scale-100 rounded-full bg-puerto-rico-300 transition-transform duration-200 group-hover:scale-[3]',
+    {
+      'scale-[3]': isDragging,
+    }
+  )
 
   /**
    * MOUSE MOVE
@@ -123,7 +130,7 @@ function AudioTimeSliderBody() {
     <div className="m-auto grid w-full grid-cols-[5ch,1fr,5ch] gap-2 py-2 md:w-1/2">
       <div className="place-self-end">{formattedTime}</div>
       <div
-        className="relative grid cursor-pointer place-items-center"
+        className="group relative grid cursor-pointer place-items-center"
         ref={sliderContainerRef}
         onMouseDown={handleMouseDown}
       >
@@ -137,7 +144,7 @@ function AudioTimeSliderBody() {
         />
 
         {/* BALL */}
-        <div className="absolute" />
+        <div className={ballCls} style={{left: progressWidth}} />
       </div>
       <div>{duration}</div>
     </div>
