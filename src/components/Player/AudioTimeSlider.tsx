@@ -1,5 +1,5 @@
 import {secondsToDuration} from '@qodestack/utils'
-import {useAtomValue, useSetAtom} from 'jotai'
+import {useAtom, useAtomValue, useSetAtom} from 'jotai'
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 
 import {
@@ -20,10 +20,10 @@ export function AudioTimeSlider() {
 }
 
 function AudioTimeSliderBody() {
-  const {rawTime, formattedTime} = useAtomValue(timeProgressAtom)
-  const {durationInSeconds} = useAtomValue(metadataItemSelector) ?? {}
+  const [{rawTime, formattedTime}, setTimeProgress] = useAtom(timeProgressAtom)
+  const {durationInSeconds = 0} = useAtomValue(metadataItemSelector) ?? {}
   const duration = useMemo(
-    () => secondsToDuration(durationInSeconds ?? 0),
+    () => secondsToDuration(durationInSeconds),
     [durationInSeconds]
   )
   const setIsDragging = useSetAtom(isSliderDraggingAtom)
@@ -33,11 +33,17 @@ function AudioTimeSliderBody() {
       const {width, left} = e.currentTarget.getBoundingClientRect()
       const offsetX = e.clientX - left
       const position = offsetX / width
+      const newRawTime = durationInSeconds * position
 
       setIsDragging(true)
       setProgressWidth(`${position * 100}%`)
+
+      setTimeProgress({
+        rawTime: +newRawTime.toFixed(1),
+        formattedTime: secondsToDuration(newRawTime),
+      })
     },
-    [setIsDragging]
+    [durationInSeconds, setIsDragging, setTimeProgress]
   )
   const [progressWidth, setProgressWidth] = useState<string>('0%')
   const sliderContainerRef = useRef<HTMLDivElement>(null)
@@ -61,10 +67,21 @@ function AudioTimeSliderBody() {
         if (isInRange) {
           const newPosition = (clientX - left) / width
           const newWidth = `${newPosition * 100}%`
+          const newRawTime = durationInSeconds * newPosition
 
           setProgressWidth(newWidth)
+          setTimeProgress({
+            rawTime: +newRawTime.toFixed(1),
+            formattedTime: secondsToDuration(newRawTime),
+          })
         } else {
           setProgressWidth(isBeforeRange ? '0%' : '100%')
+          setTimeProgress({
+            rawTime: isBeforeRange ? 0 : durationInSeconds,
+            formattedTime: secondsToDuration(
+              isBeforeRange ? 0 : durationInSeconds
+            ),
+          })
         }
       }
     }
@@ -74,7 +91,7 @@ function AudioTimeSliderBody() {
     return () => {
       document.removeEventListener('mousemove', handler)
     }
-  }, [])
+  }, [durationInSeconds, setTimeProgress])
 
   /**
    * MOUSE UP
@@ -109,7 +126,7 @@ function AudioTimeSliderBody() {
    */
   useEffect(() => {
     if (!store.get(isSliderDraggingAtom)) {
-      const newWidth = `${(rawTime / (durationInSeconds ?? 0)) * 100}%`
+      const newWidth = `${(rawTime / durationInSeconds) * 100}%`
       setProgressWidth(newWidth)
     }
   }, [durationInSeconds, rawTime])

@@ -334,6 +334,10 @@ export const isSliderDraggingAtom = atom<boolean>(false)
 /**
  * This atom powers the time progress indicator in the footer. It is updated by
  * the AudioThing class.
+ *
+ * - `rawTime` - the number of seconds elapsed
+ * - `formattedTime` - a string in the format of `<minutes>:<seconds>`;
+ *     e.x. `3:26`
  */
 export const timeProgressAtom = atomWithReset<{
   rawTime: number
