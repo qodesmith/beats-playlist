@@ -9,6 +9,7 @@ import {
   timeProgressAtom,
 } from './globalState'
 import {store} from './store'
+import {secondsToDuration} from '@qodestack/utils'
 
 type AudioThingInput = NonNullable<
   Awaited<ExtractAtomValue<ReturnType<typeof audioDataAtomFamily>>>
@@ -174,11 +175,8 @@ export class AudioThing {
       playState === 'playing'
         ? this.#audioContext.currentTime - this.#startTime + this.#pausedTime
         : this.#pausedTime
-    const minutes = Math.floor(time / 60)
-    const seconds = Math.floor(time % 60)
-    const formattedTime = `${minutes}:${seconds.toString().padStart(2, '0')}`
 
-    store.set(timeProgressAtom, formattedTime)
+    store.set(timeProgressAtom, secondsToDuration(time))
   }
 
   private startCalculatingProgress(): void {
