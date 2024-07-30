@@ -1,12 +1,15 @@
 import {secondsToDuration} from '@qodestack/utils'
 import clsx from 'clsx'
 import {useAtom, useAtomValue, useSetAtom} from 'jotai'
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
+import {useCallback, useEffect, useId} from 'react'
 
 import {
   audioThingAtom,
+  durationInSecondsSelector,
+  getAudioDataLoadableAtomFamily,
   isSliderDraggingAtom,
   metadataItemSelector,
+  progressWidthAtom,
   selectedBeatIdAtom,
   setTimeProgressAtom,
   timeProgressSelector,
@@ -22,14 +25,9 @@ export function AudioTimeSlider() {
 }
 
 function AudioTimeSliderBody() {
-  const {rawTime, formattedTime} = useAtomValue(timeProgressSelector)
   const setTimeProgress = useSetAtom(setTimeProgressAtom)
-  const {durationInSeconds = 0} = useAtomValue(metadataItemSelector) ?? {}
-  const duration = useMemo(
-    () => secondsToDuration(durationInSeconds),
-    [durationInSeconds]
-  )
-  const [isDragging, setIsDragging] = useAtom(isSliderDraggingAtom)
+  const setIsDragging = useSetAtom(isSliderDraggingAtom)
+  const setProgressWidth = useSetAtom(progressWidthAtom)
   const handleMouseDown = useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       e.preventDefault()
@@ -41,16 +39,73 @@ function AudioTimeSliderBody() {
       setProgressWidth(`${position * 100}%`)
       setTimeProgress(position)
     },
-    [setIsDragging, setTimeProgress]
+    [setIsDragging, setProgressWidth, setTimeProgress]
   )
-  const [progressWidth, setProgressWidth] = useState<string>('0%')
-  const sliderContainerRef = useRef<HTMLDivElement>(null)
-  const ballCls = clsx(
-    'absolute right-0 top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 scale-100 rounded-full bg-puerto-rico-300 transition-transform duration-200 group-hover:scale-[3]',
-    {
-      'scale-[3]': isDragging,
+  const sliderContainerId = useId()
+
+  return (
+    <div className="m-auto grid w-full grid-cols-[5ch,1fr,5ch] gap-2 py-2 md:w-1/2">
+      <MouseHandlers sliderContainerId={sliderContainerId} />
+      <FormattedTime />
+      <div
+        id={sliderContainerId}
+        className="group relative grid cursor-pointer place-items-center"
+        onMouseDown={handleMouseDown}
+      >
+        {/* SLIDER BG */}
+        <div className="h-1 w-full rounded bg-neutral-500" />
+
+        {/* SLIDER PROGRESS */}
+        <SliderProgress />
+
+        {/* BALL */}
+        <Ball />
+      </div>
+      <Duration />
+    </div>
+  )
+}
+
+function FormattedTime() {
+  const {formattedTime} = useAtomValue(timeProgressSelector)
+
+  return <div className="place-self-end">{formattedTime}</div>
+}
+
+function SliderProgress() {
+  const [progressWidth, setProgressWidth] = useAtom(progressWidthAtom)
+  const {rawTime} = useAtomValue(timeProgressSelector)
+  const beatId = useAtomValue(selectedBeatIdAtom)
+  const audioBufferRes = useAtomValue(getAudioDataLoadableAtomFamily(beatId))
+  const durationInSeconds = (() => {
+    if (audioBufferRes.state === 'hasData') {
+      return Math.round(audioBufferRes.data?.audioBuffer.duration ?? 0)
     }
+    return 0
+  })()
+
+  /**
+   * Update the progress width during playback.
+   */
+  useEffect(() => {
+    if (!store.get(isSliderDraggingAtom)) {
+      const newWidth = `${(rawTime / durationInSeconds) * 100}%`
+      setProgressWidth(newWidth)
+    }
+  }, [durationInSeconds, rawTime, setProgressWidth])
+
+  return (
+    <div
+      className="absolute left-0 h-1 rounded bg-puerto-rico-400"
+      style={{width: progressWidth}}
+    />
   )
+}
+
+function MouseHandlers({sliderContainerId}: {sliderContainerId: string}) {
+  const setProgressWidth = useSetAtom(progressWidthAtom)
+  const setTimeProgress = useSetAtom(setTimeProgressAtom)
+  const setIsDragging = useSetAtom(isSliderDraggingAtom)
 
   /**
    * MOUSE MOVE
@@ -59,9 +114,10 @@ function AudioTimeSliderBody() {
    */
   useEffect(() => {
     const handler = ({clientX}: MouseEvent) => {
-      if (!sliderContainerRef.current) return
+      const sliderContainer = document.getElementById(sliderContainerId)
+      if (!sliderContainer) return
 
-      const {left, width} = sliderContainerRef.current.getBoundingClientRect()
+      const {left, width} = sliderContainer.getBoundingClientRect()
       const isBeforeRange = clientX < left
       const isAfterRange = clientX > left + width
       const isInRange = !isBeforeRange && !isAfterRange
@@ -86,7 +142,7 @@ function AudioTimeSliderBody() {
     return () => {
       document.removeEventListener('mousemove', handler)
     }
-  }, [durationInSeconds, setTimeProgress])
+  }, [setProgressWidth, setTimeProgress, sliderContainerId])
 
   /**
    * MOUSE UP
@@ -95,11 +151,12 @@ function AudioTimeSliderBody() {
    */
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (!sliderContainerRef.current) return
+      const sliderContainer = document.getElementById(sliderContainerId)
+      if (!sliderContainer) return
 
       if (store.get(isSliderDraggingAtom)) {
         const {durationInSeconds} = store.get(metadataItemSelector)!
-        const {width, left} = sliderContainerRef.current.getBoundingClientRect()
+        const {width, left} = sliderContainer.getBoundingClientRect()
         const offsetX = e.clientX - left
         const position = offsetX / width
         const newPosition = Math.min(Math.max(position, 0), durationInSeconds)
@@ -114,39 +171,30 @@ function AudioTimeSliderBody() {
     return () => {
       document.removeEventListener('mouseup', handler)
     }
-  }, [setIsDragging])
+  }, [setIsDragging, sliderContainerId])
 
-  /**
-   * Update the progress width during playback.
-   */
-  useEffect(() => {
-    if (!store.get(isSliderDraggingAtom)) {
-      const newWidth = `${(rawTime / durationInSeconds) * 100}%`
-      setProgressWidth(newWidth)
-    }
-  }, [durationInSeconds, rawTime])
+  return null
+}
+
+function Duration() {
+  const durationInSeconds = useAtomValue(durationInSecondsSelector)
 
   return (
-    <div className="m-auto grid w-full grid-cols-[5ch,1fr,5ch] gap-2 py-2 md:w-1/2">
-      <div className="place-self-end">{formattedTime}</div>
-      <div
-        className="group relative grid cursor-pointer place-items-center"
-        ref={sliderContainerRef}
-        onMouseDown={handleMouseDown}
-      >
-        {/* SLIDER BG */}
-        <div className="h-1 w-full rounded bg-neutral-500" />
-
-        {/* SLIDER PROGRESS */}
-        <div
-          className="absolute left-0 h-1 rounded bg-puerto-rico-400"
-          style={{width: progressWidth}}
-        />
-
-        {/* BALL */}
-        <div className={ballCls} style={{left: progressWidth}} />
-      </div>
-      <div>{duration}</div>
+    <div>
+      {durationInSeconds ? secondsToDuration(durationInSeconds) : '--:--'}
     </div>
   )
+}
+
+function Ball() {
+  const isDragging = useAtomValue(isSliderDraggingAtom)
+  const progressWidth = useAtomValue(progressWidthAtom)
+  const ballCls = clsx(
+    'absolute right-0 top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 scale-100 rounded-full bg-puerto-rico-300 transition-transform duration-200 group-hover:scale-[3]',
+    {
+      'scale-[3]': isDragging,
+    }
+  )
+
+  return <div className={ballCls} style={{left: progressWidth}} />
 }

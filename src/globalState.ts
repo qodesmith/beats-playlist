@@ -134,6 +134,22 @@ export const selectedBeatIdAtom = atom<string>()
 
 export const selectedArtistAtom = atom<string>()
 
+export const durationInSecondsSelector = atom(get => {
+  const beatId = get(selectedBeatIdAtom)
+  const audioBufferRes = get(getAudioDataLoadableAtomFamily(beatId))
+  const metadataItem = get(metadataItemSelector)
+
+  if (audioBufferRes.state === 'hasData') {
+    return audioBufferRes.data?.audioBuffer.duration
+  }
+
+  if (audioBufferRes.state === 'hasError') {
+    return metadataItem?.durationInSeconds ?? 0
+  }
+
+  return 0
+})
+
 //////////////
 // CONTROLS //
 //////////////
@@ -331,6 +347,8 @@ export const toggleShuffleAtom = atom(null, (get, set) => {
 })
 
 export const isSliderDraggingAtom = atom<boolean>(false)
+
+export const progressWidthAtom = atom<string>('0%')
 
 /**
  * This atom powers the time progress indicator in the footer. It is updated by
