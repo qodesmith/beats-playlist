@@ -11,6 +11,7 @@ import {
   selectedBeatIdAtom,
 } from '../../globalState'
 import {TripleDots} from '../TripleDots'
+import {YouTubeLogo} from '../YouTubeLogo'
 
 export function BeatList() {
   const metadata = useAtomValue(metadataSelector)
@@ -31,7 +32,14 @@ export function BeatList() {
     <div className="flex w-full flex-grow flex-col overflow-y-auto overflow-x-hidden pb-4">
       {metadata.map(
         (
-          {id, title, channelName, dateAddedToPlaylist, durationInSeconds},
+          {
+            id,
+            title,
+            channelName,
+            dateAddedToPlaylist,
+            durationInSeconds,
+            channelUrl,
+          },
           i
         ) => {
           const beatNum = i + 1
@@ -76,15 +84,20 @@ export function BeatList() {
               {/* TITLE / ARTIST */}
               <div className="flex w-full flex-col items-start overflow-hidden">
                 <div className={titleCls}>{title}</div>
-                <div
-                  className={artistCls}
-                  onClick={() => {
-                    setSelectedArtist(v => {
-                      return v === undefined ? channelName : undefined
-                    })
-                  }}
-                >
-                  {channelName || <>&mdash;</>}
+                <div className="flex items-center gap-3">
+                  <a href={channelUrl ?? '#'} target="_blank">
+                    <YouTubeLogo size={15} />
+                  </a>
+                  <div
+                    className={artistCls}
+                    onClick={() => {
+                      setSelectedArtist(v => {
+                        return v === undefined ? channelName : undefined
+                      })
+                    }}
+                  >
+                    {channelName || <>&mdash;</>}
+                  </div>
                 </div>
               </div>
 
