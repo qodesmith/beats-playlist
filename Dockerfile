@@ -4,7 +4,7 @@ RUN apt-get update
 
 COPY ./package.json /app/
 COPY ./dist/ /app/
-COPY ./server.ts /app/
+COPY ./server/*.ts /app/
 
 WORKDIR /app
 

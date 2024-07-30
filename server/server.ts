@@ -3,9 +3,9 @@ import type {Video} from '@qodestack/dl-yt-playlist'
 import fs from 'node:fs'
 
 import {serverTiming} from '@elysiajs/server-timing'
-import {gzipSync} from 'bun'
-import compressible from 'compressible'
-import {Elysia, mapResponse} from 'elysia'
+import {Elysia} from 'elysia'
+
+import {gzip} from './gzip'
 
 const SERVER_PORT = Bun.env.SERVER_PORT
 const MAX_DURATION_SECONDS = Number(Bun.env.MAX_DURATION_SECONDS) || 60 * 8
@@ -73,33 +73,3 @@ const app = new Elysia({name: 'beats-playlist'})
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
 )
-
-function gzip() {
-  return () => {
-    return new Elysia({name: 'gzip-compression'}).onAfterHandle(
-      async ({response, set}) => {
-        const res = mapResponse(response, {status: 200, headers: {}})
-        const contentType = res.headers.get('content-type') ?? 'text/plain'
-        const isCompressible = compressible(contentType)
-
-        if (!isCompressible) return
-
-        set.headers['content-encoding'] = 'gzip'
-        set.headers['content-type'] = contentType
-
-        // Bun.file(...) returns a blob.
-        if (response instanceof Blob) {
-          const compressed = gzipSync(await response.arrayBuffer())
-          return new Response(compressed)
-        }
-
-        const text =
-          typeof response === 'object'
-            ? JSON.stringify(response)
-            : (response?.toString() ?? '')
-
-        return new Response(gzipSync(text))
-      }
-    )
-  }
-}
