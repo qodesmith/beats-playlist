@@ -1,5 +1,7 @@
 import type {Video} from '@qodestack/dl-yt-playlist'
 
+import fs from 'node:fs'
+
 import {serverTiming} from '@elysiajs/server-timing'
 import {gzipSync} from 'bun'
 import compressible from 'compressible'
@@ -16,6 +18,7 @@ const app = new Elysia({name: 'beats-playlist'})
   .use(serverTiming())
   .use(gzip())
   // Frontend assets.
+  .get('/play-logo.png', () => Bun.file('/app/play-logo.png'))
   .get('/', () => Bun.file('/app/index.html'))
   .get('/assets/:file', ({params: {file}}) => Bun.file(`/app/assets/${file}`))
 
@@ -29,8 +32,14 @@ const app = new Elysia({name: 'beats-playlist'})
         return !!audioFileExtension && durationInSeconds <= MAX_DURATION_SECONDS
       }
     )
+    const filteredVideosSet = new Set(
+      filteredVideos.map(v => `${v.id}.${v.audioFileExtension}`)
+    )
+    const filesWithNoMetadata = fs
+      .readdirSync('/beats/audio')
+      .filter(item => !filteredVideosSet.has(item))
 
-    return {metadata: filteredVideos}
+    return {metadata: filteredVideos, filesWithNoMetadata}
 
     // Paginated version:
     // const page = Number(query.page) || 1
