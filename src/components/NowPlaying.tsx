@@ -10,7 +10,7 @@ export function NowPlaying() {
   const [selectedArtist, setSelectedArtist] = useAtom(selectedArtistAtom)
   const {channelName, title} = useAtomValue(metadataItemSelector) ?? {}
   const isSelectedArtist = selectedArtist === channelName
-  const nameCls = clsx('font-bold rounded flex self-start', {
+  const nameCls = clsx('font-bold rounded flex self-start items-center', {
     [highlightColorObj.bg]: isSelectedArtist,
     [highlightColorObj.text]: !isSelectedArtist,
     'text-black pr-2': isSelectedArtist,
@@ -20,14 +20,14 @@ export function NowPlaying() {
   }, [setSelectedArtist])
 
   return (
-    <div className="flex gap-2 pb-2">
+    <div className="flex items-center gap-2 pb-2">
       <div>🎵</div>
       {channelName && title && (
         <>
           <div className={nameCls}>
             {isSelectedArtist && (
               <CloseButton
-                size={14}
+                size={23}
                 className="cursor-pointer px-2"
                 onClick={clearArtist}
                 fill="black"
