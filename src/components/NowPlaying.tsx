@@ -10,7 +10,7 @@ export function NowPlaying() {
   const [selectedArtist, setSelectedArtist] = useAtom(selectedArtistAtom)
   const {channelName, title} = useAtomValue(metadataItemSelector) ?? {}
   const isSelectedArtist = selectedArtist === channelName
-  const nameCls = clsx('font-bold rounded flex', {
+  const nameCls = clsx('font-bold rounded flex self-start', {
     [highlightColorObj.bg]: isSelectedArtist,
     [highlightColorObj.text]: !isSelectedArtist,
     'text-black pr-2': isSelectedArtist,
