@@ -2,16 +2,22 @@ export function Play({
   size = 40,
   circleFill = 'white',
   triangleFill = 'black',
+  triangleClass,
 }: {
   size?: number
   circleFill?: string
   triangleFill?: string
+  triangleClass?: string
 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 50 50">
       <g className="hover:cursor-pointer">
-        <circle cx="25" cy="25" r="24" fill={circleFill} stroke="black" />
-        <path d="M20 15 L20 35 L35 25 Z" fill={triangleFill} stroke="black" />
+        <circle cx="25" cy="25" r="24" fill={circleFill} />
+        <path
+          d="M20 15 L20 35 L35 25 Z"
+          fill={triangleFill}
+          className={triangleClass}
+        />
       </g>
     </svg>
   )

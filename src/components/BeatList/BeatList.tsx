@@ -10,6 +10,7 @@ import {
   selectedArtistAtom,
   selectedBeatIdAtom,
 } from '../../globalState'
+import {Play} from '../Player/ControlIcons'
 import {TripleDots} from '../TripleDots'
 import {YouTubeLogo} from '../YouTubeLogo'
 
@@ -64,6 +65,7 @@ export function BeatList() {
           )
           const dateAdded = new Date(dateAddedToPlaylist).toLocaleDateString()
           const clickToPlay = () => handleClickToPlay(id)
+          const playContainerCls = clsx('absolute', !isCurrentBeat && 'hidden')
 
           return (
             <div key={id} id={id} className={containerCls}>
@@ -75,10 +77,18 @@ export function BeatList() {
 
               {/* THUMBNAIL */}
               <div
-                className="h-11 w-11 cursor-pointer place-self-center overflow-hidden rounded"
+                className="relative h-11 w-11 cursor-pointer place-self-center overflow-hidden rounded"
                 onError={handleImageError}
                 onClick={clickToPlay}
               >
+                <div className={playContainerCls}>
+                  <Play
+                    circleFill="transparent"
+                    triangleFill="white"
+                    size={44}
+                    triangleClass="drop-shadow-md"
+                  />
+                </div>
                 <img src={`/thumbnails/${id}[small]`} className="h-11 w-11" />
               </div>
 
