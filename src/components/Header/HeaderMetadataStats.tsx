@@ -3,11 +3,10 @@ import {useAtomValue} from 'jotai'
 import {metadataStatsSelector, selectedArtistAtom} from '../../globalState'
 
 export function HeaderMetadataStats() {
+  const hasSelectedArtist = !!useAtomValue(selectedArtistAtom)
   const {totalBeats, totalTime, artistCount} = useAtomValue(
     metadataStatsSelector
   )
-  const hasSelectedArtist = !!useAtomValue(selectedArtistAtom)
-  console.log({totalTime})
 
   return (
     <div className="flex gap-3 opacity-50">
