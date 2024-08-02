@@ -42,9 +42,19 @@ export const isAppInitializedAtom = atom<boolean>(false)
  */
 export const metadataSelector = atom<Video[]>(get => {
   const selectedArtist = get(selectedArtistAtom)
+  const search = get(searchAtom)
   const metadata = get(_isMetadataShuffledAtom)
     ? get(_shuffledMetadataSelector)
     : _initialMetadata.data
+
+  if (search.trim()) {
+    const lowerCaseSearch = search.toLowerCase()
+    return metadata.filter(
+      v =>
+        v.title.toLowerCase().includes(lowerCaseSearch) ||
+        v.channelName.toLowerCase().includes(lowerCaseSearch)
+    )
+  }
 
   return selectedArtist
     ? metadata.filter(v => v.channelName === selectedArtist)
@@ -108,8 +118,8 @@ export const metadataStatsSelector = atom(get => {
   }
 })
 
-export const artistStatsSelector = atom(() => {
-  const metadata = _initialMetadata.data
+export const artistStatsSelector = atom(get => {
+  const metadata = get(metadataSelector)
   const artistsDataObj = metadata.reduce<Record<string, number>>(
     (acc, {channelName}) => {
       if (!acc[channelName]) {
@@ -149,6 +159,8 @@ export const durationInSecondsSelector = atom(get => {
 
   return 0
 })
+
+export const searchAtom = atom('')
 
 //////////////
 // CONTROLS //
