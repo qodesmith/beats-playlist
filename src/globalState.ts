@@ -121,7 +121,11 @@ export const metadataStatsSelector = atom(get => {
   const {artistCount} = get(artistStatsSelector)
 
   return {
-    totalTime: secondsToPlainSentence({totalSeconds, excluded: ['second']}),
+    totalTime: secondsToPlainSentence({
+      totalSeconds,
+      excluded: ['second'],
+      // roundIfExcluded: true,
+    }),
     totalBeats,
     artistCount,
   }

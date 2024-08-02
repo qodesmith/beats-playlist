@@ -6,36 +6,36 @@ import {store} from './store'
 export function secondsToPlainSentence({
   totalSeconds,
   excluded = [],
+  roundIfExcluded = false,
 }: {
   totalSeconds: number
   excluded?: ('hour' | 'minute' | 'second')[]
+  roundIfExcluded?: boolean
 }): string {
   if (totalSeconds < 0) {
     throw new Error('Input must be a non-negative number')
   }
 
-  const hours = Math.floor(totalSeconds / 3600)
-  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  let hours = Math.floor(totalSeconds / 3600)
+  let minutes = Math.floor((totalSeconds % 3600) / 60)
   const seconds = totalSeconds % 60
-
   const parts: string[] = []
+  const hoursExcluded = excluded.includes('hour')
+  const minutesExcluded = excluded.includes('minute')
+  const secondsExcluded = excluded.includes('second')
 
-  if (hours > 0) {
-    if (!excluded.includes('hour')) {
-      parts.push(pluralize(hours, 'hour'))
-    }
+  if (hours > 0 && !hoursExcluded) {
+    if (roundIfExcluded && minutesExcluded && minutes >= 30) hours++
+    parts.push(pluralize(hours, 'hour'))
   }
 
-  if (minutes > 0) {
-    if (!excluded.includes('minute')) {
-      parts.push(pluralize(minutes, 'minute'))
-    }
+  if (minutes > 0 && !minutesExcluded) {
+    if (roundIfExcluded && secondsExcluded && seconds >= 30) minutes++
+    parts.push(pluralize(minutes, 'minute'))
   }
 
-  if (seconds > 0 || parts.length === 0) {
-    if (!excluded.includes('second')) {
-      parts.push(pluralize(seconds, 'second'))
-    }
+  if ((seconds > 0 || parts.length === 0) && !secondsExcluded) {
+    parts.push(pluralize(seconds, 'second'))
   }
 
   return parts.join(', ')
