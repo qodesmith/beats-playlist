@@ -228,7 +228,7 @@ export const handlePlayPauseAtom = atom(null, get => {
   }
 })
 
-export const handleThumbnailClickAtom = atom(null, (get, _set, id: string) => {
+export const handleClickToPlayAtom = atom(null, (get, _set, id: string) => {
   const selectedBeatId = get(selectedBeatIdAtom)
 
   /**

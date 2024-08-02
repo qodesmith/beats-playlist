@@ -5,7 +5,7 @@ import {useCallback} from 'react'
 
 import {highlightColorObj} from '../../constants'
 import {
-  handleThumbnailClickAtom,
+  handleClickToPlayAtom,
   metadataSelector,
   selectedArtistAtom,
   selectedBeatIdAtom,
@@ -26,7 +26,7 @@ export function BeatList() {
     },
     []
   )
-  const handleThumbnailClick = useSetAtom(handleThumbnailClickAtom)
+  const handleClickToPlay = useSetAtom(handleClickToPlayAtom)
 
   return (
     <div className="flex w-full flex-grow flex-col overflow-y-auto overflow-x-hidden pb-4">
@@ -63,6 +63,7 @@ export function BeatList() {
             'cursor-pointer p-0.5 pl-0 text-sm text-neutral-500 md:p-1 md:pl-0'
           )
           const dateAdded = new Date(dateAddedToPlaylist).toLocaleDateString()
+          const clickToPlay = () => handleClickToPlay(id)
 
           return (
             <div key={id} id={id} className={containerCls}>
@@ -76,14 +77,18 @@ export function BeatList() {
               <div
                 className="h-11 w-11 cursor-pointer place-self-center overflow-hidden rounded"
                 onError={handleImageError}
-                onClick={() => handleThumbnailClick(id)}
+                onClick={clickToPlay}
               >
                 <img src={`/thumbnails/${id}[small]`} className="h-11 w-11" />
               </div>
 
               {/* TITLE / ARTIST */}
               <div className="flex w-full flex-col items-start overflow-hidden">
-                <div className={titleCls}>{title}</div>
+                <div className={titleCls}>
+                  <span className="cursor-pointer" onClick={clickToPlay}>
+                    {title}
+                  </span>
+                </div>
                 <div className="flex items-center gap-3">
                   <a href={channelUrl ?? '#'} target="_blank">
                     <YouTubeLogo size={15} />
