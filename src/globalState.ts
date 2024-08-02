@@ -41,24 +41,33 @@ export const isAppInitializedAtom = atom<boolean>(false)
  * original unsorted array or the shuffled array.
  */
 export const metadataSelector = atom<Video[]>(get => {
+  const currentItem = get(metadataItemSelector)
   const selectedArtist = get(selectedArtistAtom)
   const search = get(searchAtom)
-  const metadata = get(_isMetadataShuffledAtom)
+  let metadata = get(_isMetadataShuffledAtom)
     ? get(_shuffledMetadataSelector)
     : _initialMetadata.data
 
+  // Searching
   if (search.trim()) {
     const lowerCaseSearch = search.toLowerCase()
-    return metadata.filter(
+    metadata = metadata.filter(
       v =>
         v.title.toLowerCase().includes(lowerCaseSearch) ||
         v.channelName.toLowerCase().includes(lowerCaseSearch)
     )
   }
 
-  return selectedArtist
-    ? metadata.filter(v => v.channelName === selectedArtist)
-    : metadata
+  // Selected artist
+  if (selectedArtist) {
+    metadata = metadata.filter(v => v.channelName === selectedArtist)
+  }
+
+  if (currentItem && !metadata.includes(currentItem)) {
+    metadata = [currentItem].concat(metadata)
+  }
+
+  return metadata
 })
 
 const _isMetadataShuffledAtom = atom(false)
