@@ -14,10 +14,10 @@ export function Search() {
     'bg-neutral-900': isOpen,
   })
   const inputContainerCls = clsx(
-    'rounded border border-neutral-700 transition-all duration-200 overflow-hidden ml-2 flex items-center',
+    'rounded border border-neutral-700 transition-all duration-200 overflow-hidden flex items-center',
     {
-      'w-56': isOpen,
-      'w-0 border-0 ml-0': !isOpen,
+      'ml-2 w-56': isOpen,
+      'ml-0 w-0 border-0 ml-0': !isOpen,
     }
   )
 
