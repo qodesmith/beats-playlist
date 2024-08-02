@@ -90,11 +90,11 @@ export const shuffleMetadataAtom = atom(null, (get, set) => {
  */
 export const metadataItemSelector = atom(get => {
   const beatId = get(selectedBeatIdAtom)
-  return get(metadataSelector).find(v => v.id === beatId)
+  return _initialMetadata.data.find(v => v.id === beatId)
 })
 
 export const metadataStatsSelector = atom(get => {
-  const metadata = _initialMetadata.data
+  const metadata = get(metadataSelector)
   const totalBeats = metadata.length
   const totalSeconds = metadata.reduce<number>((acc, beat) => {
     return acc + beat.durationInSeconds

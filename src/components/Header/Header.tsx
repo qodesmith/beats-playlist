@@ -1,7 +1,7 @@
 import {useAtomValue} from 'jotai'
 
 import {HeaderButtonGroup} from './HeaderButtonGroup'
-import {metadataStatsSelector} from '../../globalState'
+import {metadataStatsSelector, selectedArtistAtom} from '../../globalState'
 
 export function Header() {
   return (
@@ -22,13 +22,18 @@ function HeaderMetadataStats() {
   const {totalBeats, totalTime, artistCount} = useAtomValue(
     metadataStatsSelector
   )
+  const hasSelectedArtist = !!useAtomValue(selectedArtistAtom)
 
   return (
     <div className="flex gap-3 opacity-50">
       <div className="text-nowrap">{totalBeats} beats</div>
       <div>|</div>
-      <div className="text-nowrap">{artistCount} artists</div>
-      <div>|</div>
+      {!hasSelectedArtist && (
+        <>
+          <div className="text-nowrap">{artistCount} artists</div>
+          <div>|</div>
+        </>
+      )}
       <div className="text-nowrap">{totalTime}</div>
     </div>
   )
