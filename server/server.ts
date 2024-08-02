@@ -4,19 +4,26 @@ import fs from 'node:fs'
 
 import {serverTiming} from '@elysiajs/server-timing'
 import {Elysia} from 'elysia'
+import {MongoClient} from 'mongodb'
 
 import {gzip} from './gzip'
 
-const SERVER_PORT = Bun.env.SERVER_PORT
+const {SERVER_PORT, MONGO_USER, MONGO_PASSWORD, MONGO_HOST, MONGO_PORT} =
+  Bun.env
 const MAX_DURATION_SECONDS = Number(Bun.env.MAX_DURATION_SECONDS) || 60 * 8
 
 if (SERVER_PORT === undefined) {
   throw new Error('SERVER_PORT not defined')
 }
 
+const mongoUrl = `mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}`
+const client = new MongoClient(mongoUrl, {family: 4})
+await client.connect()
+
 const app = new Elysia({name: 'beats-playlist'})
   .use(serverTiming())
   .use(gzip())
+
   // Frontend assets.
   .get('/play-logo.png', () => Bun.file('/app/play-logo.png'))
   .get('/', () => Bun.file('/app/index.html'))

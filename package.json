@@ -18,7 +18,8 @@
   "dependencies": {
     "@elysiajs/server-timing": "^1.1.0",
     "compressible": "^2.0.18",
-    "elysia": "^1.1.4"
+    "elysia": "^1.1.4",
+    "mongodb": "^6.8.0"
   },
   "devDependencies": {
     "@qodestack/dl-yt-playlist": "^7.4.0 ",
