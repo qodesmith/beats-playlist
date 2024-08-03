@@ -1,11 +1,11 @@
 export function TripleDots({
   size = 8,
   fill = 'white',
-  type = 'vertical',
+  type,
 }: {
   size?: number
   fill?: string
-  type?: 'vertical' | 'horizontal'
+  type: 'vertical' | 'horizontal'
 }) {
   const isVertical = type === 'vertical'
   const viewBox = `0 0 ${isVertical ? '8 24' : '24 8'}`

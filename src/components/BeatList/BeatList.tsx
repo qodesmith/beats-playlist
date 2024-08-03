@@ -3,6 +3,7 @@ import clsx from 'clsx'
 import {useAtomValue, useSetAtom} from 'jotai'
 import {useCallback} from 'react'
 
+import {RowMenuButton} from './RowMenuButton'
 import {highlightColorObj} from '../../constants'
 import {
   handleClickToPlayAtom,
@@ -11,7 +12,6 @@ import {
   selectedBeatIdAtom,
 } from '../../globalState'
 import {Play} from '../Player/ControlIcons'
-import {TripleDots} from '../TripleDots'
 import {YouTubeLogo} from '../YouTubeLogo'
 
 export function BeatList() {
@@ -71,9 +71,7 @@ export function BeatList() {
             <div key={id} id={id} className={containerCls}>
               {/* COUNTER / DOTS */}
               <div className={counterCls}>{beatNum}</div>
-              <button className="px-2 md:hidden">
-                <TripleDots />
-              </button>
+              <RowMenuButton className="px-2 md:hidden" type="vertical" />
 
               {/* THUMBNAIL */}
               <div
@@ -127,9 +125,10 @@ export function BeatList() {
               </div>
 
               {/* DESKTOP DOTS MENU */}
-              <button className="hidden h-[30px] place-items-center place-self-center md:group-hover:grid">
-                <TripleDots type="horizontal" />
-              </button>
+              <RowMenuButton
+                className="hidden h-[30px] place-items-center place-self-center md:group-hover:grid"
+                type="horizontal"
+              />
             </div>
           )
         }
