@@ -33,7 +33,10 @@ export function initApp() {
       Object.freeze(_initialMetadata)
       Object.freeze(_initialMetadata.data)
 
-      const firstBeatId = metadata[0].id
+      const url = new URL(window.location.href)
+      const searchParamsBeatId = url.searchParams.get('beatId')
+      const firstBeatId = searchParamsBeatId ?? metadata[0].id
+
       store.set(selectedBeatIdAtom, firstBeatId)
 
       return store.get(audioDataAtomFamily(firstBeatId)).then(audioData => {
