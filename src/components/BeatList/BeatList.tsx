@@ -46,7 +46,7 @@ export function BeatList() {
           const beatNum = i + 1
           const isCurrentBeat = selectedBeatId === id
           const containerCls = clsx(
-            'grid grid-cols-[auto_44px_1fr] gap-2 md:gap-4 md:grid-cols-[4ch_44px_1fr_10ch_5ch] rounded py-2 md:p-2 scroll-mt-10',
+            'group grid grid-cols-[auto_44px_1fr] gap-2 md:gap-4 md:grid-cols-[4ch_44px_1fr_10ch_5ch_30px] rounded py-2 md:p-2 scroll-mt-10',
             {
               'md:hover:bg-neutral-800': !isCurrentBeat,
               'md:bg-neutral-700': isCurrentBeat,
@@ -125,6 +125,11 @@ export function BeatList() {
               <div className="hidden items-center justify-start md:flex">
                 {secondsToDuration(durationInSeconds)}
               </div>
+
+              {/* DESKTOP DOTS MENU */}
+              <button className="hidden h-[30px] place-items-center place-self-center md:group-hover:grid">
+                <TripleDots type="horizontal" />
+              </button>
             </div>
           )
         }
