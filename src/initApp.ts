@@ -35,13 +35,13 @@ export function initApp() {
 
       const url = new URL(window.location.href)
       const searchParamsBeatId = url.searchParams.get('beatId')
-      const firstBeatId = searchParamsBeatId ?? metadata[0].id
+      const initialBeatId = searchParamsBeatId ?? metadata[0].id
 
-      store.set(selectedBeatIdAtom, firstBeatId)
+      store.set(selectedBeatIdAtom, initialBeatId)
 
-      return store.get(audioDataAtomFamily(firstBeatId)).then(audioData => {
+      return store.get(audioDataAtomFamily(initialBeatId)).then(audioData => {
         if (audioData) {
-          store.set(audioThingAtom, new AudioThing(audioData, firstBeatId))
+          store.set(audioThingAtom, new AudioThing(audioData, initialBeatId))
         }
       })
     })
