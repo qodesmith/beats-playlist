@@ -4,6 +4,8 @@ import clsx from 'clsx'
 
 import {TripleDots} from '../TripleDots'
 
+const MAX_MENU_HEIGHT = 300
+
 export function RowMenuButton({
   className,
   type,
@@ -14,7 +16,16 @@ export function RowMenuButton({
   const cls = clsx(className)
 
   return (
-    <button className={cls}>
+    <button
+      className={cls}
+      onClick={e => {
+        const {top} = e.currentTarget.getBoundingClientRect()
+
+        if (top < MAX_MENU_HEIGHT + MAX_MENU_HEIGHT * 0.05) {
+          // Show menu on the bottom of the button.
+        }
+      }}
+    >
       <TripleDots type={type} />
     </button>
   )
