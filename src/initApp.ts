@@ -2,11 +2,9 @@ import type {Video} from '@qodestack/dl-yt-playlist'
 
 import {wait} from '@qodestack/utils'
 
-import {AudioThing} from './AudioThing'
 import {
   _initialMetadata,
   audioDataAtomFamily,
-  audioThingAtom,
   isAppInitializedAtom,
   selectedBeatIdAtom,
 } from './globalState'
@@ -39,11 +37,7 @@ export function initApp() {
 
       store.set(selectedBeatIdAtom, initialBeatId)
 
-      return store.get(audioDataAtomFamily(initialBeatId)).then(audioData => {
-        if (audioData) {
-          store.set(audioThingAtom, new AudioThing(audioData, initialBeatId))
-        }
-      })
+      return store.get(audioDataAtomFamily(initialBeatId))
     })
 
   Promise.all([oneSecondPromise, initAppPromise]).then(() => {

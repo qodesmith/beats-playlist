@@ -6,7 +6,13 @@ import {useCallback, useId} from 'react'
 
 import {Cursor} from './Cursor'
 import {WaveformCanvas} from './WaveformCanvas'
-import {audioThingAtom, setTimeProgressAtom} from '../../globalState'
+import {
+  audioThingAtom,
+  genNewAudioThingAndPlay,
+  selectedBeatIdAtom,
+  setTimeProgressAtom,
+} from '../../globalState'
+import {store} from '../../store'
 
 // TODO - implement an oscilloscope with the Web Audio API - https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Visualizations_with_Web_Audio_API
 export function Visualizer({
@@ -59,8 +65,8 @@ export function Visualizer({
   const canvasReflectionId = `${id}-waveform-reflection-canvas`
   const isReflection = style === 'reflection'
   const BAR_WIDTH = 1
-  const audioThing = useAtomValue(audioThingAtom)
   const setTimeProgress = useSetAtom(setTimeProgressAtom)
+  const beatId = useAtomValue(selectedBeatIdAtom)
 
   /**
    * When there's no audioBuffer we want to show a straight line. 0.5 ensures
@@ -69,15 +75,19 @@ export function Visualizer({
   const MULTIPLIER = audioBuffer ? 0.7 : 0.5
 
   const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    async (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       const {width, left} = e.currentTarget.getBoundingClientRect()
       const offsetX = e.clientX - left
       const position = offsetX / width
 
-      audioThing?.setPlayPosition(position)
+      if (!store.get(audioThingAtom) && beatId) {
+        await genNewAudioThingAndPlay(beatId)
+      }
+
+      store.get(audioThingAtom)?.setPlayPosition(position)
       setTimeProgress(position)
     },
-    [audioThing, setTimeProgress]
+    [beatId, setTimeProgress]
   )
 
   return (

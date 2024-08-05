@@ -213,7 +213,7 @@ export const isPreviousDisabledSelector = atom(
  * - Set the current audio state to 'stopped'
  * - Toggle play on the new audioThing
  */
-async function genNewAudioThingAndPlay(
+export async function genNewAudioThingAndPlay(
   id: string,
   resetIsPrev?: boolean
 ): Promise<void> {
