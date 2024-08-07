@@ -1,6 +1,6 @@
 FROM oven/bun:slim
 
-RUN apt-get update
+RUN apt-get update && apt-get install ffmpeg -y
 
 COPY ./package.json /app/
 COPY ./dist/ /app/
