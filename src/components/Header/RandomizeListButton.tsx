@@ -3,6 +3,7 @@ import {useEffect} from 'react'
 
 import {HeaderButton} from './HeaderButton'
 import {
+  isUnknownMetadataAtom,
   metadataSelector,
   selectedBeatIdAtom,
   shuffleMetadataAtom,
@@ -13,6 +14,7 @@ import {scrollBeatIntoView} from '../../utils'
 export function RandomizeListButton() {
   const metadata = useAtomValue(metadataSelector)
   const shuffleMetadata = useSetAtom(shuffleMetadataAtom)
+  const isUnknownMetadata = useAtomValue(isUnknownMetadataAtom)
 
   // Whenever the metadata gets randomized, scroll to the current track.
   useEffect(() => {
@@ -20,5 +22,9 @@ export function RandomizeListButton() {
     scrollBeatIntoView(selectedBeatId, {behavior: 'instant'})
   }, [metadata])
 
-  return <HeaderButton onClick={shuffleMetadata}>🎲</HeaderButton>
+  return (
+    <HeaderButton onClick={shuffleMetadata} disabled={isUnknownMetadata}>
+      🎲
+    </HeaderButton>
+  )
 }
