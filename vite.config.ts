@@ -23,6 +23,7 @@ export default defineConfig(({command}) => ({
       ? {
           '/beats': UNRAID_API,
           '/metadata': UNRAID_API,
+          '/unknown-metadata': UNRAID_API,
           '/thumbnails': UNRAID_API,
         }
       : undefined,

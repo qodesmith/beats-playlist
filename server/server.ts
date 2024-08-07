@@ -3,6 +3,7 @@ import type {Video} from '@qodestack/dl-yt-playlist'
 import fs from 'node:fs'
 
 import {serverTiming} from '@elysiajs/server-timing'
+import {$} from 'bun'
 import {Elysia} from 'elysia'
 import {MongoClient} from 'mongodb'
 
@@ -39,14 +40,8 @@ const app = new Elysia({name: 'beats-playlist'})
         return !!audioFileExtension && durationInSeconds <= MAX_DURATION_SECONDS
       }
     )
-    const filteredVideosSet = new Set(
-      filteredVideos.map(v => `${v.id}.${v.audioFileExtension}`)
-    )
-    const filesWithNoMetadata = fs
-      .readdirSync('/beats/audio')
-      .filter(item => !filteredVideosSet.has(item))
 
-    return {metadata: filteredVideos, filesWithNoMetadata}
+    return {metadata: filteredVideos}
 
     // Paginated version:
     // const page = Number(query.page) || 1
@@ -63,6 +58,62 @@ const app = new Elysia({name: 'beats-playlist'})
     //   total: metadata.length,
     //   data: paginatedMetadata,
     // }
+  })
+  .get('/unknown-metadata', async () => {
+    const metadata: Video[] = await Bun.file('/beats/metadata.json').json()
+    const allIdsSet = new Set(metadata.map(({id}) => id))
+
+    // Filter out videos we don't have an mp3 file for or that are too long.
+    const filteredVideos = metadata.filter(
+      ({audioFileExtension, durationInSeconds}) => {
+        return !!audioFileExtension && durationInSeconds <= MAX_DURATION_SECONDS
+      }
+    )
+    const filteredVideosSet = new Set(
+      filteredVideos.map(v => `${v.id}.${v.audioFileExtension}`)
+    )
+    const unknownMetadataFileNames = fs
+      .readdirSync('/beats/audio')
+      .filter(item => {
+        return !filteredVideosSet.has(item) && !allIdsSet.has(item.slice(0, -4))
+      })
+
+    const unknownMetadata: Video[] = []
+    const failures: string[] = []
+
+    for (const fileName of unknownMetadataFileNames) {
+      const filePath = `/beats/audio/${fileName}`
+      const id = fileName.slice(0, -4)
+
+      try {
+        const json =
+          await $`ffprobe -v quiet -print_format json -show_format ${filePath}`.json()
+        const durationInSeconds = Math.round(Number(json.format.duration))
+
+        unknownMetadata.push({
+          id,
+          playlistItemId: '',
+          title: `Unknown - ${id}`,
+          description: '',
+          channelId: '',
+          channelName: '-',
+          channelUrl: '#',
+          dateCreated: '',
+          dateAddedToPlaylist: '',
+          thumbnailUrls: [],
+          durationInSeconds,
+          audioFileExtension: 'mp3',
+          videoFileExtension: null,
+          url: '#',
+          isUnavailable: true,
+          lufs: -14,
+        })
+      } catch (err) {
+        failures.push(id)
+      }
+    }
+
+    return {unknownMetadata, failures}
   })
   .get('/thumbnails/:id', ({params: {id}}) => {
     return new Response(Bun.file(`/beats/thumbnails/${id}.jpg`), {
