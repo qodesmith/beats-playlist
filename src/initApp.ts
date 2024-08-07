@@ -4,6 +4,7 @@ import {wait} from '@qodestack/utils'
 
 import {
   _initialMetadata,
+  unknownMetadataAtom,
   audioDataAtomFamily,
   isAppInitializedAtom,
   selectedBeatIdAtom,
@@ -40,7 +41,30 @@ export function initApp() {
       return store.get(audioDataAtomFamily(initialBeatId))
     })
 
-  Promise.all([oneSecondPromise, initAppPromise]).then(() => {
+  /**
+   * The UI doesn't need to be held up waiting for this response. In theory,
+   * there shouldn't be anything returned from this endpoint since unavailable
+   * beats should still be present in the `/metadata` response. Data returned
+   * from this endpoint represent unaccounted for stragglers prior to all the
+   * changes to the dl-yt-playlist library.
+   */
+  fetch('/unknown-metadata')
+    .then(res => res.json())
+    .then(
+      ({
+        unknownMetadata,
+        // failures, // These can be seen in the network request if need be.
+      }: {
+        unknownMetadata: Video[]
+        failures: string[]
+      }) => {
+        store.set(unknownMetadataAtom, unknownMetadata)
+      }
+    )
+
+  const promises = [oneSecondPromise, initAppPromise]
+
+  Promise.all(promises).then(() => {
     store.set(isAppInitializedAtom, true)
   })
 }

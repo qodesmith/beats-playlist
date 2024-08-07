@@ -36,6 +36,10 @@ export const isAppInitializedAtom = atom<boolean>(false)
 // METADATA //
 //////////////
 
+export const unknownMetadataAtom = atom<Video[]>([])
+
+export const isUnknownMetadataAtom = atom<boolean>(false)
+
 /**
  * The single source of truth for metadata. It will handle returning the
  * original unsorted array or the shuffled array.
@@ -44,6 +48,12 @@ export const metadataSelector = atom<Video[]>(get => {
   const currentItem = get(metadataItemSelector)
   const selectedArtist = get(selectedArtistAtom)
   const search = get(searchAtom)
+  const isUnknownMetadata = get(isUnknownMetadataAtom)
+
+  if (isUnknownMetadata) {
+    return get(unknownMetadataAtom)
+  }
+
   let metadata = get(_isMetadataShuffledAtom)
     ? get(_shuffledMetadataSelector)
     : _initialMetadata.data
