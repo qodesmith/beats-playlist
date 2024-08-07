@@ -12,7 +12,7 @@ export const highlightColorObj = {
  * on their preferences.
  *
  * YouTube: -14
- * Appl Music: -16
+ * Apple Music: -16
  * Music mastering suggested limit: -10
  */
 export const TARGET_LUFS = -14
