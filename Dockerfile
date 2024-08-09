@@ -1,6 +1,8 @@
 FROM oven/bun:slim
 
-RUN apt-get update && apt-get install ffmpeg -y
+# ffmpeg is used by the server for its ffprobe util in one of the endpoints.
+# unzip is needed for Bun to process an upgrade.
+RUN apt-get update && apt-get install ffmpeg unzip -y
 
 COPY ./package.json /app/
 COPY ./dist/ /app/
