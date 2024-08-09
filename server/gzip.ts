@@ -17,6 +17,7 @@ export function gzip() {
 
         // Bun.file(...) returns a blob.
         if (response instanceof Blob) {
+          set.headers['original-content-length'] = `${response.size}`
           const compressed = gzipSync(await response.arrayBuffer())
           return new Response(compressed)
         }
@@ -25,6 +26,8 @@ export function gzip() {
           typeof response === 'object'
             ? JSON.stringify(response)
             : (response?.toString() ?? '')
+
+        set.headers['original-content-length'] = `${text.length}`
 
         return new Response(gzipSync(text))
       }
