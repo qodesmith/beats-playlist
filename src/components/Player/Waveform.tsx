@@ -3,12 +3,13 @@ import {useId} from 'react'
 
 import {highlightColorObj} from '../../constants'
 import {
+  audioDataLoadingProgressAtomFamily,
   getAudioDataLoadableAtomFamily,
   selectedBeatIdAtom,
   sizeContainerAtomFamily,
 } from '../../globalState'
 import {usePrevious} from '../../hooks/usePrevious'
-import {Spinner} from '../Spinner'
+import {AudioLoader} from '../AudioLoader'
 import {SizeContainer} from '../Visualizer/SizeContainer'
 import {Visualizer} from '../Visualizer/Visualizer'
 
@@ -36,11 +37,19 @@ export function Waveform() {
         cursorColor="bg-[#CC57FF]"
         isLoading={isLoading}
       />
-      {isLoading && (
-        <div className="absolute left-0 top-0 grid h-full w-full place-items-center">
-          <Spinner size={48} />
-        </div>
-      )}
+      {isLoading && <WaveformLoaderWithProgress />}
     </SizeContainer>
+  )
+}
+
+function WaveformLoaderWithProgress() {
+  const beatId = useAtomValue(selectedBeatIdAtom)
+  const progress = useAtomValue(audioDataLoadingProgressAtomFamily(beatId))
+
+  return (
+    <div className="absolute left-0 top-0 grid h-full w-full place-content-center">
+      <AudioLoader size={44} />
+      <div className="text-center">{progress}%</div>
+    </div>
   )
 }

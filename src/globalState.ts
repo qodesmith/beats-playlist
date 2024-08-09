@@ -8,6 +8,7 @@ import {atomFamily, atomWithReset, atomWithStorage, loadable} from 'jotai/utils'
 import {AudioThing} from './AudioThing'
 import {store} from './store'
 import {
+  fetchWithProgress,
   getRandomBeatId,
   scrollBeatIntoView,
   secondsToPlainSentence,
@@ -445,14 +446,23 @@ export const sizeContainerAtomFamily = atomFamily((_id: string) => {
 // AUDIO DATA //
 ////////////////
 
+export const audioDataLoadingProgressAtomFamily = atomFamily(
+  (_id: string | undefined) => atom<number | null>(null)
+)
+
 export const audioDataAtomFamily = atomFamily((id: string | undefined) => {
   return atom(async _get_DO_NOT_USE___AVOID_JOTAI_RERENDERS => {
     if (id === undefined) return undefined
 
-    const res = await fetch(`/beats/${id}`)
+    const res = await fetchWithProgress(
+      `/beats/${id}`,
+      audioDataLoadingProgressAtomFamily(id)
+    )
     const arrayBuffer = await res.arrayBuffer()
     const audioContext = new AudioContext()
     const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
+
+    store.set(audioDataLoadingProgressAtomFamily(id), null)
 
     /**
      * !!! WARNING !!!

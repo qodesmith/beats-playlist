@@ -135,7 +135,7 @@ export function scrollBeatIntoView(
 
 export async function fetchWithProgress(
   url: string,
-  progressAtom: PrimitiveAtom<number>
+  progressAtom: PrimitiveAtom<number> | PrimitiveAtom<number | null>
 ) {
   const response = await fetch(url)
   const reader = response.body?.getReader()
