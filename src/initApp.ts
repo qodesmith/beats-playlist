@@ -14,6 +14,36 @@ import {store} from './store'
 import {fetchWithProgress} from './utils'
 
 export function initApp() {
+  const url = new URL(window.location.href)
+  const searchParamsBeatId = url.searchParams.get('beatId')
+
+  // Kick off fetching the initial beat early if we have the id in query params.
+  if (searchParamsBeatId) {
+    store.set(selectedBeatIdAtom, searchParamsBeatId)
+    store.get(audioDataAtomFamily(searchParamsBeatId))
+  }
+
+  /**
+   * The UI doesn't need to be held up waiting for this response. In theory,
+   * there shouldn't be anything returned from this endpoint since unavailable
+   * beats should still be present in the `/metadata` response. Data returned
+   * from this endpoint represent unaccounted for stragglers prior to all the
+   * changes to the dl-yt-playlist library.
+   */
+  fetch('/unknown-metadata')
+    .then(res => res.json())
+    .then(
+      ({
+        unknownMetadata,
+        // failures, // These can be seen in the network request if need be.
+      }: {
+        unknownMetadata: Video[]
+        failures: string[]
+      }) => {
+        store.set(unknownMetadataAtom, unknownMetadata)
+      }
+    )
+
   const oneSecondPromise = wait(1000)
 
   /**
@@ -37,35 +67,18 @@ export function initApp() {
       Object.freeze(_initialMetadata)
       Object.freeze(_initialMetadata.data)
 
-      const url = new URL(window.location.href)
-      const searchParamsBeatId = url.searchParams.get('beatId')
-      const initialBeatId = searchParamsBeatId ?? metadata[0].id
+      /**
+       * If we don't have a beat if in the search params, we kick of fetching
+       * the 1st beat in the metadata once it's loaded. Don't return the
+       * `store.get(...)` promise so as not to hold up rendering the UI.
+       */
+      if (!searchParamsBeatId) {
+        const initialBeatId = metadata[0].id
 
-      store.set(selectedBeatIdAtom, initialBeatId)
-
-      return store.get(audioDataAtomFamily(initialBeatId))
-    })
-
-  /**
-   * The UI doesn't need to be held up waiting for this response. In theory,
-   * there shouldn't be anything returned from this endpoint since unavailable
-   * beats should still be present in the `/metadata` response. Data returned
-   * from this endpoint represent unaccounted for stragglers prior to all the
-   * changes to the dl-yt-playlist library.
-   */
-  fetch('/unknown-metadata')
-    .then(res => res.json())
-    .then(
-      ({
-        unknownMetadata,
-        // failures, // These can be seen in the network request if need be.
-      }: {
-        unknownMetadata: Video[]
-        failures: string[]
-      }) => {
-        store.set(unknownMetadataAtom, unknownMetadata)
+        store.set(selectedBeatIdAtom, initialBeatId)
+        store.get(audioDataAtomFamily(initialBeatId))
       }
-    )
+    })
 
   const promises = [oneSecondPromise, initAppPromise]
 
