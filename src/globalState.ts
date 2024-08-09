@@ -32,6 +32,8 @@ export const _initialMetadata: {readonly data: Video[]} = {data: []}
  */
 export const isAppInitializedAtom = atom<boolean>(false)
 
+export const initialMetadataLoadingProgressAtom = atom<number>(0)
+
 //////////////
 // METADATA //
 //////////////

@@ -6,7 +6,10 @@ import {BeatList} from './BeatList/BeatList'
 import {Footer} from './Footer'
 import {Header} from './Header/Header'
 import {NowPlaying} from './NowPlaying'
-import {isAppInitializedAtom} from '../globalState'
+import {
+  initialMetadataLoadingProgressAtom,
+  isAppInitializedAtom,
+} from '../globalState'
 
 const duration = 0.5
 const opacity0 = {opacity: 0}
@@ -14,6 +17,7 @@ const opacity1 = {opacity: 1}
 
 export function HomePage() {
   const isAppInitialized = useAtomValue(isAppInitializedAtom)
+  const loadingProgress = useAtomValue(initialMetadataLoadingProgressAtom)
 
   return (
     <AnimatePresence mode="popLayout">
@@ -41,6 +45,7 @@ export function HomePage() {
           transition={{duration}}
         >
           <AudioLoader size={100} />
+          <div className="text-center">{loadingProgress}%</div>
         </motion.div>
       )}
     </AnimatePresence>

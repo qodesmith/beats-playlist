@@ -8,8 +8,10 @@ import {
   audioDataAtomFamily,
   isAppInitializedAtom,
   selectedBeatIdAtom,
+  initialMetadataLoadingProgressAtom,
 } from './globalState'
 import {store} from './store'
+import {fetchWithProgress} from './utils'
 
 export function initApp() {
   const oneSecondPromise = wait(1000)
@@ -18,7 +20,10 @@ export function initApp() {
    * Kick off a fetch request for all the beats metadata while the app is
    * mounting, then queue up the first beat.
    */
-  const initAppPromise = fetch('/metadata')
+  const initAppPromise = fetchWithProgress(
+    '/metadata',
+    initialMetadataLoadingProgressAtom
+  )
     .then(res => res.json())
     .then(({metadata}: {metadata: Video[]}) => {
       /**
