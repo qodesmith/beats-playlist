@@ -162,12 +162,12 @@ export class AudioThing {
     }
   }
 
-  remove() {
+  async remove() {
     if (this.#audioContext.state !== 'closed') {
       this.stopCalculatingProgress()
       this.#audioSource.disconnect()
       this.#gainNode.disconnect()
-      this.#audioContext.close()
+      await this.#audioContext.close()
       store.set(setTimeProgressAtom, RESET)
     }
   }

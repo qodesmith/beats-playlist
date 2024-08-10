@@ -294,9 +294,9 @@ export const handleClickToPlayAtom = atom(null, (get, _set, id: string) => {
 
 const _handlePreviousOrNextClickAtom = atom(
   null,
-  (get, set, type: 'previous' | 'next') => {
+  async (get, set, type: 'previous' | 'next') => {
     const audioThing = get(audioThingAtom)
-    audioThing?.remove()
+    await audioThing?.remove()
 
     const selectedBeatId = get(selectedBeatIdAtom)
     if (!selectedBeatId) return // This should never be the case.
