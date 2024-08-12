@@ -25,3 +25,4 @@ dist-ssr
 # Other
 /public/beats/*
 .env
+beats-playlist-service-account-key.json
