@@ -6,6 +6,8 @@ import react from '@vitejs/plugin-react'
 import dotenv from 'dotenv'
 import {defineConfig} from 'vite'
 
+import {deletePlaylistItem} from './server/youtubeApi'
+
 dotenv.config()
 
 const {NO_UNRAID} = process.env
@@ -14,7 +16,12 @@ const UNRAID_API = NO_UNRAID === 'true' ? undefined : process.env.UNRAID_API
 // https://vitejs.dev/config/
 export default defineConfig(({command}) => ({
   publicDir: command === 'build' ? false : 'public',
-  plugins: [react(), localUnraidApiPaths(), copyPublicAssetsAfterBuild()],
+  plugins: [
+    react(),
+    devDeleteRouteMiddleware(),
+    localUnraidApiPaths(),
+    copyPublicAssetsAfterBuild(),
+  ],
   clearScreen: false,
   server: {
     open: true,
@@ -29,6 +36,38 @@ export default defineConfig(({command}) => ({
       : undefined,
   },
 }))
+
+function devDeleteRouteMiddleware(): PluginOption {
+  return {
+    name: 'devDeleteRouteMiddleware',
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        if (!req.url) return next()
+        const url = new URL(req.url, `http://${req.headers.host}`)
+
+        if (url.pathname.startsWith('/delete/')) {
+          const playlistItemId = url.pathname.replace('/delete/', '')
+          console.log({playlistItemId})
+          try {
+            const {status, statusText} =
+              await deletePlaylistItem(playlistItemId)
+
+            if (status >= 200 && status < 300) {
+              res.end()
+            } else {
+              throw {status, statusText}
+            }
+          } catch (error) {
+            console.log(JSON.stringify(error, null, 2))
+            res.end({error})
+          }
+        } else {
+          next()
+        }
+      })
+    },
+  }
+}
 
 /**
  * When developing locally WITHOUT access to the Unraid server, rewrite paths

@@ -8,6 +8,7 @@ import {Elysia} from 'elysia'
 import {MongoClient} from 'mongodb'
 
 import {gzip} from './gzip'
+import {deletePlaylistItem} from './youtubeApi'
 
 const {SERVER_PORT, MONGO_USER, MONGO_PASSWORD, MONGO_HOST, MONGO_PORT} =
   Bun.env
@@ -126,6 +127,21 @@ const app = new Elysia({name: 'beats-playlist'})
     })
   })
   .get('/beats/:id', ({params: {id}}) => Bun.file(`/beats/audio/${id}.mp3`))
+
+  // TODO - add authentication to this route
+  .post('/delete/:id', async ({params: {id}}) => {
+    try {
+      const {status, statusText} = await deletePlaylistItem(id)
+
+      if (status >= 200 && status < 300) {
+        return true
+      } else {
+        throw {status, statusText}
+      }
+    } catch (error) {
+      return {error}
+    }
+  })
   .listen(SERVER_PORT)
 
 console.log(
