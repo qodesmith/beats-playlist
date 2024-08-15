@@ -14,10 +14,10 @@ export function Input({
         placeholder=" "
         type={type}
       />
-      <label className="pointer-events-none absolute top-0 flex h-full w-full select-none items-stretch gap-2 peer-placeholder-shown:[&>span:first-child]:top-0 peer-placeholder-shown:[&>span:first-child]:translate-y-0 peer-placeholder-shown:[&>span:first-child]:text-base peer-placeholder-shown:[&>span:first-child]:text-current peer-focus:[&>span:first-child]:-top-[1em] peer-focus:[&>span:first-child]:-translate-y-1/2 peer-focus:[&>span:first-child]:text-xs peer-focus:[&>span:first-child]:text-neutral-400">
+      <label className="pointer-events-none absolute top-0 flex h-full w-full select-none items-stretch gap-2 peer-placeholder-shown:[&>span:first-child]:top-0 peer-placeholder-shown:[&>span:first-child]:translate-y-0 peer-placeholder-shown:[&>span:first-child]:text-base peer-placeholder-shown:[&>span:first-child]:text-neutral-400 peer-focus:[&>span:first-child]:-top-[1em] peer-focus:[&>span:first-child]:-translate-y-1/2 peer-focus:[&>span:first-child]:text-xs peer-focus:[&>span:first-child]:text-current">
         {placeholder && (
           <>
-            <span className="relative -top-[1em] -translate-y-1/2 self-center overflow-x-hidden text-ellipsis whitespace-nowrap pl-2 text-xs text-neutral-400 transition-all">
+            <span className="relative -top-[1em] -translate-y-1/2 self-center overflow-x-hidden text-ellipsis whitespace-nowrap pl-2 text-xs transition-all">
               {placeholder}
             </span>
             <span className="before:content[' '] relative min-w-2 flex-grow after:absolute after:bottom-0 after:left-0 after:box-content after:h-full after:w-full after:rounded-br after:rounded-tr after:border-r after:border-t" />
