@@ -1,7 +1,7 @@
 FROM oven/bun:slim
 
 # ffmpeg is used by the server for its ffprobe util in one of the endpoints.
-# unzip is needed for Bun to process an upgrade.
+# unzip is needed for Bun to upgrade itself.
 RUN apt-get update && apt-get install ffmpeg unzip -y
 
 COPY ./package.json /app/
