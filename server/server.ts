@@ -20,7 +20,7 @@ if (SERVER_PORT === undefined) {
 
 const app = new Elysia({name: 'beats-playlist'})
   .use(serverTiming())
-  .use(gzip())
+  .use(gzip)
 
   // Frontend assets.
   .get('/play-logo.png', () => Bun.file('/app/play-logo.png'))
