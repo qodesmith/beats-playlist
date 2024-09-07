@@ -4,12 +4,13 @@ import fs from 'node:fs'
 
 import {serverTiming} from '@elysiajs/server-timing'
 import {$} from 'bun'
-import {Elysia} from 'elysia'
+import {Elysia, t} from 'elysia'
 
 import {gzip} from './gzip'
+import {db} from './mongo'
 import {deletePlaylistItem} from './youtubeApi'
 
-const {SERVER_PORT} = Bun.env
+const {SERVER_PORT, SESSION_COOKIE_NAME} = Bun.env
 
 // Beats longer than this value will not be returned.
 const MAX_DURATION_SECONDS = Number(Bun.env.MAX_DURATION_SECONDS) || 60 * 8
@@ -19,8 +20,30 @@ if (SERVER_PORT === undefined) {
 }
 
 const app = new Elysia({name: 'beats-playlist'})
+  // Plugins / middleware.
   .use(serverTiming())
   .use(gzip)
+
+  // Sessions.
+  .derive(async ({cookie}) => {
+    const sessionCookie = cookie[SESSION_COOKIE_NAME ?? '']
+    const sessionId = sessionCookie.value
+
+    if (sessionId) {
+      const userSession = await db
+        .collection('sessions')
+        .findOne({id: sessionId})
+
+      if (userSession) {
+        return {session: userSession}
+      } else {
+        sessionCookie.remove()
+        return {session: null}
+      }
+    }
+
+    return {session: null}
+  })
 
   // Frontend assets.
   .get('/play-logo.png', () => Bun.file('/app/play-logo.png'))
@@ -138,6 +161,13 @@ const app = new Elysia({name: 'beats-playlist'})
       return {error}
     }
   })
+  .post(
+    '/login',
+    async ({body}) => {
+      return {data: body}
+    },
+    {body: t.Object({username: t.String(), password: t.String()})}
+  )
   .listen(SERVER_PORT)
 
 console.log(
