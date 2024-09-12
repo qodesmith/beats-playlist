@@ -51,7 +51,7 @@ const app = new Elysia({name: 'beats-playlist'})
   .get('/assets/:file', ({params: {file}}) => Bun.file(`/app/assets/${file}`))
 
   // API
-  .get('/metadata', async (/*{query}*/) => {
+  .get('/api/metadata', async (/*{query}*/) => {
     const metadata: Video[] = await Bun.file('/beats/metadata.json').json()
 
     // Filter out videos we don't have an mp3 file for or that are too long.
@@ -79,7 +79,7 @@ const app = new Elysia({name: 'beats-playlist'})
     //   data: paginatedMetadata,
     // }
   })
-  .get('/unknown-metadata', async () => {
+  .get('/api/unknown-metadata', async () => {
     const metadata: Video[] = await Bun.file('/beats/metadata.json').json()
     const allIdsSet = new Set(metadata.map(({id}) => id))
 
@@ -135,7 +135,7 @@ const app = new Elysia({name: 'beats-playlist'})
 
     return {unknownMetadata, failures}
   })
-  .get('/thumbnails/:id', ({params: {id}}) => {
+  .get('/api/thumbnails/:id', ({params: {id}}) => {
     return new Response(Bun.file(`/beats/thumbnails/${id}.jpg`), {
       headers: {
         // Cache for 1 year
@@ -145,10 +145,10 @@ const app = new Elysia({name: 'beats-playlist'})
       },
     })
   })
-  .get('/beats/:id', ({params: {id}}) => Bun.file(`/beats/audio/${id}.mp3`))
+  .get('/api/beats/:id', ({params: {id}}) => Bun.file(`/beats/audio/${id}.mp3`))
 
   // TODO - add authentication to this route
-  .post('/delete/:id', async ({params: {id}}) => {
+  .delete('/api/delete/:id', async ({params: {id}}) => {
     try {
       const {status, statusText} = await deletePlaylistItem(id)
 
@@ -162,7 +162,7 @@ const app = new Elysia({name: 'beats-playlist'})
     }
   })
   .post(
-    '/login',
+    '/api/login',
     async ({body}) => {
       return {data: body}
     },

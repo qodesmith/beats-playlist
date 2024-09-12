@@ -25,12 +25,12 @@ export function initApp() {
 
   /**
    * The UI doesn't need to be held up waiting for this response. In theory,
-   * there shouldn't be anything returned from this endpoint since unavailable
-   * beats should still be present in the `/metadata` response. Data returned
-   * from this endpoint represent unaccounted for stragglers prior to all the
-   * changes to the dl-yt-playlist library.
+   * there shouldn't be any data returned from this endpoint since unavailable
+   * beats should still be present in the `/api/metadata` response. Data
+   * returned from this endpoint represent unaccounted for stragglers prior to
+   * all the changes to the dl-yt-playlist library.
    */
-  fetch('/unknown-metadata')
+  fetch('/api/unknown-metadata')
     .then(res => res.json())
     .then(
       ({
@@ -51,7 +51,7 @@ export function initApp() {
    * mounting, then queue up the first beat.
    */
   const initAppPromise = fetchWithProgress(
-    '/metadata',
+    '/api/metadata',
     initialMetadataLoadingProgressAtom
   )
     .then(res => res.json())

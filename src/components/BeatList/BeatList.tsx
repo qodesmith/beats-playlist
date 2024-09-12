@@ -87,7 +87,10 @@ export function BeatList() {
                     triangleClass="drop-shadow-md"
                   />
                 </div>
-                <img src={`/thumbnails/${id}[small]`} className="h-11 w-11" />
+                <img
+                  src={`/api/thumbnails/${id}[small]`}
+                  className="h-11 w-11"
+                />
               </div>
 
               {/* TITLE / ARTIST */}

@@ -455,7 +455,7 @@ export const audioDataAtomFamily = atomFamily((id: string | undefined) => {
     if (id === undefined) return undefined
 
     const res = await fetchWithProgress(
-      `/beats/${id}`,
+      `/api/beats/${id}`,
       audioDataLoadingProgressAtomFamily(id)
     )
     const arrayBuffer = await res.arrayBuffer()
