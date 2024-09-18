@@ -4,7 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "bun run createColors && vite",
+    "dev": "concurrently \"bun run dev:api\" \"bun run dev:client\"",
+    "dev:client": "bun run createColors && vite",
+    "dev:api": "bun --watch run ./server/honoServer.ts",
     "devNoUnraid": "bun run createColors && NO_UNRAID=true vite",
     "build": "bun run createColors && tsc -b && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
@@ -20,6 +22,7 @@
     "@googleapis/youtube": "^19.0.0",
     "compressible": "^2.0.18",
     "elysia": "^1.1.7",
+    "hono": "^4.6.2",
     "mongodb": "^6.8.0"
   },
   "devDependencies": {
@@ -34,8 +37,8 @@
     "@typescript-eslint/parser": "^7.17.0",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.20",
-    "bun": "^1.1.25",
     "clsx": "^2.1.1",
+    "concurrently": "^9.0.1",
     "dotenv": "^16.4.5",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
