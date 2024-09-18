@@ -21,15 +21,15 @@
     "@googleapis/youtube": "^19.0.0",
     "compressible": "^2.0.18",
     "hono": "^4.6.2",
-    "mongodb": "^6.8.0"
+    "mongodb": "^6.9.0"
   },
   "devDependencies": {
     "@qodestack/dl-yt-playlist": "^7.4.0 ",
     "@qodestack/prettier-config": "^1.0.2",
     "@qodestack/utils": "^2.4.0",
-    "@types/bun": "^1.1.6",
+    "@types/bun": "^1.1.9",
     "@types/compressible": "^2.0.2",
-    "@types/react": "^18.3.4",
+    "@types/react": "^18.3.7",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^7.17.0",
     "@typescript-eslint/parser": "^7.17.0",
@@ -40,19 +40,19 @@
     "dotenv": "^16.4.5",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-import": "^2.30.0",
     "eslint-plugin-react-hooks": "^4.6.2",
-    "eslint-plugin-react-refresh": "^0.4.11",
-    "framer-motion": "^11.3.29",
+    "eslint-plugin-react-refresh": "^0.4.12",
+    "framer-motion": "^11.5.4",
     "jotai": "^2.9.3",
     "open": "^10.1.0",
-    "postcss": "^8.4.41",
+    "postcss": "^8.4.47",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "tailwindcss": "^3.4.10",
-    "typescript": "^5.5.4",
-    "vite": "^5.4.2"
+    "tailwindcss": "^3.4.12",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.6"
   }
 }
