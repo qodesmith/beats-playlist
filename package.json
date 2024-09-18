@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently \"bun run dev:api\" \"bun run dev:client\"",
     "dev:client": "bun run createColors && vite",
-    "dev:api": "bun --watch run ./server/honoServer.ts",
+    "dev:api": "bun --watch run ./server/server.ts",
     "devNoUnraid": "bun run createColors && NO_UNRAID=true vite",
     "build": "bun run createColors && tsc -b && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
