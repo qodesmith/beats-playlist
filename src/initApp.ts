@@ -82,6 +82,7 @@ export function initApp() {
 
   const promises = [oneSecondPromise, initAppPromise]
 
+  // TODO - handle error (show broken image icon)
   Promise.all(promises).then(() => {
     store.set(isAppInitializedAtom, true)
   })

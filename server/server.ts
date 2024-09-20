@@ -13,10 +13,11 @@ import {deletePlaylistItem} from './youtubeApi'
 const MAX_DURATION_SECONDS = Number(Bun.env.MAX_DURATION_SECONDS) || 60 * 8
 const {SERVER_PORT, NODE_ENV} = process.env
 const app = new Hono()
-const isProd = NODE_ENV === 'production'
-const beatsBasePath = isProd
-  ? '/beats'
-  : path.resolve(import.meta.dirname, '../public/beats')
+
+const beatsBasePath =
+  NODE_ENV === 'production'
+    ? '/beats'
+    : path.resolve(import.meta.dirname, '../public/beats')
 
 ////////////////
 // MIDDLEWARE //
