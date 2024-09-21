@@ -43,7 +43,7 @@ app.use(gzip)
  *
  * This endpoint will be served by Vite during development.
  */
-app.get('/', () => new Response(Bun.file('/index.html')))
+app.get('/app/', () => new Response(Bun.file('/index.html')))
 
 /**
  * https://vitejs.dev/config/build-options.html#build-assetsdir
@@ -52,7 +52,7 @@ app.get('/', () => new Response(Bun.file('/index.html')))
  * script and link calls to `/assets` for JS and CSS. This endpoint is never
  * explicitly hit via client code.
  */
-app.get('/assets/:file', c => {
+app.get('/app/assets/:file', c => {
   const file = c.req.param('file')
   return new Response(Bun.file(`/app/assets/${file}`))
 })
@@ -62,7 +62,7 @@ app.get('/assets/:file', c => {
  *
  * This endpoint will be served by Vite during development.
  */
-app.get('/play-logo.png', () => new Response(Bun.file('/play-logo.png')))
+app.get('/app/play-logo.png', () => new Response(Bun.file('/play-logo.png')))
 
 /////////
 // API //
