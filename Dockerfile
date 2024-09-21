@@ -11,5 +11,8 @@ COPY ./server/*.ts /app/
 WORKDIR /app
 
 RUN bun upgrade && bun install --production
+
 EXPOSE $SERVER_PORT
-CMD bun server.ts
+ENV NODE_ENV=production
+
+CMD ["bun", "server.ts"]
