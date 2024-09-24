@@ -386,7 +386,7 @@ export const toggleShuffleAtom = atom(null, (get, set) => {
 
 export const isSliderDraggingAtom = atom<boolean>(false)
 
-export const progressWidthAtom = atom<string>('0%')
+export const progressWidthAtom = atom<`${number}%`>('0%')
 
 /**
  * This atom powers the time progress indicator in the footer. It is updated by

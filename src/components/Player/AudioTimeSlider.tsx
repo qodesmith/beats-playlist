@@ -45,8 +45,13 @@ function AudioTimeSliderBody() {
 
   return (
     <div className="m-auto grid w-full grid-cols-[5ch,1fr,5ch] gap-2 py-2 md:w-1/2">
+      {/* Doesn't render anything, just sets up mouse handlers. */}
       <MouseHandlers sliderContainerId={sliderContainerId} />
+
+      {/* The current time on the left of the slider. */}
       <FormattedTime />
+
+      {/* The slider itself. */}
       <div
         id={sliderContainerId}
         className="group relative grid cursor-pointer place-items-center"
@@ -61,11 +66,18 @@ function AudioTimeSliderBody() {
         {/* BALL */}
         <Ball />
       </div>
+
+      {/* The duration of the audio on the right of the slider. */}
       <Duration />
     </div>
   )
 }
 
+/**
+ * The current time of the audio on the left of the slider. Since this updates
+ * frequently, it's brokwn out into a separate component to avoid the consumer
+ * having to re-render.
+ */
 function FormattedTime() {
   const {formattedTime} = useAtomValue(timeProgressSelector)
 
@@ -89,7 +101,7 @@ function SliderProgress() {
    */
   useEffect(() => {
     if (!store.get(isSliderDraggingAtom)) {
-      const newWidth = `${(rawTime / durationInSeconds) * 100}%`
+      const newWidth = `${(rawTime / durationInSeconds) * 100}%` as const
       setProgressWidth(newWidth)
     }
   }, [durationInSeconds, rawTime, setProgressWidth])
@@ -102,6 +114,11 @@ function SliderProgress() {
   )
 }
 
+/**
+ * A handful of mouse handlers to control the audio time slider. React
+ * components don't need to return JSX. This component doesn't render anything,
+ * rather, it's used simply to set up mouse handlers and remove them on unmount.
+ */
 function MouseHandlers({sliderContainerId}: {sliderContainerId: string}) {
   const setProgressWidth = useSetAtom(progressWidthAtom)
   const setTimeProgress = useSetAtom(setTimeProgressAtom)
@@ -126,7 +143,7 @@ function MouseHandlers({sliderContainerId}: {sliderContainerId: string}) {
       if (isSliderDragging) {
         if (isInRange) {
           const newPosition = (clientX - left) / width
-          const newWidth = `${newPosition * 100}%`
+          const newWidth = `${newPosition * 100}%` as const
 
           setProgressWidth(newWidth)
           setTimeProgress(newPosition)
