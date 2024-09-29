@@ -1,8 +1,9 @@
 import {useAtomValue, useSetAtom} from 'jotai'
 
-import {Next, Pause, Play, Previous} from './ControlIcons'
+import {Next, Pause, Play, PlaybackSpeedIcon, Previous} from './ControlIcons'
 import {RepeatButton} from './RepeatButton'
 import {ShuffleButton} from './ShuffleButton'
+import {VolumeButton} from './VolumeButton'
 import {
   currentAudioStateAtom,
   handleNextClickAtom,
@@ -22,20 +23,25 @@ export function Controls({baseSize}: {baseSize: number}) {
   const isPreviousDisabled = useAtomValue(isPreviousDisabledSelector)
 
   return (
-    <div className="grid grid-cols-[repeat(5,1fr)] place-items-center justify-center gap-4 pb-4 md:grid-cols-[repeat(5,32px)]">
+    <div className="grid grid-cols-[repeat(7,1fr)] place-items-center justify-center pb-2 md:grid-cols-[repeat(7,32px)] md:gap-4">
+      {/* VOLUME */}
+      <VolumeButton baseSize={baseSize} fill={fill} />
+
       {/* SHUFFLE */}
-      <ShuffleButton
-        baseSize={baseSize}
-        className="flex w-full items-center justify-center"
-      />
+      <ShuffleButton baseSize={baseSize} />
 
       {/* PREVIOUS */}
-      <button onClick={isPreviousDisabled ? undefined : handlePrevious}>
-        <Previous
-          size={baseSize * 3}
-          fill={isPreviousDisabled ? 'gray' : fill}
-        />
-      </button>
+      <div className="size-full">
+        <button
+          className="grid size-full place-items-center"
+          onClick={isPreviousDisabled ? undefined : handlePrevious}
+        >
+          <Previous
+            size={baseSize * 3}
+            fill={isPreviousDisabled ? 'gray' : fill}
+          />
+        </button>
+      </div>
 
       {/* PLAY / PAUSE */}
       <button onClick={handlePlayPause}>
@@ -47,10 +53,28 @@ export function Controls({baseSize}: {baseSize: number}) {
       </button>
 
       {/* NEXT */}
-      <button onClick={handleNext}>
-        <Next size={baseSize * 3} fill={fill} />
-      </button>
-      <RepeatButton size={baseSize * 2.5 * 0.9} />
+      <div className="size-full">
+        <button
+          className="grid size-full place-items-center"
+          onClick={handleNext}
+        >
+          <Next size={baseSize * 3} fill={fill} />
+        </button>
+      </div>
+
+      {/* REPEAT */}
+      <div className="size-full">
+        <RepeatButton
+          className="grid size-full place-items-center"
+          size={baseSize * 2.5 * 0.9}
+        />
+      </div>
+
+      <div className="size-full">
+        <button className="grid size-full place-items-center">
+          <PlaybackSpeedIcon size={baseSize * 2.5} />
+        </button>
+      </div>
     </div>
   )
 }

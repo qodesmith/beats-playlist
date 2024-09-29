@@ -6,6 +6,7 @@ import {RESET} from 'jotai/utils'
 import {atomFamily, atomWithReset, atomWithStorage, loadable} from 'jotai/utils'
 
 import {AudioThing} from './AudioThing'
+import {MAX_VOLUME_MULTIPLIER} from './constants'
 import {store} from './store'
 import {
   fetchWithProgress,
@@ -429,6 +430,21 @@ export const progressWidthSelector = atom(get => {
   const duration = get(metadataItemSelector)?.durationInSeconds ?? 0
   return rawTime / duration
 })
+
+const _volumeMultiplierAtom = atom<number>(1)
+
+/**
+ * The volume slider is a vertical slider that controls the volume of the audio
+ * by multiplying the volume of the audio buffer. The range is 0 - 1.5.
+ */
+export const volumeMultiplierAtom = atom(
+  get => get(_volumeMultiplierAtom),
+  (get, set, value: number) => {
+    const clampedValue = Math.min(Math.max(value, 0), MAX_VOLUME_MULTIPLIER)
+    set(_volumeMultiplierAtom, clampedValue)
+    get(audioThingAtom)?.adjustGain(clampedValue)
+  }
+)
 
 ////////////////////
 // SIZE CONTAINER //

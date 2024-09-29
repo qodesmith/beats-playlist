@@ -11,6 +11,7 @@ import {
   repeatStateSelector,
   setTimeProgressAtom,
 } from './globalState'
+import {volumeMultiplierAtom} from './globalState'
 import {store} from './store'
 
 type AudioThingInput = NonNullable<
@@ -77,11 +78,12 @@ export class AudioThing {
   }
 
   private connectAudio() {
+    const volumeMultiplier = store.get(volumeMultiplierAtom)
+
+    this.adjustGain(volumeMultiplier)
     this.#audioSource
       .connect(this.#gainNode)
       .connect(this.#audioContext.destination)
-
-    this.adjustGainToTargetLufs()
   }
 
   /**
@@ -112,10 +114,12 @@ export class AudioThing {
    *   and for amplitude ratios, the conversion factor is 20 (not 10, which is
    *   used for power ratios).
    */
-  private adjustGainToTargetLufs() {
+  adjustGain(volumeMultiplier: number) {
     if (this.#lufs !== null) {
       const adjustmentValue = Math.pow(10, (TARGET_LUFS - this.#lufs) / 20)
-      this.#gainNode.gain.value = adjustmentValue
+      this.#gainNode.gain.value = adjustmentValue * volumeMultiplier
+    } else {
+      this.#gainNode.gain.value = volumeMultiplier
     }
   }
 

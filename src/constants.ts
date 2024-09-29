@@ -16,3 +16,5 @@ export const highlightColorObj = {
  * Music mastering suggested limit: -10
  */
 export const TARGET_LUFS = -14
+
+export const MAX_VOLUME_MULTIPLIER = 1.5

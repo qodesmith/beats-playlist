@@ -4,11 +4,13 @@ import {Repeat} from './ControlIcons'
 import {cycleRepeatStateAtom, repeatStateSelector} from '../../globalState'
 
 export function RepeatButton({
+  className,
   fill,
   size,
   disabledFill = 'gray',
   forceDisabled = false,
 }: {
+  className?: string
   fill?: string
   size?: number
   disabledFill?: string
@@ -18,7 +20,10 @@ export function RepeatButton({
   const cycleRepeat = useSetAtom(cycleRepeatStateAtom)
 
   return (
-    <button onClick={forceDisabled ? undefined : cycleRepeat}>
+    <button
+      className={className}
+      onClick={forceDisabled ? undefined : cycleRepeat}
+    >
       <Repeat
         one={repeatState === 'single'}
         fill={repeatState === 'off' || forceDisabled ? disabledFill : fill}
