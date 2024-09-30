@@ -71,8 +71,8 @@ export function Controls({baseSize}: {baseSize: number}) {
       </div>
 
       <div className="size-full">
-        <button className="grid size-full place-items-center">
-          <PlaybackSpeedIcon size={baseSize * 2.5} />
+        <button className="grid size-full place-items-center" disabled>
+          <PlaybackSpeedIcon size={baseSize * 2.5} fill="gray" />
         </button>
       </div>
     </div>
