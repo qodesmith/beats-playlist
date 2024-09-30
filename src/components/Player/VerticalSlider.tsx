@@ -70,7 +70,9 @@ export function VerticalSlider({
       {/* TOP CONTAINER */}
       <div className="flex flex-col items-center justify-center">
         {/* MULTIPLIER VALUE */}
-        <div className="text-xs text-neutral-500">{multiplier.toFixed(2)}</div>
+        <div className="select-none text-xs text-neutral-500">
+          {multiplier.toFixed(2)}
+        </div>
 
         {/* RESET BUTTON */}
         <button className="p-2" onClick={onReset}>
