@@ -2,11 +2,11 @@ import clsx from 'clsx'
 import {useCallback, useMemo, useRef, useState} from 'react'
 
 import {ResetIcon} from './ControlIcons'
-import {MAX_VOLUME_MULTIPLIER} from '../../constants'
 
 type Props = {
   id: string
   multiplier: number
+  maxMultiplier: number
   onChange: (amount: number) => void
   onReset: () => void
   fill: string
@@ -15,16 +15,17 @@ type Props = {
 export function VerticalSlider({
   id,
   multiplier,
+  maxMultiplier,
   onChange,
   onReset,
   fill,
 }: Props) {
   const [isDragging, setIsDragging] = useState(false)
-  const valuePercent = `${(multiplier / MAX_VOLUME_MULTIPLIER) * 100}%` as const
+  const valuePercent = `${(multiplier / maxMultiplier) * 100}%` as const
   const sliderBarRef = useRef<HTMLDivElement>(null)
   const indicatorBottomOffset = useMemo(() => {
-    return {bottom: `calc(${(1 / MAX_VOLUME_MULTIPLIER) * 100}% + 2px)`}
-  }, [])
+    return {bottom: `calc(${(1 / maxMultiplier) * 100}% + 2px)`}
+  }, [maxMultiplier])
 
   /**
    * Since this component is rendered inside a button, we need to prevent the
@@ -41,22 +42,31 @@ export function VerticalSlider({
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-      const newVolume = calculateNewVolume(sliderBarRef.current!, e)
+      const newVolume = calculateNewVolume({
+        el: sliderBarRef.current!,
+        event: e,
+        maxMultiplier,
+      })
 
       setIsDragging(true)
       onChange(newVolume)
     },
-    [onChange]
+    [maxMultiplier, onChange]
   )
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       if (!isDragging) return
 
-      const newVolume = calculateNewVolume(sliderBarRef.current!, e)
+      const newVolume = calculateNewVolume({
+        el: sliderBarRef.current!,
+        event: e,
+        maxMultiplier,
+      })
+
       onChange(newVolume)
     },
-    [onChange, isDragging]
+    [onChange, isDragging, maxMultiplier]
   )
 
   const handleMouseUp = useCallback(() => setIsDragging(false), [])
@@ -130,14 +140,19 @@ function VerticalSliderBall({
   return <div className={ballCls} style={{bottom: value}} />
 }
 
-function calculateNewVolume(
-  el: HTMLDivElement,
-  e: React.MouseEvent<HTMLDivElement, MouseEvent>
-) {
+function calculateNewVolume({
+  el,
+  event,
+  maxMultiplier,
+}: {
+  el: HTMLDivElement
+  event: React.MouseEvent<HTMLDivElement, MouseEvent>
+  maxMultiplier: number
+}) {
   const {height, top} = el.getBoundingClientRect()
-  const offsetY = e.clientY - top
+  const offsetY = event.clientY - top
   const position = 1 - offsetY / height
-  const newVolume = Math.min(Math.max(position, 0), 1) * MAX_VOLUME_MULTIPLIER
+  const newVolume = Math.min(Math.max(position, 0), 1) * maxMultiplier
 
   return newVolume
 }
