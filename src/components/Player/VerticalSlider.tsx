@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import {useCallback, useMemo, useRef, useState} from 'react'
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 
 import {ResetIcon} from './ControlIcons'
 
@@ -20,7 +20,18 @@ export function VerticalSlider({
   onReset,
   fill,
 }: Props) {
-  const [isDragging, setIsDragging] = useState(false)
+  const [isDragging, originalSetIsDragging] = useState(false)
+
+  /**
+   * Most usage of the `isDragging` variable is inside event listeners. We can
+   * avoid this triggering a useCallback dependency change by also storing it
+   * in a ref which we can access directly.
+   */
+  const isDraggingRef = useRef<boolean>(isDragging)
+  const setIsDragging = useCallback((value: boolean) => {
+    isDraggingRef.current = value
+    originalSetIsDragging(value)
+  }, [])
   const valuePercent = `${(multiplier / maxMultiplier) * 100}%` as const
   const sliderBarRef = useRef<HTMLDivElement>(null)
   const indicatorBottomOffset = useMemo(() => {
@@ -37,11 +48,15 @@ export function VerticalSlider({
       e.stopPropagation()
       setIsDragging(false)
     },
-    []
+    [setIsDragging]
   )
 
   const handleMouseDown = useCallback(
-    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    (
+      e:
+        | React.MouseEvent<HTMLDivElement, MouseEvent>
+        | React.TouchEvent<HTMLDivElement>
+    ) => {
       const newVolume = calculateNewVolume({
         el: sliderBarRef.current!,
         event: e,
@@ -51,12 +66,16 @@ export function VerticalSlider({
       setIsDragging(true)
       onChange(newVolume)
     },
-    [maxMultiplier, onChange]
+    [maxMultiplier, onChange, setIsDragging]
   )
 
   const handleMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-      if (!isDragging) return
+    (
+      e:
+        | React.MouseEvent<HTMLDivElement, MouseEvent>
+        | React.TouchEvent<HTMLDivElement>
+    ) => {
+      if (!isDraggingRef.current) return
 
       const newVolume = calculateNewVolume({
         el: sliderBarRef.current!,
@@ -66,10 +85,38 @@ export function VerticalSlider({
 
       onChange(newVolume)
     },
-    [onChange, isDragging, maxMultiplier]
+    [onChange, maxMultiplier]
   )
 
-  const handleMouseUp = useCallback(() => setIsDragging(false), [])
+  const handleMouseUp = useCallback(() => setIsDragging(false), [setIsDragging])
+
+  /**
+   * Prevent scrolling / reloading when dragging.
+   *
+   * This is especially important on mobile devices. Without this, as you drag
+   * the slider downwards, it will mimic the motion of trying to reload the
+   * page, causing a refresh.
+   */
+  useEffect(() => {
+    const preventScroll = (e: MouseEvent | TouchEvent) => {
+      if (isDraggingRef.current) {
+        e.preventDefault()
+      }
+    }
+
+    /**
+     * `{passive: false}` explanation:
+     *
+     * This is explicitly set to allow the `preventDefault()` above. Many
+     * browsers treat touch events as "passive" to improve scrolling behavior,
+     * which prevents them from calling `preventDefault()`.
+     */
+    document.addEventListener('touchmove', preventScroll, {passive: false})
+
+    return () => {
+      document.removeEventListener('touchmove', preventScroll)
+    }
+  }, [])
 
   return (
     <div
@@ -99,6 +146,9 @@ export function VerticalSlider({
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onMouseMove={handleMouseMove}
+        onTouchStart={handleMouseDown}
+        onTouchEnd={handleMouseUp}
+        onTouchMove={handleMouseMove}
       >
         {/* 100% INDICATOR LINE */}
         <div
@@ -146,11 +196,20 @@ function calculateNewVolume({
   maxMultiplier,
 }: {
   el: HTMLDivElement
-  event: React.MouseEvent<HTMLDivElement, MouseEvent>
+  event:
+    | React.MouseEvent<HTMLDivElement, MouseEvent>
+    | React.TouchEvent<HTMLDivElement>
   maxMultiplier: number
 }) {
   const {height, top} = el.getBoundingClientRect()
-  const offsetY = event.clientY - top
+  const offsetY = (() => {
+    if ('touches' in event) {
+      return event.touches[0].clientY - top
+    }
+
+    return event.clientY - top
+  })()
+
   const position = 1 - offsetY / height
   const newVolume = Math.min(Math.max(position, 0), 1) * maxMultiplier
 
