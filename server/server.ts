@@ -11,7 +11,14 @@ import {deletePlaylistItem} from './youtubeApi'
 
 // Beats longer than this value will not be returned.
 const MAX_DURATION_SECONDS = Number(Bun.env.MAX_DURATION_SECONDS) || 60 * 8
-const {SERVER_PORT, NODE_ENV} = process.env
+const {
+  SERVER_PORT,
+  NODE_ENV,
+  FETCHNOW_QUERY_KEY,
+  FETCHNOW_QUERY_VALUE,
+  BEATS_CRON_CONTAINER_NAME,
+  BEATS_CRON_CONTAINER_PORT,
+} = process.env
 const app = new Hono()
 
 const beatsBasePath =
@@ -191,6 +198,28 @@ app.delete('/api/delete/:id', async c => {
   } catch (error) {
     return c.json({error})
   }
+})
+
+app.post('/fetchnow', async c => {
+  if (
+    !FETCHNOW_QUERY_KEY ||
+    !FETCHNOW_QUERY_VALUE ||
+    !BEATS_CRON_CONTAINER_NAME ||
+    !BEATS_CRON_CONTAINER_PORT
+  ) {
+    return c.json({error: 'Not authorized'}, 401)
+  }
+
+  const queryObj = c.req.query()
+  const hasMatch = queryObj[FETCHNOW_QUERY_KEY] === FETCHNOW_QUERY_VALUE
+
+  if (!hasMatch) {
+    return c.json({error: 'Not authorized'}, 401)
+  }
+
+  return fetch(
+    `http://${BEATS_CRON_CONTAINER_NAME}:${BEATS_CRON_CONTAINER_PORT}`
+  )
 })
 
 export default {port: SERVER_PORT, fetch: app.fetch}
