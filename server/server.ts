@@ -4,10 +4,14 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import {$} from 'bun'
+import dotenv from 'dotenv'
 import {Hono} from 'hono'
 
 import {gzip} from './gzipMiddleware'
 import {deletePlaylistItem} from './youtubeApi'
+
+// Load secret env vars from the Unraid server.
+dotenv.config({path: '/youtube_auth/download-youtube-beats.env'})
 
 // Beats longer than this value will not be returned.
 const MAX_DURATION_SECONDS = Number(Bun.env.MAX_DURATION_SECONDS) || 60 * 8
