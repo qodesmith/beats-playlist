@@ -211,18 +211,19 @@ app.post('/fetchnow', async c => {
     !BEATS_CRON_CONTAINER_NAME ||
     !BEATS_CRON_CONTAINER_PORT
   ) {
-    return c.json({error: 'Not authorized'}, 401)
+    return c.json({error: 'Server error'}, 500)
   }
 
   const queryObj = c.req.query()
   const hasMatch = queryObj[FETCHNOW_QUERY_KEY] === FETCHNOW_QUERY_VALUE
 
   if (!hasMatch) {
-    return c.json({error: 'Not authorized'}, 401)
+    return c.json({error: 'Unathorized'}, 401)
   }
 
   return fetch(
-    `http://${BEATS_CRON_CONTAINER_NAME}:${BEATS_CRON_CONTAINER_PORT}`
+    `http://${BEATS_CRON_CONTAINER_NAME}:${BEATS_CRON_CONTAINER_PORT}`,
+    {method: 'POST'}
   )
 })
 
