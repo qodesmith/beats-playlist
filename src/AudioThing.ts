@@ -28,7 +28,7 @@ export class AudioThing {
   #gainNode: GainNode
   #startTime: number
   #pausedTime: number
-  #interval: number | null
+  #interval: ReturnType<typeof setInterval> | null
 
   constructor(data: AudioThingInput | undefined, id: string) {
     if (!data) throw new Error(`No audio data found for id: ${id}`)
@@ -195,17 +195,21 @@ export class AudioThing {
   }
 
   private startCalculatingProgress(): void {
-    const animate = () => {
+    /**
+     * We don't pass `this.calculatTimeProgress` directly as the setInterval
+     * callback because it will throw the following error:
+     *
+     * "Cannot read private member #audioContext from an object whose class did
+     * not declare it"
+     */
+    this.#interval = setInterval(() => {
       this.calculateTimeProgress()
-      this.#interval = requestAnimationFrame(animate)
-    }
-
-    this.#interval = requestAnimationFrame(animate)
+    }, 100)
   }
 
   private stopCalculatingProgress(): void {
     if (this.#interval) {
-      cancelAnimationFrame(this.#interval)
+      clearInterval(this.#interval)
       this.#interval = null
     }
   }
