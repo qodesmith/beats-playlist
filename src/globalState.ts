@@ -267,7 +267,7 @@ export const handlePlayPauseAtom = atom(null, get => {
   }
 })
 
-export const handleClickToPlayAtom = atom(null, (get, _set, id: string) => {
+export const handleClickToPlayAtom = atom(null, (get, set, id: string) => {
   const selectedBeatId = get(selectedBeatIdAtom)
 
   /**
@@ -282,7 +282,9 @@ export const handleClickToPlayAtom = atom(null, (get, _set, id: string) => {
   /**
    * Clicking the same beat.
    */
-  if (id === selectedBeatId) return
+  if (id === selectedBeatId) {
+    return set(handlePlayPauseAtom)
+  }
 
   /**
    * Clicking a new beat (i.e. an old one is already playing or paused).
