@@ -9,20 +9,14 @@ export function Search() {
   const [isOpen, setIsOpen] = useState(false)
   const [search, setSearch] = useAtom(searchAtom)
   const inputRef = useRef<HTMLInputElement>(null)
-  const containerCls = clsx('flex rounded', {
-    'bg-transparent': !isOpen,
-    'bg-neutral-900': isOpen,
-  })
-  const inputContainerCls = clsx(
-    'rounded border border-neutral-700 transition-all duration-200 overflow-hidden flex items-center',
-    {
-      'ml-2 w-56': isOpen,
-      'ml-0 w-0 border-0 ml-0': !isOpen,
-    }
-  )
 
   return (
-    <div className={containerCls}>
+    <div
+      className={clsx('flex rounded', {
+        'bg-transparent': !isOpen,
+        'bg-neutral-900': isOpen,
+      })}
+    >
       <HeaderButton
         onClick={() => {
           if (isOpen) {
@@ -39,7 +33,15 @@ export function Search() {
       >
         🔎
       </HeaderButton>
-      <div className={inputContainerCls}>
+      <div
+        className={clsx(
+          'flex items-center overflow-hidden rounded border border-neutral-700 transition-all duration-200',
+          {
+            'ml-2 w-56': isOpen,
+            'ml-0 w-0 border-0': !isOpen,
+          }
+        )}
+      >
         <input
           ref={inputRef}
           type="text"

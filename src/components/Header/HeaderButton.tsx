@@ -11,13 +11,16 @@ export function HeaderButton({
 }: {
   children: ReactNode
 } & ComponentProps<'button'>) {
-  const cls = clsx(
-    'flex h-10 w-10 items-center justify-center rounded border border-neutral-700 p-2 hover:bg-neutral-800 active:bg-neutral-700 disabled:bg-transparent disabled:opacity-50',
-    className
-  )
-
   return (
-    <button id={id} onClick={onClick} disabled={disabled} className={cls}>
+    <button
+      id={id}
+      onClick={onClick}
+      disabled={disabled}
+      className={clsx(
+        'flex h-10 w-10 items-center justify-center rounded border border-neutral-700 p-2 hover:bg-neutral-800 active:bg-neutral-700 disabled:bg-transparent disabled:opacity-50',
+        className
+      )}
+    >
       {children}
     </button>
   )

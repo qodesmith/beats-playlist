@@ -39,11 +39,6 @@ export function Cursor({
   const handleMouseLeave = useCallback(() => {
     setShouldShow(false)
   }, [])
-  const cursorCls = clsx(
-    'absolute h-full',
-    cursorWidthClasses[cursorWidth],
-    cursorColor
-  )
 
   return (
     <div
@@ -57,7 +52,11 @@ export function Cursor({
       {shouldShow && (
         <div
           id="cursor"
-          className={cursorCls}
+          className={clsx(
+            'absolute h-full',
+            cursorWidthClasses[cursorWidth],
+            cursorColor
+          )}
           style={{left, height: cursorHeight ?? '100%'}}
         />
       )}

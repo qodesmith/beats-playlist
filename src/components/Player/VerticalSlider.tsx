@@ -182,12 +182,15 @@ function VerticalSliderBall({
   value: `${number}%`
   isDragging: boolean
 }) {
-  const ballCls = clsx(
-    'absolute bottom-0 h-1 w-1 rounded-full bg-puerto-rico-300 transition-transform duration-200 group-hover:scale-[3]',
-    {'scale-[3]': isDragging}
+  return (
+    <div
+      className={clsx(
+        'absolute bottom-0 h-1 w-1 rounded-full bg-puerto-rico-300 transition-transform duration-200 group-hover:scale-[3]',
+        {'scale-[3]': isDragging}
+      )}
+      style={{bottom: value}}
+    />
   )
-
-  return <div className={ballCls} style={{bottom: value}} />
 }
 
 function calculateNewVolume({

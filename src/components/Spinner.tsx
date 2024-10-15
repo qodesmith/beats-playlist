@@ -9,14 +9,12 @@ export function Spinner({
   size?: number
   className?: string
 }) {
-  const cls = clsx('animate-[spin_.7s_linear_infinite]', {
-    [`${className}`]: className,
-  })
-
   return (
     <svg
       fill={fill}
-      className={cls}
+      className={clsx('animate-[spin_.7s_linear_infinite]', {
+        [`${className}`]: className,
+      })}
       width={size}
       height={size}
       viewBox="0 0 24 24"

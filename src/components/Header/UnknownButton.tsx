@@ -9,13 +9,15 @@ export function UnknownButton() {
   const [isUnknownMetadata, setIsUnknownMetadata] = useAtom(
     isUnknownMetadataAtom
   )
-  const cls = clsx(isUnknownMetadata && 'text-lime-500')
   const toggleUnknown = useCallback(() => {
     setIsUnknownMetadata(v => !v)
   }, [setIsUnknownMetadata])
 
   return (
-    <HeaderButton className={cls} onClick={toggleUnknown}>
+    <HeaderButton
+      className={clsx(isUnknownMetadata && 'text-lime-500')}
+      onClick={toggleUnknown}
+    >
       ?
     </HeaderButton>
   )

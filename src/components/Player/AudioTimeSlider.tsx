@@ -206,12 +206,16 @@ function Duration() {
 function Ball() {
   const isDragging = useAtomValue(isSliderDraggingAtom)
   const progressWidth = useAtomValue(progressWidthAtom)
-  const ballCls = clsx(
-    'absolute right-0 top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 scale-100 rounded-full bg-puerto-rico-300 transition-transform duration-200 group-hover:scale-[3]',
-    {
-      'scale-[3]': isDragging,
-    }
-  )
 
-  return <div className={ballCls} style={{left: progressWidth}} />
+  return (
+    <div
+      className={clsx(
+        'absolute right-0 top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 scale-100 rounded-full bg-puerto-rico-300 transition-transform duration-200 group-hover:scale-[3]',
+        {
+          'scale-[3]': isDragging,
+        }
+      )}
+      style={{left: progressWidth}}
+    />
+  )
 }
