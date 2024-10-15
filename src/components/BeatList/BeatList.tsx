@@ -1,7 +1,6 @@
 import {secondsToDuration} from '@qodestack/utils'
 import clsx from 'clsx'
 import {useAtomValue, useSetAtom} from 'jotai'
-import {useCallback} from 'react'
 
 import {RowMenuButton} from './RowMenuButton'
 import {highlightColorObj} from '../../constants'
@@ -18,15 +17,6 @@ export function BeatList() {
   const metadata = useAtomValue(metadataSelector)
   const setSelectedArtist = useSetAtom(selectedArtistAtom)
   const selectedBeatId = useAtomValue(selectedBeatIdAtom)
-  const handleImageError = useCallback(
-    (e: React.SyntheticEvent<HTMLDivElement, Event>) => {
-      const img = e.target as HTMLImageElement
-      const parent = img.parentElement as HTMLDivElement
-      img.style.display = 'none'
-      parent.style.backgroundColor = 'gray'
-    },
-    []
-  )
   const handleClickToPlay = useSetAtom(handleClickToPlayAtom)
 
   return (
@@ -45,67 +35,69 @@ export function BeatList() {
         ) => {
           const beatNum = i + 1
           const isCurrentBeat = selectedBeatId === id
-          const containerCls = clsx(
-            'group grid grid-cols-[auto_44px_1fr] gap-2 md:gap-4 md:grid-cols-[4ch_44px_1fr_10ch_5ch_30px] rounded py-2 md:p-2 scroll-mt-10',
-            {
-              'md:hover:bg-neutral-800': !isCurrentBeat,
-              'md:bg-neutral-700': isCurrentBeat,
-            }
-          )
-          const counterCls = clsx('hidden md:flex items-center justify-end', {
-            'opacity-50': !isCurrentBeat,
-            [highlightColorObj.text]: isCurrentBeat,
-          })
-          const titleCls = clsx('w-full truncate', {
-            [highlightColorObj.text]: isCurrentBeat,
-          })
-          const artistCls = clsx(
-            highlightColorObj.textHover,
-            'cursor-pointer p-0.5 pl-0 text-sm text-neutral-500 md:p-1 md:pl-0'
-          )
           const dateAdded = new Date(dateAddedToPlaylist).toLocaleDateString()
           const clickToPlay = () => handleClickToPlay(id)
-          const playContainerCls = clsx('absolute', !isCurrentBeat && 'hidden')
 
           return (
-            <div key={id} id={id} className={containerCls}>
+            <div
+              key={id}
+              id={id}
+              className={clsx(
+                'group grid scroll-mt-10 grid-cols-[auto_44px_1fr] items-center gap-2 rounded py-2 md:grid-cols-[4ch_44px_1fr_10ch_5ch_30px] md:gap-4 md:p-2',
+                {
+                  'md:hover:bg-neutral-800': !isCurrentBeat,
+                  'md:bg-neutral-700': isCurrentBeat,
+                }
+              )}
+            >
               {/* COUNTER / DOTS */}
-              <div className={counterCls}>{beatNum}</div>
+              <div
+                className={clsx('hidden items-center justify-end md:flex', {
+                  'opacity-50': !isCurrentBeat,
+                  [highlightColorObj.text]: isCurrentBeat,
+                })}
+              >
+                {beatNum}
+              </div>
+
+              {/* MENU BUTTON - MOBILE */}
               <RowMenuButton className="px-2 md:hidden" type="vertical" />
 
               {/* THUMBNAIL */}
-              <div
-                className="relative h-11 w-11 cursor-pointer place-self-center overflow-hidden rounded"
-                onError={handleImageError}
+              <button
+                className="h-11 w-11 rounded bg-neutral-500 bg-cover bg-center"
+                style={{
+                  backgroundImage: `url("/api/thumbnails/${id}[small]")`,
+                }}
                 onClick={clickToPlay}
               >
-                <div className={playContainerCls}>
-                  <Play
-                    circleFill="transparent"
-                    triangleFill="white"
-                    size={44}
-                    triangleClass="drop-shadow-md"
-                  />
-                </div>
-                <img
-                  src={`/api/thumbnails/${id}[small]`}
-                  className="h-11 w-11"
+                <Play
+                  circleFill="transparent"
+                  triangleFill="white"
+                  size={44}
+                  triangleClass="drop-shadow-md"
                 />
-              </div>
+              </button>
 
               {/* TITLE / ARTIST */}
               <div className="flex w-full flex-col items-start overflow-hidden">
-                <div className={titleCls}>
-                  <span className="cursor-pointer" onClick={clickToPlay}>
-                    {title}
-                  </span>
-                </div>
+                <button
+                  className={clsx('truncate', {
+                    [highlightColorObj.text]: isCurrentBeat,
+                  })}
+                  onClick={clickToPlay}
+                >
+                  {title}
+                </button>
                 <div className="flex items-center gap-3">
                   <a href={channelUrl ?? '#'} target="_blank">
                     <YouTubeLogo size={15} />
                   </a>
-                  <div
-                    className={artistCls}
+                  <button
+                    className={clsx(
+                      highlightColorObj.textHover,
+                      'p-0.5 pl-0 text-sm text-neutral-500 md:p-1 md:pl-0'
+                    )}
                     onClick={() => {
                       setSelectedArtist(v => {
                         return v === undefined ? channelName : undefined
@@ -113,7 +105,7 @@ export function BeatList() {
                     }}
                   >
                     {channelName || <>&mdash;</>}
-                  </div>
+                  </button>
                 </div>
               </div>
 
@@ -127,7 +119,7 @@ export function BeatList() {
                 {secondsToDuration(durationInSeconds)}
               </div>
 
-              {/* DESKTOP DOTS MENU */}
+              {/* MENU BUTTON - DESKTOP */}
               <RowMenuButton
                 className="hidden h-[30px] place-items-center place-self-center md:group-hover:grid"
                 type="horizontal"

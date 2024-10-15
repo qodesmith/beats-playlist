@@ -7,3 +7,7 @@
     @apply outline outline-1 outline-transparent;
   }
 }
+
+button:disabled {
+  cursor: not-allowed;
+}

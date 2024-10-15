@@ -48,12 +48,9 @@ export function Search() {
           onChange={e => setSearch(e.target.value)}
         />
         {!!search && (
-          <div
-            className="cursor-pointer select-none p-2"
-            onClick={() => setSearch('')}
-          >
+          <button className="select-none p-2" onClick={() => setSearch('')}>
             &times;
-          </div>
+          </button>
         )}
       </div>
     </div>

@@ -1,6 +1,7 @@
 // import {HeaderButtonAndMenu} from './HeaderButtonAndMenu'
 import {useAtomValue} from 'jotai'
 
+import {HeaderButtonAndMenu} from './HeaderButtonAndMenu'
 import {RandomizeListButton} from './RandomizeListButton'
 import {Search} from './Search'
 import {UnknownButton} from './UnknownButton'
@@ -14,7 +15,7 @@ export function HeaderButtonGroup() {
       <Search />
       {unknownMetadata.length > 0 && <UnknownButton />}
       <RandomizeListButton />
-      {/* <HeaderButtonAndMenu /> */}
+      <HeaderButtonAndMenu />
     </div>
   )
 }

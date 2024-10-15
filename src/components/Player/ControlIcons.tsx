@@ -11,14 +11,12 @@ export function Play({
 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 50 50">
-      <g className="hover:cursor-pointer">
-        <circle cx="25" cy="25" r="24" fill={circleFill} />
-        <path
-          d="M20 15 L20 35 L35 25 Z"
-          fill={triangleFill}
-          className={triangleClass}
-        />
-      </g>
+      <circle cx="25" cy="25" r="24" fill={circleFill} />
+      <path
+        d="M20 15 L20 35 L35 25 Z"
+        fill={triangleFill}
+        className={triangleClass}
+      />
     </svg>
   )
 }
@@ -34,11 +32,9 @@ export function Pause({
 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 50 50">
-      <g className="hover:cursor-pointer">
-        <circle cx="25" cy="25" r="24" fill={circleFill} stroke="black" />
-        <rect x="16" y="15" width="6" height="20" fill={pauseFill} />
-        <rect x="28" y="15" width="6" height="20" fill={pauseFill} />
-      </g>
+      <circle cx="25" cy="25" r="24" fill={circleFill} stroke="black" />
+      <rect x="16" y="15" width="6" height="20" fill={pauseFill} />
+      <rect x="28" y="15" width="6" height="20" fill={pauseFill} />
     </svg>
   )
 }
@@ -51,12 +47,7 @@ export function Next({
   fill?: string
 }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 50 50"
-      className="hover:cursor-pointer"
-    >
+    <svg width={size} height={size} viewBox="0 0 50 50">
       <path
         d="M10 10 Q10 9 11 9 L28 23 Q30 24 28 25 L11 39 Q10 40 10 39 V10"
         fill={fill}
@@ -74,12 +65,7 @@ export function Previous({
   fill?: string
 }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 50 50"
-      className="hover:cursor-pointer"
-    >
+    <svg width={size} height={size} viewBox="0 0 50 50">
       <path
         d="M40 10 Q40 9 39 9 L22 23 Q20 24 22 25 L39 39 Q40 40 40 39 V10"
         fill={fill}
@@ -100,12 +86,7 @@ export function Repeat({
 }) {
   if (one) {
     return (
-      <svg
-        width={size}
-        height={size}
-        viewBox="0 0 16 16"
-        className="hover:cursor-pointer"
-      >
+      <svg width={size} height={size} viewBox="0 0 16 16">
         <path
           fill={fill}
           d="M0 4.75A3.75 3.75 0 0 1 3.75 1h.75v1.5h-.75A2.25 2.25 0 0 0 1.5 4.75v5A2.25 2.25 0 0 0 3.75 12H5v1.5H3.75A3.75 3.75 0 0 1 0 9.75v-5zM12.25 2.5h-.75V1h.75A3.75 3.75 0 0 1 16 4.75v5a3.75 3.75 0 0 1-3.75 3.75H9.81l1.018 1.018a.75.75 0 1 1-1.06 1.06L6.939 12.75l2.829-2.828a.75.75 0 1 1 1.06 1.06L9.811 12h2.439a2.25 2.25 0 0 0 2.25-2.25v-5a2.25 2.25 0 0 0-2.25-2.25z"
@@ -119,12 +100,7 @@ export function Repeat({
   }
 
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 16 16"
-      className="hover:cursor-pointer"
-    >
+    <svg width={size} height={size} viewBox="0 0 16 16">
       <path
         fill={fill}
         d="M0 4.75A3.75 3.75 0 0 1 3.75 1h8.5A3.75 3.75 0 0 1 16 4.75v5a3.75 3.75 0 0 1-3.75 3.75H9.81l1.018 1.018a.75.75 0 1 1-1.06 1.06L6.939 12.75l2.829-2.828a.75.75 0 1 1 1.06 1.06L9.811 12h2.439a2.25 2.25 0 0 0 2.25-2.25v-5a2.25 2.25 0 0 0-2.25-2.25h-8.5A2.25 2.25 0 0 0 1.5 4.75v5A2.25 2.25 0 0 0 3.75 12H5v1.5H3.75A3.75 3.75 0 0 1 0 9.75v-5z"
@@ -163,13 +139,11 @@ export function VolumeIcon({
 }) {
   return (
     <svg width={size} height={size} viewBox="0 -0.5 25 25">
-      <g
-        id="Icon-Set-Filled"
+      <path
         transform="translate(-209.000000, -573.000000)"
         fill={fill}
-      >
-        <path d="M228,578.101 L228,580.101 C230.282,580.564 232,582.581 232,585 C232,587.419 230.282,589.436 228,589.899 L228,591.899 C231.388,591.41 234,588.523 234,585 C234,581.477 231.388,578.59 228,578.101 L228,578.101 Z M209,581 L209,589 C209,590.104 209.896,591 211,591 L214,591 L214,579 L211,579 C209.896,579 209,579.896 209,581 L209,581 Z M223,573 L216,577.667 L216,592.333 L223,597 C224.104,597 225,596.104 225,595 L225,575 C225,573.896 224.104,573 223,573 L223,573 Z"></path>
-      </g>
+        d="M228,578.101 L228,580.101 C230.282,580.564 232,582.581 232,585 C232,587.419 230.282,589.436 228,589.899 L228,591.899 C231.388,591.41 234,588.523 234,585 C234,581.477 231.388,578.59 228,578.101 L228,578.101 Z M209,581 L209,589 C209,590.104 209.896,591 211,591 L214,591 L214,579 L211,579 C209.896,579 209,579.896 209,581 L209,581 Z M223,573 L216,577.667 L216,592.333 L223,597 C224.104,597 225,596.104 225,595 L225,575 C225,573.896 224.104,573 223,573 L223,573 Z"
+      />
     </svg>
   )
 }

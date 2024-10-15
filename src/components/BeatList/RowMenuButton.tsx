@@ -13,11 +13,9 @@ export function RowMenuButton({
   className?: string
   type: ComponentProps<typeof TripleDots>['type']
 }) {
-  const cls = clsx(className)
-
   return (
     <button
-      className={cls}
+      className={clsx(className)}
       onClick={e => {
         const {top} = e.currentTarget.getBoundingClientRect()
 
