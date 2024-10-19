@@ -1,7 +1,7 @@
 import type {ReactNode} from 'react'
 
 import {useSetAtom} from 'jotai'
-import {useEffect, useRef} from 'react'
+import {useCallback, useEffect, useRef} from 'react'
 
 import {sizeContainerAtomFamily} from '../../globalState'
 
@@ -37,9 +37,7 @@ export function SizeContainer({
   const setContainerDimensions = useSetAtom(
     sizeContainerAtomFamily(sizeContainerId)
   )
-
-  // Initial size effect.
-  useEffect(() => {
+  const handleResize = useCallback(() => {
     const el = sizeContainerRef.current
 
     if (el) {
@@ -48,23 +46,17 @@ export function SizeContainer({
     }
   }, [setContainerDimensions])
 
+  // Initial size effect.
+  useEffect(handleResize, [handleResize])
+
   // Resize effect.
   useEffect(() => {
-    function handleResize() {
-      const el = sizeContainerRef.current
-
-      if (el) {
-        const {width, height} = el.getBoundingClientRect()
-        setContainerDimensions({width, height})
-      }
-    }
-
     window.addEventListener('resize', handleResize)
 
     return () => {
       window.removeEventListener('resize', handleResize)
     }
-  }, [setContainerDimensions])
+  }, [handleResize])
 
   return (
     <div id={sizeContainerId} ref={sizeContainerRef} className={className}>
