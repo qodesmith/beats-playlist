@@ -8,7 +8,6 @@ import {defineConfig} from 'vite'
 
 dotenv.config({path: './.env'})
 const {SERVER_PORT} = process.env
-dotenv.config()
 
 // https://vitejs.dev/config/
 export default defineConfig(({command}) => ({
