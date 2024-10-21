@@ -1,27 +1,20 @@
 import {AudioTimeSlider} from './Player/AudioTimeSlider'
 import {Controls} from './Player/Controls'
 import {Waveform} from './Player/Waveform'
+import {useCompareTailwindBreakpoint} from '../hooks/useCompareTailwindBreakpoint'
 
-/**
- * Instead of using JavaScript to detect breakpoints, we wrap the controls in
- * a container div which then hides conditionally based on the breakpoint.
- */
 export function Footer() {
+  const baseSize = useCompareTailwindBreakpoint('>=', 'md') ? 8 : 12
+
   return (
     <footer>
-      <div className="h-[100px]">
+      <div className="h-[60px] px-2 md:h-[100px]">
         <Waveform />
       </div>
 
       <AudioTimeSlider />
 
-      {/* CONTROLS - only one will show at a time */}
-      <div className="hidden md:block">
-        <Controls baseSize={8} />
-      </div>
-      <div className="md:hidden">
-        <Controls baseSize={12} />
-      </div>
+      <Controls baseSize={baseSize} />
     </footer>
   )
 }

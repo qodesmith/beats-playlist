@@ -1,7 +1,13 @@
+import type {TailwindBreakpoint, TailwindMediaQuery} from './constants'
 import type {Video} from '@qodestack/dl-yt-playlist'
 
 import {fetchWithProgress, wait} from '@qodestack/utils'
 
+import {
+  mediaQueryMap,
+  tailwindBreakpoints,
+  tailwindMediaQueries,
+} from './constants'
 import {
   _initialMetadata,
   unknownMetadataAtom,
@@ -9,10 +15,13 @@ import {
   isAppInitializedAtom,
   selectedBeatIdAtom,
   initialMetadataLoadingProgressAtom,
+  tailwindBreakpointAtom,
 } from './globalState'
 import {store} from './store'
 
 export function initApp() {
+  watchMediaQueries()
+
   const url = new URL(window.location.href)
   const searchParamsBeatId = url.searchParams.get('beatId')
 
@@ -87,5 +96,55 @@ export function initApp() {
   // TODO - handle error (show broken image icon)
   Promise.all(promises).then(() => {
     store.set(isAppInitializedAtom, true)
+  })
+}
+
+function watchMediaQueries() {
+  // Calculate the initial Tailwind breakpoint for the current screen size.
+  const width = window.innerWidth
+  const initialBreakPoint: TailwindBreakpoint | null =
+    width >= 1536
+      ? '2xl'
+      : width >= 1280
+        ? 'xl'
+        : width >= 1024
+          ? 'lg'
+          : width >= 768
+            ? 'md'
+            : width >= 640
+              ? 'sm'
+              : null
+
+  store.set(tailwindBreakpointAtom, initialBreakPoint)
+
+  /**
+   * Instead of using a `resize` event, which will fire many many times, we use
+   * media query events to detect when a breakpoint has been changed.
+   */
+  tailwindMediaQueries.forEach(mq => {
+    window.matchMedia(mq).addEventListener('change', e => {
+      const media = e.media as TailwindMediaQuery
+      const {matches} = e
+      const affectedBp = mediaQueryMap[media]
+
+      // Screen getting larger.
+      if (matches) return store.set(tailwindBreakpointAtom, affectedBp)
+
+      // Screen getting smaller.
+      const affectedBpIndex = tailwindBreakpoints.indexOf(affectedBp)
+      const currentBp = store.get(tailwindBreakpointAtom)
+      const currentBpIndex = currentBp
+        ? tailwindBreakpoints.indexOf(currentBp)
+        : -1
+
+      if (affectedBpIndex <= currentBpIndex) {
+        const newBreakpoint = tailwindBreakpoints[affectedBpIndex - 1]
+
+        store.set(
+          tailwindBreakpointAtom,
+          newBreakpoint === undefined ? null : newBreakpoint
+        )
+      }
+    })
   })
 }

@@ -11,7 +11,7 @@ import {
   isAppInitializedAtom,
 } from '../globalState'
 
-const duration = 0.5
+const duration = {duration: 0.5}
 const opacity0 = {opacity: 0}
 const opacity1 = {opacity: 1}
 
@@ -28,7 +28,7 @@ export function HomePage() {
           className="flex h-full flex-col"
           initial={opacity0}
           animate={opacity1}
-          transition={{duration}}
+          transition={duration}
         >
           <Header />
           <NowPlaying />
@@ -42,7 +42,7 @@ export function HomePage() {
           initial={opacity1}
           animate={opacity1}
           exit={opacity0}
-          transition={{duration}}
+          transition={duration}
         >
           <AudioLoader size={100} />
           <div className="text-center">{loadingProgress}%</div>

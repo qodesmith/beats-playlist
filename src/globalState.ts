@@ -1,3 +1,4 @@
+import type {TailwindBreakpoint} from './constants'
 import type {Video} from '@qodestack/dl-yt-playlist'
 
 import {
@@ -542,3 +543,9 @@ export const audioThingAtom = atom<AudioThing>()
 export const isMenuOpenAtom = atom<boolean>(false)
 
 export const isSearchOpenAtom = atom<boolean>(false)
+
+////////////////
+// BREAKPOINT //
+////////////////
+
+export const tailwindBreakpointAtom = atom<TailwindBreakpoint | null>(null)
