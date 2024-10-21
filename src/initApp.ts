@@ -1,6 +1,6 @@
 import type {Video} from '@qodestack/dl-yt-playlist'
 
-import {wait} from '@qodestack/utils'
+import {fetchWithProgress, wait} from '@qodestack/utils'
 
 import {
   _initialMetadata,
@@ -11,7 +11,6 @@ import {
   initialMetadataLoadingProgressAtom,
 } from './globalState'
 import {store} from './store'
-import {fetchWithProgress} from './utils'
 
 export function initApp() {
   const url = new URL(window.location.href)
@@ -50,10 +49,13 @@ export function initApp() {
    * Kick off a fetch request for all the beats metadata while the app is
    * mounting, then queue up the first beat.
    */
-  const initAppPromise = fetchWithProgress(
-    '/api/metadata',
-    initialMetadataLoadingProgressAtom
-  )
+  const initAppPromise = fetchWithProgress({
+    url: '/api/metadata',
+    contentLengthHeader: 'Original-Content-Length',
+    onProgress: percent => {
+      store.set(initialMetadataLoadingProgressAtom, percent)
+    },
+  })
     .then(res => res.json())
     .then(({metadata}: {metadata: Video[]}) => {
       /**

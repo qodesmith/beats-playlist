@@ -1,5 +1,3 @@
-import type {PrimitiveAtom} from 'jotai'
-
 import {pluralize} from '@qodestack/utils'
 
 import {metadataSelector, selectedBeatIdAtom} from './globalState'
@@ -131,53 +129,4 @@ export function scrollBeatIntoView(
       .getElementById(beatId)
       ?.scrollIntoView({behavior: 'smooth', block: 'center', ...options})
   }
-}
-
-export async function fetchWithProgress(
-  url: string,
-  progressAtom: PrimitiveAtom<number> | PrimitiveAtom<number | null>
-) {
-  const response = await fetch(url)
-  const reader = response.body?.getReader()
-  const contentLengthHeaderValue =
-    response.headers.get('Original-Content-Length') ||
-    response.headers.get('Content-Length')
-
-  if (!contentLengthHeaderValue) {
-    throw new Error('No header found for content length')
-  }
-
-  const contentLength = +contentLengthHeaderValue
-
-  // Bytes received
-  let receivedLength = 0
-
-  // Array of received binary chunks (comprises the body)
-  const chunks: (Uint8Array | undefined)[] = []
-
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    const {done, value} = (await reader?.read()) ?? {}
-    if (done) break
-
-    chunks.push(value)
-    receivedLength += value?.length ?? 0
-
-    const currentPercent = (receivedLength / contentLength) * 100
-    const progressPercent = Math.min(100, currentPercent)
-    store.set(progressAtom, Math.round(progressPercent))
-  }
-
-  // Concatenate chunks into single Uint8Array
-  const finalData = new Uint8Array(receivedLength)
-  let position = 0
-
-  chunks.forEach(chunk => {
-    if (chunk) {
-      finalData.set(chunk, position)
-      position += chunk.length
-    }
-  })
-
-  return new Response(finalData)
 }

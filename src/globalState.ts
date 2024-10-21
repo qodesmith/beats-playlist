@@ -1,6 +1,10 @@
 import type {Video} from '@qodestack/dl-yt-playlist'
 
-import {secondsToDuration, shuffleArray} from '@qodestack/utils'
+import {
+  fetchWithProgress,
+  secondsToDuration,
+  shuffleArray,
+} from '@qodestack/utils'
 import {atom} from 'jotai'
 import {RESET} from 'jotai/utils'
 import {atomFamily, atomWithReset, atomWithStorage, loadable} from 'jotai/utils'
@@ -9,7 +13,6 @@ import {AudioThing} from './AudioThing'
 import {MAX_VOLUME_MULTIPLIER} from './constants'
 import {store} from './store'
 import {
-  fetchWithProgress,
   getRandomBeatId,
   scrollBeatIntoView,
   secondsToPlainSentence,
@@ -471,16 +474,18 @@ export const audioDataLoadingProgressAtomFamily = atomFamily(
 export const audioDataAtomFamily = atomFamily((id: string | undefined) => {
   return atom(async _get_DO_NOT_USE___AVOID_JOTAI_RERENDERS => {
     if (id === undefined) return undefined
+    const progressAtom = audioDataLoadingProgressAtomFamily(id)
 
-    const res = await fetchWithProgress(
-      `/api/beats/${id}`,
-      audioDataLoadingProgressAtomFamily(id)
-    )
+    const res = await fetchWithProgress({
+      url: `/api/beats/${id}`,
+      contentLengthHeader: 'Original-Content-Length',
+      onProgress: percent => store.set(progressAtom, Math.round(percent)),
+    })
     const arrayBuffer = await res.arrayBuffer()
     const audioContext = new AudioContext()
     const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
 
-    store.set(audioDataLoadingProgressAtomFamily(id), null)
+    store.set(progressAtom, null)
 
     /**
      * !!! WARNING !!!
@@ -535,3 +540,5 @@ export const audioThingAtom = atom<AudioThing>()
 //////////
 
 export const isMenuOpenAtom = atom<boolean>(false)
+
+export const isSearchOpenAtom = atom<boolean>(false)
