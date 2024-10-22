@@ -3,7 +3,7 @@ import type {Video} from '@qodestack/dl-yt-playlist'
 import {secondsToDuration} from '@qodestack/utils'
 import clsx from 'clsx'
 import {useAtomValue, useSetAtom} from 'jotai'
-import {useCallback, useState} from 'react'
+import {useCallback, useRef, useState} from 'react'
 
 import {RowMenuButton} from './RowMenuButton'
 import {highlightColorObj} from '../../constants'
@@ -32,6 +32,7 @@ export function BeatListItem({video, rowNum}: Props) {
     channelUrl,
   } = video
   const [shouldScrollTitle, setShouldScrollTitle] = useState(false)
+  const scrollRef = useRef<{difference: number; percent: number} | undefined>()
   const selectedBeatId = useAtomValue(selectedBeatIdAtom)
   const isSelected = selectedBeatId === id
   const dateAdded = new Date(dateAddedToPlaylist).toLocaleDateString()
@@ -57,8 +58,6 @@ export function BeatListItem({video, rowNum}: Props) {
           'md:bg-neutral-700': isSelected,
         }
       )}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
     >
       {/* ROW NUMBER / DOTS */}
       {!isBelowMedium && (
@@ -92,12 +91,38 @@ export function BeatListItem({video, rowNum}: Props) {
       </button>
 
       {/* TITLE / ARTIST */}
-      <div className="flex w-full flex-col items-start overflow-hidden">
+      <div className="flex w-full select-none flex-col items-start overflow-hidden">
         <button
-          className={clsx('truncate', {
+          className={clsx('text-nowrap transition-transform ease-linear', {
             [highlightColorObj.text]: isSelected,
           })}
+          style={
+            shouldScrollTitle && scrollRef.current
+              ? {
+                  transform: `translateX(-${scrollRef.current.difference}px)`,
+                  transitionDuration: `${250 * scrollRef.current.percent}ms`,
+                }
+              : undefined
+          }
+          ref={button => {
+            if (button) {
+              // '521px' => 521
+              const buttonWidth = +getComputedStyle(button).width.slice(0, -2)
+              const parentWidth = +getComputedStyle(
+                button.parentElement!
+              ).width.slice(0, -2)
+
+              if (buttonWidth > parentWidth) {
+                const difference = buttonWidth - parentWidth
+                const percent = ((parentWidth / 100) * difference) / 100 // 0 - 1
+
+                scrollRef.current = {difference, percent}
+              }
+            }
+          }}
           onClick={handleClickToPlay}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
         >
           {title}
         </button>
