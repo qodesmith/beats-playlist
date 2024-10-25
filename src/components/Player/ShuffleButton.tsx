@@ -16,16 +16,14 @@ export function ShuffleButton({
   const toggleShuffle = useSetAtom(toggleShuffleAtom)
 
   return (
-    <div className="size-full">
-      <button
-        className="grid size-full place-items-center"
-        onClick={toggleShuffle}
-      >
-        <Shuffle
-          size={baseSize * 3 * 0.7}
-          fill={!toggleState ? disabledFill : fill}
-        />
-      </button>
-    </div>
+    <button
+      className="grid size-full place-items-center"
+      onClick={toggleShuffle}
+    >
+      <Shuffle
+        size={baseSize * 3 * 0.7}
+        fill={!toggleState ? disabledFill : fill}
+      />
+    </button>
   )
 }

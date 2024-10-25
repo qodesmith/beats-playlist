@@ -1,6 +1,6 @@
 import {useAtomValue, useSetAtom} from 'jotai'
 
-import {Next, Pause, Play, PlaybackSpeedIcon, Previous} from './ControlIcons'
+import {Next, Pause, Play, Previous, SearchIcon} from './ControlIcons'
 import {RepeatButton} from './RepeatButton'
 import {ShuffleButton} from './ShuffleButton'
 import {VolumeButton} from './VolumeButton'
@@ -31,17 +31,15 @@ export function Controls({baseSize}: {baseSize: number}) {
       <ShuffleButton baseSize={baseSize} />
 
       {/* PREVIOUS */}
-      <div className="size-full">
-        <button
-          className="grid size-full place-items-center"
-          onClick={isPreviousDisabled ? undefined : handlePrevious}
-        >
-          <Previous
-            size={baseSize * 3}
-            fill={isPreviousDisabled ? 'gray' : fill}
-          />
-        </button>
-      </div>
+      <button
+        className="grid size-full place-items-center"
+        onClick={isPreviousDisabled ? undefined : handlePrevious}
+      >
+        <Previous
+          size={baseSize * 3}
+          fill={isPreviousDisabled ? 'gray' : fill}
+        />
+      </button>
 
       {/* PLAY / PAUSE */}
       <button onClick={handlePlayPause}>
@@ -53,28 +51,23 @@ export function Controls({baseSize}: {baseSize: number}) {
       </button>
 
       {/* NEXT */}
-      <div className="size-full">
-        <button
-          className="grid size-full place-items-center"
-          onClick={handleNext}
-        >
-          <Next size={baseSize * 3} fill={fill} />
-        </button>
-      </div>
+      <button
+        className="grid size-full place-items-center"
+        onClick={handleNext}
+      >
+        <Next size={baseSize * 3} fill={fill} />
+      </button>
 
       {/* REPEAT */}
-      <div className="size-full">
-        <RepeatButton
-          className="grid size-full place-items-center"
-          size={baseSize * 2.5 * 0.9}
-        />
-      </div>
+      <RepeatButton
+        className="grid size-full place-items-center"
+        size={baseSize * 2.5 * 0.9}
+      />
 
-      <div className="size-full">
-        <button className="grid size-full place-items-center" disabled>
-          <PlaybackSpeedIcon size={baseSize * 2.5} fill="gray" />
-        </button>
-      </div>
+      {/* SEARCH */}
+      <button className="grid size-full place-items-center" disabled>
+        <SearchIcon size={baseSize * 2.25} />
+      </button>
     </div>
   )
 }
