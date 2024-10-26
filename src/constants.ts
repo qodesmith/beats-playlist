@@ -19,11 +19,16 @@ export const TARGET_LUFS = -14
 
 export const MAX_VOLUME_MULTIPLIER = 1.5
 
-// List of Tailwind breakpoints - https://tailwindcss.com/docs/responsive-design
+/**
+ * List of Tailwind breakpoints - https://tailwindcss.com/docs/responsive-design
+ */
 export const tailwindBreakpoints = ['sm', 'md', 'lg', 'xl', '2xl'] as const
 
 export type TailwindBreakpoint = (typeof tailwindBreakpoints)[number]
 
+/**
+ * List of Tailwind breakpoints - https://tailwindcss.com/docs/responsive-design
+ */
 export const tailwindMediaQueries = [
   '(min-width: 640px)',
   '(min-width: 768px)',
@@ -34,6 +39,9 @@ export const tailwindMediaQueries = [
 
 export type TailwindMediaQuery = (typeof tailwindMediaQueries)[number]
 
+/**
+ * List of Tailwind breakpoints - https://tailwindcss.com/docs/responsive-design
+ */
 export const mediaQueryMap = {
   '(min-width: 640px)': 'sm',
   '(min-width: 768px)': 'md',

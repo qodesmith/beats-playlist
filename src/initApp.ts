@@ -101,17 +101,17 @@ export function initApp() {
 
 function watchMediaQueries() {
   // Calculate the initial Tailwind breakpoint for the current screen size.
-  const width = window.innerWidth
+  const initialWidth = window.innerWidth
   const initialBreakPoint: TailwindBreakpoint | null =
-    width >= 1536
+    initialWidth >= 1536
       ? '2xl'
-      : width >= 1280
+      : initialWidth >= 1280
         ? 'xl'
-        : width >= 1024
+        : initialWidth >= 1024
           ? 'lg'
-          : width >= 768
+          : initialWidth >= 768
             ? 'md'
-            : width >= 640
+            : initialWidth >= 640
               ? 'sm'
               : null
 
