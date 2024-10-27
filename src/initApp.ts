@@ -62,7 +62,7 @@ export function initApp() {
     url: '/api/metadata',
     contentLengthHeader: 'Original-Content-Length',
     onProgress: percent => {
-      store.set(initialMetadataLoadingProgressAtom, percent)
+      store.set(initialMetadataLoadingProgressAtom, Math.round(percent))
     },
   })
     .then(res => res.json())
