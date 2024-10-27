@@ -52,7 +52,7 @@ export function initApp() {
       }
     )
 
-  const oneSecondPromise = wait(1000)
+  const initialWaitPromise = wait(500)
 
   /**
    * Kick off a fetch request for all the beats metadata while the app is
@@ -91,7 +91,7 @@ export function initApp() {
       }
     })
 
-  const promises = [oneSecondPromise, initAppPromise]
+  const promises = [initialWaitPromise, initAppPromise]
 
   // TODO - handle error (show broken image icon)
   Promise.all(promises).then(() => {
