@@ -45,7 +45,7 @@ export function HomePage() {
           transition={duration}
         >
           <AudioLoader size={100} />
-          <div className="text-center">{loadingProgress}%</div>
+          <div className="text-center">{Math.floor(loadingProgress)}%</div>
         </motion.div>
       )}
     </AnimatePresence>
