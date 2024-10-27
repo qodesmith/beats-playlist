@@ -7,7 +7,7 @@ import dotenv from 'dotenv'
 import {defineConfig} from 'vite'
 
 dotenv.config({path: './.env'})
-const {SERVER_PORT} = process.env
+const {SERVER_PORT, USE_PROD_API, UNRAID_API = ''} = process.env
 
 // https://vitejs.dev/config/
 export default defineConfig(({command}) => ({
@@ -18,7 +18,7 @@ export default defineConfig(({command}) => ({
     open: true,
     host: '0.0.0.0',
     proxy: {
-      '/api': `http://localhost:${SERVER_PORT}`,
+      '/api': USE_PROD_API ? UNRAID_API : `http://localhost:${SERVER_PORT}`,
     },
   },
 }))

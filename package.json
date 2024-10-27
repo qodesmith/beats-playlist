@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently \"bun --watch ./server/server.ts\" \"bun run dev:client\"",
+    "dev:prodApi": "bun run createColors && USE_PROD_API=true vite",
     "dev:client": "bun run createColors && vite",
     "build": "bun run createColors && tsc -b && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
