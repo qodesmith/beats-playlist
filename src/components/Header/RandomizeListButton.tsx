@@ -9,7 +9,7 @@ import {
   shuffleMetadataAtom,
 } from '../../globalState'
 import {store} from '../../store'
-import {scrollBeatIntoView} from '../../utils'
+import {scrollElementIntoView} from '../../utils'
 
 export function RandomizeListButton() {
   const metadata = useAtomValue(metadataSelector)
@@ -19,7 +19,7 @@ export function RandomizeListButton() {
   // Whenever the metadata gets randomized, scroll to the current track.
   useEffect(() => {
     const selectedBeatId = store.get(selectedBeatIdAtom)
-    scrollBeatIntoView(selectedBeatId, {behavior: 'instant'})
+    scrollElementIntoView(selectedBeatId, {behavior: 'instant'})
   }, [metadata])
 
   return (

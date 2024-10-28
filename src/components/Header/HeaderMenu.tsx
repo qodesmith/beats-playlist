@@ -7,7 +7,7 @@ import {
   metadataSelector,
   selectedBeatIdAtom,
 } from '../../globalState'
-import {scrollBeatIntoView} from '../../utils'
+import {scrollElementIntoView} from '../../utils'
 
 export function HeaderMenu({
   id,
@@ -54,7 +54,7 @@ export function HeaderMenu({
         <HeaderButton
           onClick={() => {
             closeMenu()
-            scrollBeatIntoView(metadata.at(0)?.id)
+            scrollElementIntoView(metadata.at(0)?.id)
           }}
         >
           ⬆
@@ -62,7 +62,7 @@ export function HeaderMenu({
         <HeaderButton
           onClick={() => {
             closeMenu()
-            scrollBeatIntoView(selectedBeatId)
+            scrollElementIntoView(selectedBeatId)
           }}
         >
           ⦿
@@ -70,7 +70,7 @@ export function HeaderMenu({
         <HeaderButton
           onClick={() => {
             closeMenu()
-            scrollBeatIntoView(metadata.at(-1)?.id)
+            scrollElementIntoView(metadata.at(-1)?.id)
           }}
         >
           ⬇

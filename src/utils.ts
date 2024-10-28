@@ -118,9 +118,9 @@ export function getRandomBeatId() {
 }
 
 /**
- * Scroll a beat into view.
+ * Scroll an element into view.
  */
-export function scrollBeatIntoView(
+export function scrollElementIntoView(
   beatId: string | undefined,
   options?: ScrollIntoViewOptions
 ) {

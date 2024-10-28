@@ -15,7 +15,7 @@ import {MAX_VOLUME_MULTIPLIER} from './constants'
 import {store} from './store'
 import {
   getRandomBeatId,
-  scrollBeatIntoView,
+  scrollElementIntoView,
   secondsToPlainSentence,
 } from './utils'
 
@@ -191,8 +191,6 @@ export const durationInSecondsSelector = atom(get => {
   return 0
 })
 
-export const searchAtom = atom('')
-
 //////////////
 // CONTROLS //
 //////////////
@@ -279,7 +277,7 @@ export const handleClickToPlayAtom = atom(null, (get, set, id: string) => {
    * Given the architecture, I don't think this will ever be the case.
    */
   if (!selectedBeatId) {
-    scrollBeatIntoView(id, {behavior: 'smooth', block: 'nearest'})
+    scrollElementIntoView(id, {behavior: 'smooth', block: 'nearest'})
     return void genNewAudioThingAndPlay(id)
   }
 
@@ -295,7 +293,7 @@ export const handleClickToPlayAtom = atom(null, (get, set, id: string) => {
    */
   const audioThing = get(audioThingAtom)
   audioThing?.remove()
-  scrollBeatIntoView(id, {behavior: 'smooth', block: 'nearest'})
+  scrollElementIntoView(id, {behavior: 'smooth', block: 'nearest'})
   void genNewAudioThingAndPlay(id)
 })
 
@@ -343,7 +341,7 @@ const _handlePreviousOrNextClickAtom = atom(
     const isShuffleOn = get(shuffleStateSelector)
     const newBeatId =
       previousId ?? (isShuffleOn ? getRandomBeatId() : metadata[newIndex].id)
-    scrollBeatIntoView(newBeatId, {behavior: 'smooth', block: 'nearest'})
+    scrollElementIntoView(newBeatId, {behavior: 'smooth', block: 'nearest'})
     return void genNewAudioThingAndPlay(newBeatId, isPrevious)
   }
 )
@@ -536,11 +534,13 @@ export const currentAudioStateAtom = atom<'stopped' | 'playing'>('stopped')
 
 export const audioThingAtom = atom<AudioThing>()
 
-//////////
-// MENU //
-//////////
+///////////////////
+// MENU / SEARCH //
+///////////////////
 
 export const isMenuOpenAtom = atom<boolean>(false)
+
+export const searchAtom = atom('')
 
 export const isSearchOpenAtom = atom<boolean>(false)
 
