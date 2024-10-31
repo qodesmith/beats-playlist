@@ -1,4 +1,5 @@
 import {useAtomValue, useSetAtom} from 'jotai'
+import {useCallback} from 'react'
 
 import {Next, Pause, Play, Previous, SearchIcon} from './ControlIcons'
 import {RepeatButton} from './RepeatButton'
@@ -10,6 +11,7 @@ import {
   handlePlayPauseAtom,
   handlePreviousClickAtom,
   isPreviousDisabledSelector,
+  isSearchOpenAtom,
   selectedBeatIdAtom,
 } from '../../globalState'
 
@@ -21,6 +23,10 @@ export function Controls({baseSize}: {baseSize: number}) {
   const playState = useAtomValue(currentAudioStateAtom)
   const handlePlayPause = useSetAtom(handlePlayPauseAtom)
   const isPreviousDisabled = useAtomValue(isPreviousDisabledSelector)
+  const setIsSearchOpen = useSetAtom(isSearchOpenAtom)
+  const toggleSearch = useCallback(() => {
+    setIsSearchOpen(v => !v)
+  }, [setIsSearchOpen])
 
   return (
     <div className="grid grid-cols-[repeat(7,1fr)] place-items-center justify-center pb-2 md:grid-cols-[repeat(7,32px)] md:gap-4">
@@ -65,7 +71,10 @@ export function Controls({baseSize}: {baseSize: number}) {
       />
 
       {/* SEARCH */}
-      <button className="grid size-full place-items-center" disabled>
+      <button
+        className="grid size-full place-items-center"
+        onClick={toggleSearch}
+      >
         <SearchIcon size={baseSize * 2.25} />
       </button>
     </div>

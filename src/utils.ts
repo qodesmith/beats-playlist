@@ -122,11 +122,15 @@ export function getRandomBeatId() {
  */
 export function scrollElementIntoView(
   beatId: string | undefined,
-  options?: ScrollIntoViewOptions
+  options?: ScrollIntoViewOptions | boolean
 ) {
   if (beatId) {
     document
       .getElementById(beatId)
-      ?.scrollIntoView({behavior: 'smooth', block: 'center', ...options})
+      ?.scrollIntoView(
+        typeof options === 'boolean'
+          ? options
+          : {behavior: 'smooth', block: 'center', ...options}
+      )
   }
 }

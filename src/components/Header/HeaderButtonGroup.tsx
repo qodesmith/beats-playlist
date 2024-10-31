@@ -2,7 +2,6 @@
 import {useAtomValue} from 'jotai'
 
 import {RandomizeListButton} from './RandomizeListButton'
-import {Search} from './Search'
 import {UnknownButton} from './UnknownButton'
 import {unknownMetadataAtom} from '../../globalState'
 
@@ -10,8 +9,7 @@ export function HeaderButtonGroup() {
   const unknownMetadata = useAtomValue(unknownMetadataAtom)
 
   return (
-    <div className="absolute right-2 flex h-10 gap-2 md:relative">
-      <Search />
+    <div className="absolute right-2 z-10 flex h-10 gap-2 md:relative">
       {unknownMetadata.length > 0 && <UnknownButton />}
       <RandomizeListButton />
       {/* <HeaderButtonAndMenu /> */}

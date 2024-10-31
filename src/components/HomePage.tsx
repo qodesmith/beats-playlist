@@ -3,9 +3,9 @@ import {useAtomValue} from 'jotai'
 
 import {AudioLoader} from './AudioLoader'
 import {BeatList} from './BeatList/BeatList'
-import {Footer} from './Footer'
+import {Footer} from './Footer/Footer'
 import {Header} from './Header/Header'
-import {NowPlaying} from './NowPlaying'
+import {SearchDisplay} from './SearchDisplay'
 import {
   initialMetadataLoadingProgressAtom,
   isAppInitializedAtom,
@@ -31,7 +31,7 @@ export function HomePage() {
           transition={duration}
         >
           <Header />
-          <NowPlaying />
+          <SearchDisplay />
           <BeatList />
           <Footer />
         </motion.div>
