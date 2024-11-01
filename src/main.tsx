@@ -18,7 +18,9 @@ document.body.classList.add(
   'bg-gradient-to-b',
   'from-neutral-900',
   'to-black',
-  'h-full'
+  'h-full',
+  'max-w-screen-2xl',
+  '2xl:mx-auto'
 )
 const root = document.getElementById('root')!
 root.classList.add('h-full')
