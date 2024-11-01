@@ -10,7 +10,7 @@ dotenv.config({path: './.env'})
 const {SERVER_PORT, USE_PROD_API, UNRAID_API = ''} = process.env
 
 // https://vitejs.dev/config/
-export default defineConfig(({command}) => ({
+export default defineConfig(({command, mode}) => ({
   publicDir: command === 'build' ? false : 'public',
   plugins: [react(), command === 'build' && copyPublicAssetsAfterBuild()],
   clearScreen: false,
@@ -20,6 +20,9 @@ export default defineConfig(({command}) => ({
     proxy: {
       '/api': USE_PROD_API ? UNRAID_API : `http://localhost:${SERVER_PORT}`,
     },
+  },
+  define: {
+    __DEV__: command !== 'build' && mode !== 'production',
   },
 }))
 

@@ -10,6 +10,7 @@ import {
   initialMetadataLoadingProgressAtom,
   isAppInitializedAtom,
 } from '../globalState'
+import {TestInfo} from './TestInfo'
 
 const duration = {duration: 0.5}
 const opacity0 = {opacity: 0}
@@ -30,6 +31,7 @@ export function HomePage() {
           animate={opacity1}
           transition={duration}
         >
+          {__DEV__ && <TestInfo />}
           <Header />
           <SearchDisplay />
           <BeatList />
