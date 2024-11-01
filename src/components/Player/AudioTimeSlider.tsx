@@ -28,11 +28,15 @@ function AudioTimeSliderBody() {
   const setTimeProgress = useSetAtom(setTimeProgressAtom)
   const setIsDragging = useSetAtom(isSliderDraggingAtom)
   const setProgressWidth = useSetAtom(progressWidthAtom)
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-      e.preventDefault()
+  const handleStartSlider = useCallback(
+    (
+      e:
+        | React.MouseEvent<HTMLDivElement, MouseEvent>
+        | React.TouchEvent<HTMLDivElement>
+    ) => {
       const {width, left} = e.currentTarget.getBoundingClientRect()
-      const offsetX = e.clientX - left
+      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
+      const offsetX = clientX - left
       const position = offsetX / width
 
       setIsDragging(true)
@@ -45,9 +49,6 @@ function AudioTimeSliderBody() {
 
   return (
     <div className="m-auto grid w-full grid-cols-[5ch,1fr,5ch] gap-2 py-2 md:w-1/2">
-      {/* Doesn't render anything, just sets up mouse handlers. */}
-      <MouseHandlers sliderContainerId={sliderContainerId} />
-
       {/* The current time on the left of the slider. */}
       <FormattedTime />
 
@@ -55,8 +56,12 @@ function AudioTimeSliderBody() {
       <div
         id={sliderContainerId}
         className="group relative grid cursor-pointer place-items-center"
-        onMouseDown={handleMouseDown}
+        onMouseDown={handleStartSlider}
+        onTouchStart={handleStartSlider}
       >
+        {/* Doesn't render anything, just sets up mouse handlers. */}
+        <MouseHandlers sliderContainerId={sliderContainerId} />
+
         {/* SLIDER BG */}
         <div className="h-1 w-full rounded bg-neutral-500" />
 
@@ -122,19 +127,19 @@ function SliderProgress() {
 function MouseHandlers({sliderContainerId}: {sliderContainerId: string}) {
   const setProgressWidth = useSetAtom(progressWidthAtom)
   const setTimeProgress = useSetAtom(setTimeProgressAtom)
-  const setIsDragging = useSetAtom(isSliderDraggingAtom)
 
   /**
-   * MOUSE MOVE
+   * MOUSE MOVE, TOUCH MOVE
    * Track the mouse on the screen and determine if it is withing the horizontal
    * boundaries of the slider.
    */
   useEffect(() => {
-    const handler = ({clientX}: MouseEvent) => {
+    const handler = (e: MouseEvent | TouchEvent) => {
       const sliderContainer = document.getElementById(sliderContainerId)
       if (!sliderContainer) return
 
       const {left, width} = sliderContainer.getBoundingClientRect()
+      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
       const isBeforeRange = clientX < left
       const isAfterRange = clientX > left + width
       const isInRange = !isBeforeRange && !isAfterRange
@@ -155,40 +160,45 @@ function MouseHandlers({sliderContainerId}: {sliderContainerId: string}) {
     }
 
     document.addEventListener('mousemove', handler)
+    document.addEventListener('touchmove', handler)
 
     return () => {
       document.removeEventListener('mousemove', handler)
+      document.removeEventListener('touchmove', handler)
     }
   }, [setProgressWidth, setTimeProgress, sliderContainerId])
 
   /**
-   * MOUSE UP
+   * MOUSE UP, TOUCH END
    * The mouseup handler should be on the document so we're free to grab the
    * slider, drag around the document, and mouseup wherever we want.
    */
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      const sliderContainer = document.getElementById(sliderContainerId)
-      if (!sliderContainer) return
+    const handler = (e: MouseEvent | TouchEvent) => {
+      const sliderContainer = document.getElementById(sliderContainerId)!
 
       if (store.get(isSliderDraggingAtom)) {
         const {durationInSeconds} = store.get(metadataItemSelector)!
         const {width, left} = sliderContainer.getBoundingClientRect()
-        const offsetX = e.clientX - left
+        const clientX =
+          'changedTouches' in e ? e.changedTouches[0].clientX : e.clientX
+        const offsetX = clientX - left
         const position = offsetX / width
         const newPosition = Math.min(Math.max(position, 0), durationInSeconds)
 
-        setIsDragging(false)
+        store.set(isSliderDraggingAtom, false)
         store.get(audioThingAtom)?.setPlayPosition(newPosition)
       }
     }
 
     document.addEventListener('mouseup', handler)
+    document.addEventListener('touchend', handler)
 
     return () => {
       document.removeEventListener('mouseup', handler)
+      document.removeEventListener('touchend', handler)
     }
-  }, [setIsDragging, sliderContainerId])
+  }, [sliderContainerId])
 
   return null
 }
