@@ -16,6 +16,7 @@ import {
   selectedBeatIdAtom,
   initialMetadataLoadingProgressAtom,
   tailwindBreakpointAtom,
+  initialMetadataObj,
 } from './globalState'
 import {store} from './store'
 
@@ -77,6 +78,11 @@ export function initApp() {
       _initialMetadata.data = metadata
       Object.freeze(_initialMetadata)
       Object.freeze(_initialMetadata.data)
+
+      for (const video of metadata) {
+        // @ts-expect-error This is the only place we write the data.
+        initialMetadataObj[video.id] = video
+      }
 
       /**
        * If we don't have a beat if in the search params, we kick of fetching

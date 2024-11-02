@@ -30,6 +30,7 @@ import {
  * purposes.
  */
 export const _initialMetadata: {readonly data: Video[]} = {data: []}
+export const initialMetadataObj: {readonly [key: string]: Video} = {}
 
 /**
  * This atom will resolve to true once the initial fetch calls in `initApp` have
