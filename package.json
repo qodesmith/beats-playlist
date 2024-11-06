@@ -8,6 +8,7 @@
     "dev:prodApi": "bun run createColors && USE_PROD_API=true vite",
     "dev:client": "bun run createColors && vite",
     "build": "bun run createColors && tsc -b && vite build",
+    "tsc:check": "bun run tsc --noEmit -p ./tsconfig.app.json",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "createColors": "bun run createTailwindColors.ts 2> /dev/null",
