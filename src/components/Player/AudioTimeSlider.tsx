@@ -1,51 +1,29 @@
 import {secondsToDuration} from '@qodestack/utils'
 import clsx from 'clsx'
-import {useAtom, useAtomValue, useSetAtom} from 'jotai'
-import {useCallback, useEffect, useId} from 'react'
+import {useAtomValue} from 'jotai'
+import {useEffect} from 'react'
 
 import {
-  audioThingAtom,
-  durationInSecondsSelector,
-  getAudioDataLoadableAtomFamily,
+  durationAtomSelector,
+  handleStartSlider,
+  progressPercentAtom,
+  timeProgressAtom,
+} from '../../AudioThing'
+import {sliderContainerId} from '../../constants'
+import {
   isSliderDraggingAtom,
-  metadataItemSelector,
-  progressWidthAtom,
-  selectedBeatIdAtom,
-  setTimeProgressAtom,
-  timeProgressSelector,
+  sliderContainerElementAtom,
+  sliderDraggingPositionAtom,
 } from '../../globalState'
 import {store} from '../../store'
 
 export function AudioTimeSlider() {
-  /**
-   * Ensure the component remounts when a beat changes without consuming
-   * components manually having to pass a key.
-   */
-  return <AudioTimeSliderBody key={useAtomValue(selectedBeatIdAtom)} />
-}
-
-function AudioTimeSliderBody() {
-  const setTimeProgress = useSetAtom(setTimeProgressAtom)
-  const setIsDragging = useSetAtom(isSliderDraggingAtom)
-  const setProgressWidth = useSetAtom(progressWidthAtom)
-  const handleStartSlider = useCallback(
-    (
-      e:
-        | React.MouseEvent<HTMLDivElement, MouseEvent>
-        | React.TouchEvent<HTMLDivElement>
-    ) => {
-      const {width, left} = e.currentTarget.getBoundingClientRect()
-      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
-      const offsetX = clientX - left
-      const position = offsetX / width
-
-      setIsDragging(true)
-      setProgressWidth(`${position * 100}%`)
-      setTimeProgress(position)
-    },
-    [setIsDragging, setProgressWidth, setTimeProgress]
-  )
-  const sliderContainerId = useId()
+  useEffect(() => {
+    store.set(
+      sliderContainerElementAtom,
+      document.getElementById(sliderContainerId)
+    )
+  }, [])
 
   return (
     <div className="m-auto grid w-full grid-cols-[5ch,1fr,5ch] gap-2 py-2 md:w-1/2">
@@ -59,9 +37,6 @@ function AudioTimeSliderBody() {
         onMouseDown={handleStartSlider}
         onTouchStart={handleStartSlider}
       >
-        {/* Doesn't render anything, just sets up mouse handlers. */}
-        <MouseHandlers sliderContainerId={sliderContainerId} />
-
         {/* SLIDER BG */}
         <div className="h-1 w-full rounded bg-neutral-500" />
 
@@ -84,127 +59,28 @@ function AudioTimeSliderBody() {
  * having to re-render.
  */
 function FormattedTime() {
-  const {formattedTime} = useAtomValue(timeProgressSelector)
-
-  return <div className="place-self-end">{formattedTime}</div>
+  const currentTime = useAtomValue(timeProgressAtom)
+  return <div className="place-self-end">{currentTime}</div>
 }
 
 function SliderProgress() {
-  const [progressWidth, setProgressWidth] = useAtom(progressWidthAtom)
-  const {rawTime} = useAtomValue(timeProgressSelector)
-  const beatId = useAtomValue(selectedBeatIdAtom)
-  const audioBufferRes = useAtomValue(getAudioDataLoadableAtomFamily(beatId))
-  const durationInSeconds = (() => {
-    if (audioBufferRes.state === 'hasData') {
-      return Math.round(audioBufferRes.data?.audioBuffer.duration ?? 0)
-    }
-    return 0
-  })()
-
-  /**
-   * Update the progress width during playback.
-   */
-  useEffect(() => {
-    if (!store.get(isSliderDraggingAtom)) {
-      const newWidth = `${(rawTime / durationInSeconds) * 100}%` as const
-      setProgressWidth(newWidth)
-    }
-  }, [durationInSeconds, rawTime, setProgressWidth])
+  const progressPercent = useAtomValue(progressPercentAtom)
+  const isSliderDragging = useAtomValue(isSliderDraggingAtom)
+  const sliderDragginPosition = useAtomValue(sliderDraggingPositionAtom)
+  const widthPercent = isSliderDragging
+    ? sliderDragginPosition * 100
+    : progressPercent
 
   return (
     <div
       className="absolute left-0 h-1 rounded bg-puerto-rico-400"
-      style={{width: progressWidth}}
+      style={{width: `${widthPercent}%`}}
     />
   )
 }
 
-/**
- * A handful of mouse handlers to control the audio time slider. React
- * components don't need to return JSX. This component doesn't render anything,
- * rather, it's used simply to set up mouse handlers and remove them on unmount.
- */
-function MouseHandlers({sliderContainerId}: {sliderContainerId: string}) {
-  const setProgressWidth = useSetAtom(progressWidthAtom)
-  const setTimeProgress = useSetAtom(setTimeProgressAtom)
-
-  /**
-   * MOUSE MOVE, TOUCH MOVE
-   * Track the mouse on the screen and determine if it is withing the horizontal
-   * boundaries of the slider.
-   */
-  useEffect(() => {
-    const handler = (e: MouseEvent | TouchEvent) => {
-      const sliderContainer = document.getElementById(sliderContainerId)
-      if (!sliderContainer) return
-
-      const {left, width} = sliderContainer.getBoundingClientRect()
-      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
-      const isBeforeRange = clientX < left
-      const isAfterRange = clientX > left + width
-      const isInRange = !isBeforeRange && !isAfterRange
-      const isSliderDragging = store.get(isSliderDraggingAtom)
-
-      if (isSliderDragging) {
-        if (isInRange) {
-          const newPosition = (clientX - left) / width
-          const newWidth = `${newPosition * 100}%` as const
-
-          setProgressWidth(newWidth)
-          setTimeProgress(newPosition)
-        } else {
-          setProgressWidth(isBeforeRange ? '0%' : '100%')
-          setTimeProgress(isBeforeRange ? 0 : 1)
-        }
-      }
-    }
-
-    document.addEventListener('mousemove', handler)
-    document.addEventListener('touchmove', handler)
-
-    return () => {
-      document.removeEventListener('mousemove', handler)
-      document.removeEventListener('touchmove', handler)
-    }
-  }, [setProgressWidth, setTimeProgress, sliderContainerId])
-
-  /**
-   * MOUSE UP, TOUCH END
-   * The mouseup handler should be on the document so we're free to grab the
-   * slider, drag around the document, and mouseup wherever we want.
-   */
-  useEffect(() => {
-    const handler = (e: MouseEvent | TouchEvent) => {
-      const sliderContainer = document.getElementById(sliderContainerId)!
-
-      if (store.get(isSliderDraggingAtom)) {
-        const {durationInSeconds} = store.get(metadataItemSelector)!
-        const {width, left} = sliderContainer.getBoundingClientRect()
-        const clientX =
-          'changedTouches' in e ? e.changedTouches[0].clientX : e.clientX
-        const offsetX = clientX - left
-        const position = offsetX / width
-        const newPosition = Math.min(Math.max(position, 0), durationInSeconds)
-
-        store.set(isSliderDraggingAtom, false)
-        store.get(audioThingAtom)?.setPlayPosition(newPosition)
-      }
-    }
-
-    document.addEventListener('mouseup', handler)
-    document.addEventListener('touchend', handler)
-
-    return () => {
-      document.removeEventListener('mouseup', handler)
-      document.removeEventListener('touchend', handler)
-    }
-  }, [sliderContainerId])
-
-  return null
-}
-
 function Duration() {
-  const durationInSeconds = useAtomValue(durationInSecondsSelector)
+  const durationInSeconds = useAtomValue(durationAtomSelector)
 
   return (
     <div>
@@ -215,7 +91,11 @@ function Duration() {
 
 function Ball() {
   const isDragging = useAtomValue(isSliderDraggingAtom)
-  const progressWidth = useAtomValue(progressWidthAtom)
+  const progressPercent = useAtomValue(progressPercentAtom)
+  const sliderDraggingPosition = useAtomValue(sliderDraggingPositionAtom)
+  const leftPercent = isDragging
+    ? sliderDraggingPosition * 100
+    : progressPercent
 
   return (
     <div
@@ -225,7 +105,7 @@ function Ball() {
           'scale-[3]': isDragging,
         }
       )}
-      style={{left: progressWidth}}
+      style={{left: `${leftPercent}%`}}
     />
   )
 }
