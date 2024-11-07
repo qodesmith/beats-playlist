@@ -372,12 +372,19 @@ export function handleMoveSlider(e: MouseEvent | TouchEvent) {
   const isSliderDragging = store.get(isSliderDraggingAtom)
 
   if (isSliderDragging) {
+    const duration = store.get(audioThingAtom)?.audioBuffer?.duration ?? 0
+    let secondsAtPosition = 0
+
     if (isInRange) {
-      const newPosition = (clientX - left) / width
+      const newPosition = (clientX - left) / width // 0 - 1
+      secondsAtPosition = Math.floor(duration * newPosition)
       store.set(sliderDraggingPositionAtom, newPosition)
     } else {
+      secondsAtPosition = isBeforeRange ? 0 : duration
       store.set(sliderDraggingPositionAtom, isBeforeRange ? 0 : 1)
     }
+
+    store.set(timeProgressAtom, secondsToDuration(secondsAtPosition))
   }
 }
 
