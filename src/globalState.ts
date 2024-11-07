@@ -1,17 +1,10 @@
 import type {TailwindBreakpoint} from './constants'
 import type {Video} from '@qodestack/dl-yt-playlist'
 
-import {
-  fetchWithProgress,
-  secondsToDuration,
-  shuffleArray,
-} from '@qodestack/utils'
+import {shuffleArray} from '@qodestack/utils'
 import {atom} from 'jotai'
-import {RESET} from 'jotai/utils'
-import {atomFamily, atomWithReset, atomWithStorage, loadable} from 'jotai/utils'
+import {atomFamily, atomWithStorage} from 'jotai/utils'
 
-import {AudioThing} from './AudioThing'
-import {MAX_VOLUME_MULTIPLIER} from './constants'
 import {store} from './store'
 import {
   getRandomBeatId,
@@ -128,7 +121,7 @@ export const shuffleMetadataAtom = atom(null, (get, set) => {
  */
 export const metadataItemSelector = atom(get => {
   const beatId = get(selectedBeatIdAtom)
-  return _initialMetadata.data.find(v => v.id === beatId)
+  return beatId ? initialMetadataObj[beatId] : undefined
 })
 
 export const metadataStatsSelector = atom(get => {
@@ -176,22 +169,6 @@ export const selectedBeatIdAtom = atom<string>()
 
 export const selectedArtistAtom = atom<string>()
 
-export const durationInSecondsSelector = atom(get => {
-  const beatId = get(selectedBeatIdAtom)
-  const audioBufferRes = get(getAudioDataLoadableAtomFamily(beatId))
-  const metadataItem = get(metadataItemSelector)
-
-  if (audioBufferRes.state === 'hasData') {
-    return audioBufferRes.data?.audioBuffer.duration
-  }
-
-  if (audioBufferRes.state === 'hasError') {
-    return metadataItem?.durationInSeconds ?? 0
-  }
-
-  return 0
-})
-
 //////////////
 // CONTROLS //
 //////////////
@@ -222,81 +199,6 @@ const _beatHistoryAtom = atom<
 export const isPreviousDisabledSelector = atom(
   get => get(_beatHistoryAtom).length <= 1
 )
-
-/**
- * Helper function for controls to play a new beat:
- * - Triggers fetching a beat via `audioDataAtomFamily`
- * - Creates a `new AudioThing()` and stores it in state
- * - Set the current audio state to 'stopped'
- * - Toggle play on the new audioThing
- */
-export async function genNewAudioThingAndPlay(
-  id: string,
-  resetIsPrev?: boolean
-): Promise<void> {
-  store.get(audioThingAtom)?.remove() // Ensure the old one is stopped.
-  store.set(selectedBeatIdAtom, id)
-
-  if (resetIsPrev) {
-    store.set(_isPreviousTriggeredAtom, false)
-  }
-
-  void store.get(audioDataAtomFamily(id)).then(audioData => {
-    /**
-     * Avoid race conditions.
-     * Theoretically, a previous slower request might resolve after a 2nd
-     * request has completed. We wouldn't want that old request to then replace
-     * the audio. `selectedBeatIdAtom` will always be up to date.
-     */
-    if (id !== store.get(selectedBeatIdAtom)) return
-
-    const newAudioThing = new AudioThing(audioData, id)
-
-    store.set(audioThingAtom, newAudioThing)
-    store.set(currentAudioStateAtom, 'stopped')
-    newAudioThing.togglePlay()
-  })
-}
-
-export const handlePlayPauseAtom = atom(null, get => {
-  const audioThing = get(audioThingAtom)
-
-  if (audioThing) {
-    audioThing.togglePlay()
-  } else {
-    // This should never be undefined here. The app initializes with a beat id.
-    const selectedBeatId = get(selectedBeatIdAtom)!
-    void genNewAudioThingAndPlay(selectedBeatId)
-  }
-})
-
-export const handleClickToPlayAtom = atom(null, (get, set, id: string) => {
-  const selectedBeatId = get(selectedBeatIdAtom)
-
-  /**
-   * No beat selected - play a new beat.
-   * Given the architecture, I don't think this will ever be the case.
-   */
-  if (!selectedBeatId) {
-    scrollElementIntoView(id, {behavior: 'smooth', block: 'nearest'})
-    return void genNewAudioThingAndPlay(id)
-  }
-
-  /**
-   * Clicking the same beat.
-   */
-  if (id === selectedBeatId) {
-    return set(handlePlayPauseAtom)
-  }
-
-  /**
-   * Clicking a new beat (i.e. an old one is already playing or paused).
-   */
-  const audioThing = get(audioThingAtom)
-  audioThing?.remove()
-  scrollElementIntoView(id, {behavior: 'smooth', block: 'nearest'})
-  void genNewAudioThingAndPlay(id)
-})
 
 const _handlePreviousOrNextClickAtom = atom(
   null,
@@ -361,26 +263,6 @@ export const handleNextClickAtom = atom(null, (_get, set) => {
   set(_handlePreviousOrNextClickAtom, 'next')
 })
 
-const repeatStates = ['off', 'on', 'single'] as const
-
-const repeatStateAtom = atomWithStorage<(typeof repeatStates)[number]>(
-  'repeatState',
-  'off'
-)
-
-export const repeatStateSelector = atom(get => get(repeatStateAtom))
-
-export const cycleRepeatStateAtom = atom(null, (get, set) => {
-  const currentRepeatState = get(repeatStateAtom)
-  const idx = repeatStates.indexOf(currentRepeatState)
-  const nextIdx = (idx + 1) % repeatStates.length
-  const nextState = repeatStates[nextIdx]
-  const audioThing = get(audioThingAtom)
-
-  set(repeatStateAtom, nextState)
-  audioThing?.setRepeat(nextState === 'single')
-})
-
 const shuffleStateAtom = atomWithStorage<boolean>('shuffleState', false)
 
 export const shuffleStateSelector = atom(get => get(shuffleStateAtom))
@@ -390,66 +272,16 @@ export const toggleShuffleAtom = atom(null, (get, set) => {
   set(shuffleStateAtom, !currentShuffleState)
 })
 
+export const sliderContainerElementAtom = atom<HTMLElement | null>(null)
+
 export const isSliderDraggingAtom = atom<boolean>(false)
 
+/**
+ * Value of 0 - 1
+ */
+export const sliderDraggingPositionAtom = atom(0)
+
 export const progressWidthAtom = atom<`${number}%`>('0%')
-
-/**
- * This atom powers the time progress indicator in the footer. It is updated by
- * the AudioThing class.
- *
- * - `rawTime` - the number of seconds elapsed
- * - `formattedTime` - a string in the format of `<minutes>:<seconds>`;
- *     e.x. `3:26`
- */
-const timeProgressAtom = atomWithReset<{
-  rawTime: number
-  formattedTime: string
-}>({rawTime: 0, formattedTime: '0:00'})
-
-export const timeProgressSelector = atom(get => get(timeProgressAtom))
-
-/**
- * Takes a number between 0 - 1 and updates the time progress data.
- */
-export const setTimeProgressAtom = atom(
-  null,
-  (get, set, position: number | typeof RESET) => {
-    if (position === RESET) return set(timeProgressAtom, RESET)
-
-    const duration = get(metadataItemSelector)?.durationInSeconds ?? 0
-    const rawTime = +(position * duration).toFixed(1)
-    const formattedTime = secondsToDuration(rawTime)
-
-    set(timeProgressAtom, {rawTime, formattedTime})
-  }
-)
-
-/**
- * Returns a value of 0 - 1 as a percentage of the audio progress. This
- * completely relies on timeProgressAtom being updated as the music plays, which
- * happens in the AudioTimeSlider component.
- */
-export const progressWidthSelector = atom(get => {
-  const {rawTime} = get(timeProgressAtom)
-  const duration = get(metadataItemSelector)?.durationInSeconds ?? 0
-  return rawTime / duration
-})
-
-const _volumeMultiplierAtom = atom<number>(1)
-
-/**
- * The volume slider is a vertical slider that controls the volume of the audio
- * by multiplying the volume of the audio buffer. The range is 0 - 1.5.
- */
-export const volumeMultiplierAtom = atom(
-  get => get(_volumeMultiplierAtom),
-  (get, set, value: number) => {
-    const clampedValue = Math.min(Math.max(value, 0), MAX_VOLUME_MULTIPLIER)
-    set(_volumeMultiplierAtom, clampedValue)
-    get(audioThingAtom)?.adjustGain(clampedValue)
-  }
-)
 
 ////////////////////
 // SIZE CONTAINER //
@@ -467,73 +299,7 @@ export const sizeContainerAtomFamily = atomFamily((_id: string) => {
 // AUDIO DATA //
 ////////////////
 
-export const audioDataLoadingProgressAtomFamily = atomFamily(
-  (_id: string | undefined) => atom<number | null>(null)
-)
-
-export const audioDataAtomFamily = atomFamily((id: string | undefined) => {
-  return atom(async _get_DO_NOT_USE___AVOID_JOTAI_RERENDERS => {
-    if (id === undefined) return undefined
-    const progressAtom = audioDataLoadingProgressAtomFamily(id)
-
-    const res = await fetchWithProgress({
-      url: `/api/beats/${id}`,
-      contentLengthHeader: 'Original-Content-Length',
-      onProgress: percent => store.set(progressAtom, Math.round(percent)),
-    })
-    const arrayBuffer = await res.arrayBuffer()
-    const audioContext = new AudioContext()
-    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
-
-    store.set(progressAtom, null)
-
-    /**
-     * !!! WARNING !!!
-     * Do NOT use the `get` function from this atom selector!!!!
-     *
-     * TL;DR
-     * `get(...)` declares dependencies from this atom in the atomFamily
-     * and will cause it to "re-render", or in our case re-fetch, whenever the
-     * dependency changes. Use the store directly instead to get data.
-     *
-     * The problem with using `get(metadataItemSelector)`:
-     *
-     * - Select beat 1 - request beat 1
-     * - Select beat 2 - request beat 1, request beat 2
-     * - Select beat 3 - request beat 1, request beat 2, request beat 3
-     * #NightMare
-     *
-     * We still need the data from `metadataItemSelector`, but we don't need
-     * Jotai to re-render for us. `store.get` to the rescue.
-     */
-    const lufs = store.get(metadataItemSelector)?.lufs ?? null
-
-    /**
-     * Because audioContexts are not garbage collected by default when they go
-     * out of scope, we explicitly close the context to allow the garbage
-     * collector to clean it up. It has served its purpose.
-     */
-    audioContext.close()
-
-    /**
-     * Why don't we also return `audioContext` from this atom? Since data in
-     * this atom is cached, we would be re-using the audioContext any time we
-     * played the same beat again. This will throw errors in the console.
-     * Instead, we let consumers create their own audioContext if need be. The
-     * audioContext in this atom is solely used to decode the arrayBuffer into
-     * an audioBuffer and it's then discarded.
-     */
-    return {audioBuffer, lufs}
-  })
-})
-
-export function getAudioDataLoadableAtomFamily(id: string | undefined) {
-  return loadable(audioDataAtomFamily(id))
-}
-
 export const currentAudioStateAtom = atom<'stopped' | 'playing'>('stopped')
-
-export const audioThingAtom = atom<AudioThing>()
 
 ///////////////////
 // MENU / SEARCH //

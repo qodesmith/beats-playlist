@@ -49,3 +49,26 @@ export const mediaQueryMap = {
   '(min-width: 1280px)': 'xl',
   '(min-width: 1536px)': '2xl',
 } as const
+
+export const contentLengthHeader = 'Original-Content-Length'
+
+/**
+ * Used to power creating AudioContext's and OfflineAudioContext's. This value
+ * does not need to match the original audio, it just needs to be supported by
+ * the playback device.
+ */
+export const sampleRate = 48_000
+
+/**
+ * Determines how many beats can be stored in Jotai atom families. Atom families
+ * store data in a Map under the hood and so represent a memory leak if not
+ * explicitly handled. After this amount of beats loaded we remove the first
+ * entries. First in, last out.
+ */
+export const MAX_BEATS_LOADED = 40
+
+/**
+ * An id applied to the slider container and used by various event listeners to
+ * grab that element.
+ */
+export const sliderContainerId = 'slider-container'
