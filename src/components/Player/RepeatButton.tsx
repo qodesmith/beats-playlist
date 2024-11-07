@@ -1,7 +1,7 @@
-import {useAtomValue, useSetAtom} from 'jotai'
+import {useAtomValue} from 'jotai'
 
 import {Repeat} from './ControlIcons'
-import {cycleRepeatStateAtom, repeatStateSelector} from '../../globalState'
+import {audioThingAtom, repeatStateSelector} from '../../AudioThing'
 
 export function RepeatButton({
   className,
@@ -17,12 +17,12 @@ export function RepeatButton({
   forceDisabled?: boolean
 }) {
   const repeatState = useAtomValue(repeatStateSelector)
-  const cycleRepeat = useSetAtom(cycleRepeatStateAtom)
+  const audioThing = useAtomValue(audioThingAtom)
 
   return (
     <button
       className={className}
-      onClick={forceDisabled ? undefined : cycleRepeat}
+      onClick={forceDisabled ? undefined : audioThing?.cycleRepeat}
     >
       <Repeat
         one={repeatState === 'single'}

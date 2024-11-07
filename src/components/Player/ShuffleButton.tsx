@@ -1,7 +1,7 @@
-import {useAtomValue, useSetAtom} from 'jotai'
+import {useAtomValue} from 'jotai'
 
 import {Shuffle} from './ControlIcons'
-import {shuffleStateSelector, toggleShuffleAtom} from '../../globalState'
+import {toggleShuffle, shuffleStateSelector} from '../../AudioThing'
 
 export function ShuffleButton({
   baseSize = 8,
@@ -13,7 +13,6 @@ export function ShuffleButton({
   fill?: string
 }) {
   const toggleState = useAtomValue(shuffleStateSelector)
-  const toggleShuffle = useSetAtom(toggleShuffleAtom)
 
   return (
     <button

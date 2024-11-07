@@ -4,8 +4,8 @@ import {useCallback, useEffect, useState, useId, useRef} from 'react'
 
 import {VolumeIcon} from './ControlIcons'
 import {VerticalSlider} from './VerticalSlider'
+import {volumeMultiplierSelector} from '../../AudioThing'
 import {MAX_VOLUME_MULTIPLIER} from '../../constants'
-import {volumeMultiplierAtom} from '../../globalState'
 
 export function VolumeButton({
   baseSize,
@@ -18,7 +18,9 @@ export function VolumeButton({
   const toggleVolume = useCallback(() => setIsVolumeOpen(v => !v), [])
   const sliderId = useId()
   const buttonRef = useRef<HTMLButtonElement>(null)
-  const [volumeMultiplier, setVolumeMultiplier] = useAtom(volumeMultiplierAtom)
+  const [volumeMultiplier, setVolumeMultiplier] = useAtom(
+    volumeMultiplierSelector
+  )
   const handleResetVolume = useCallback(
     () => setVolumeMultiplier(1),
     [setVolumeMultiplier]

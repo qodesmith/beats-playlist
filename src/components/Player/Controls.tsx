@@ -5,10 +5,9 @@ import {Next, Pause, Play, Previous, SearchIcon} from './ControlIcons'
 import {RepeatButton} from './RepeatButton'
 import {ShuffleButton} from './ShuffleButton'
 import {VolumeButton} from './VolumeButton'
+import {handlePlayPause, isPlayingAtom} from '../../AudioThing'
 import {
-  currentAudioStateAtom,
   handleNextClickAtom,
-  handlePlayPauseAtom,
   handlePreviousClickAtom,
   isPreviousDisabledSelector,
   isSearchOpenAtom,
@@ -20,8 +19,7 @@ export function Controls({baseSize}: {baseSize: number}) {
   const fill = beatId ? 'white' : 'gray'
   const handlePrevious = useSetAtom(handlePreviousClickAtom)
   const handleNext = useSetAtom(handleNextClickAtom)
-  const playState = useAtomValue(currentAudioStateAtom)
-  const handlePlayPause = useSetAtom(handlePlayPauseAtom)
+  const isPlaying = useAtomValue(isPlayingAtom)
   const isPreviousDisabled = useAtomValue(isPreviousDisabledSelector)
   const setIsSearchOpen = useSetAtom(isSearchOpenAtom)
   const toggleSearch = useCallback(() => {
@@ -49,7 +47,7 @@ export function Controls({baseSize}: {baseSize: number}) {
 
       {/* PLAY / PAUSE */}
       <button onClick={handlePlayPause}>
-        {playState === 'playing' ? (
+        {isPlaying ? (
           <Pause size={baseSize * 4} circleFill={fill} />
         ) : (
           <Play size={baseSize * 4} circleFill={fill} />
