@@ -3,7 +3,7 @@ import type {TailwindColor} from '../../tailwindColors'
 import {useAtomValue} from 'jotai'
 import {useMemo, useEffect} from 'react'
 
-import {progressWidthSelector} from '../../globalState'
+import {progressPercentAtom} from '../../AudioThing'
 import {tailwindColors} from '../../tailwindColors'
 import {audioBufferToNumbers} from '../../utils'
 
@@ -76,7 +76,7 @@ export function WaveformCanvas({
    */
   isLoading: boolean
 }) {
-  const progressWidth = useAtomValue(progressWidthSelector)
+  const progressWidth = useAtomValue(progressPercentAtom)
   const waveformData = useMemo(() => {
     const barCount = width / barWidth
 
@@ -129,7 +129,7 @@ export function WaveformCanvas({
      */
     // if (isReflection) ctx.filter = 'opacity(.2)'
 
-    const progressWidthCutoff = waveformDataLength * progressWidth
+    const progressWidthCutoff = waveformDataLength * (progressWidth / 100)
 
     for (let i = 0; i < waveformDataLength; i++) {
       const loadedColor = i <= progressWidthCutoff ? color : 'gray'

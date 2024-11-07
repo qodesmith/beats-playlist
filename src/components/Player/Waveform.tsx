@@ -1,27 +1,59 @@
 import {useAtomValue} from 'jotai'
 import {useId} from 'react'
 
-import {highlightColorObj} from '../../constants'
 import {
-  audioDataLoadingProgressAtomFamily,
-  getAudioDataLoadableAtomFamily,
-  selectedBeatIdAtom,
-  sizeContainerAtomFamily,
-} from '../../globalState'
+  audioBufferLoadableAtomFamily,
+  audioFetchingProgressAtomFamily,
+} from '../../AudioThing'
+import {highlightColorObj} from '../../constants'
+import {selectedBeatIdAtom, sizeContainerAtomFamily} from '../../globalState'
 import {usePrevious} from '../../hooks/usePrevious'
 import {AudioLoader} from '../AudioLoader'
 import {SizeContainer} from '../Visualizer/SizeContainer'
 import {Visualizer} from '../Visualizer/Visualizer'
 
 export function Waveform() {
-  const beatId = useAtomValue(selectedBeatIdAtom)
-  const audioBufferRes = useAtomValue(getAudioDataLoadableAtomFamily(beatId))
-  const isLoading = audioBufferRes.state === 'loading'
-  const hasData = audioBufferRes.state === 'hasData'
-  const audioBuffer = hasData ? audioBufferRes.data?.audioBuffer : undefined
-  const previousAudioBuffer = usePrevious(audioBuffer)
   const sizeContainerId = useId()
+  const beatId = useAtomValue(selectedBeatIdAtom)
+  const audioBufferLoadable = useAtomValue(
+    audioBufferLoadableAtomFamily(beatId ?? '')
+  )
+
+  if (audioBufferLoadable.state === 'hasData') {
+    const audioBuffer = audioBufferLoadable.data
+
+    return (
+      <WaveformContent
+        sizeContainerId={sizeContainerId}
+        isLoading={false}
+        audioBuffer={audioBuffer}
+        beatId={beatId}
+      />
+    )
+  }
+
+  return (
+    <WaveformContent
+      sizeContainerId={sizeContainerId}
+      isLoading
+      beatId={beatId}
+    />
+  )
+}
+
+function WaveformContent({
+  sizeContainerId,
+  audioBuffer,
+  isLoading,
+  beatId,
+}: {
+  sizeContainerId: string
+  audioBuffer?: AudioBuffer | undefined
+  isLoading: boolean
+  beatId: string | undefined
+}) {
   const {width, height} = useAtomValue(sizeContainerAtomFamily(sizeContainerId))
+  const previousAudioBuffer = usePrevious(audioBuffer)
 
   return (
     <SizeContainer
@@ -29,7 +61,7 @@ export function Waveform() {
       className="relative h-full w-full overflow-hidden"
     >
       <Visualizer
-        audioBuffer={isLoading ? previousAudioBuffer : audioBuffer}
+        audioBuffer={audioBuffer ?? previousAudioBuffer}
         style="reflection"
         tailwindColor={highlightColorObj.name}
         waveformWidth={width}
@@ -37,14 +69,13 @@ export function Waveform() {
         cursorColor="bg-[#CC57FF]"
         isLoading={isLoading}
       />
-      {isLoading && <WaveformLoaderWithProgress />}
+      {isLoading && beatId && <WaveformLoadingProgress beatId={beatId} />}
     </SizeContainer>
   )
 }
 
-function WaveformLoaderWithProgress() {
-  const beatId = useAtomValue(selectedBeatIdAtom)
-  const progress = useAtomValue(audioDataLoadingProgressAtomFamily(beatId))
+function WaveformLoadingProgress({beatId}: {beatId: string}) {
+  const progress = useAtomValue(audioFetchingProgressAtomFamily(beatId))
 
   return (
     <div className="absolute left-0 top-0 grid h-full w-full place-content-center">
