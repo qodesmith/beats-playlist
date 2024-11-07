@@ -2,18 +2,14 @@ import type {Video} from '@qodestack/dl-yt-playlist'
 
 import {secondsToDuration} from '@qodestack/utils'
 import clsx from 'clsx'
-import {useAtomValue, useSetAtom} from 'jotai'
+import {useAtom, useAtomValue, useSetAtom} from 'jotai'
 import {useCallback, useRef, useState} from 'react'
 
 import {RowMenuButton} from './RowMenuButton'
+import {handlePlayPause, isPlayingAtom} from '../../AudioThing'
 import {highlightColorObj} from '../../constants'
-import {
-  handleClickToPlayAtom,
-  selectedArtistAtom,
-  selectedBeatIdAtom,
-} from '../../globalState'
+import {selectedArtistAtom, selectedBeatIdAtom} from '../../globalState'
 import {useCompareTailwindBreakpoint} from '../../hooks/useCompareTailwindBreakpoint'
-import {store} from '../../store'
 import {Play} from '../Player/ControlIcons'
 import {YouTubeLogo} from '../YouTubeLogo'
 
@@ -33,13 +29,21 @@ export function BeatListItem({video, rowNum}: Props) {
   } = video
   const [shouldScrollTitle, setShouldScrollTitle] = useState(false)
   const scrollRef = useRef<{difference: number; percent: number} | undefined>()
-  const selectedBeatId = useAtomValue(selectedBeatIdAtom)
+  const [selectedBeatId, setSelectedBeatId] = useAtom(selectedBeatIdAtom)
   const isSelected = selectedBeatId === id
   const dateAdded = new Date(dateAddedToPlaylist).toLocaleDateString()
   const setSelectedArtist = useSetAtom(selectedArtistAtom)
+  const isPlaying = useAtomValue(isPlayingAtom)
   const handleClickToPlay = useCallback(() => {
-    store.set(handleClickToPlayAtom, id)
-  }, [id])
+    /**
+     * Clicking the thumbnail or title should only trigger the initial playback.
+     * Clicking them again should have no effect.
+     */
+    if (!isPlaying || !isSelected) {
+      setSelectedBeatId(id)
+      handlePlayPause()
+    }
+  }, [id, isPlaying, isSelected, setSelectedBeatId])
   const handleTouchStart = useCallback(() => {
     setShouldScrollTitle(true)
   }, [])
@@ -82,12 +86,14 @@ export function BeatListItem({video, rowNum}: Props) {
         }}
         onClick={handleClickToPlay}
       >
-        <Play
-          circleFill="transparent"
-          triangleFill="white"
-          size={44}
-          triangleClass="drop-shadow-md"
-        />
+        {isSelected && (
+          <Play
+            circleFill="transparent"
+            triangleFill="white"
+            size={44}
+            triangleClass="drop-shadow-md"
+          />
+        )}
       </button>
 
       {/* TITLE / ARTIST */}
