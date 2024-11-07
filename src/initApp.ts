@@ -4,6 +4,14 @@ import type {Video} from '@qodestack/dl-yt-playlist'
 import {fetchWithProgress, wait} from '@qodestack/utils'
 
 import {
+  audioBufferAtomFamily,
+  audioBufferLoadableAtomFamily,
+  audioFetchingProgressAtomFamily,
+  handleMoveSlider,
+  handleStopSlider,
+} from './AudioThing'
+import {
+  MAX_BEATS_LOADED,
   mediaQueryMap,
   tailwindBreakpoints,
   tailwindMediaQueries,
@@ -11,7 +19,6 @@ import {
 import {
   _initialMetadata,
   unknownMetadataAtom,
-  audioDataAtomFamily,
   isAppInitializedAtom,
   selectedBeatIdAtom,
   initialMetadataLoadingProgressAtom,
@@ -22,6 +29,8 @@ import {store} from './store'
 
 export function initApp() {
   watchMediaQueries()
+  initStoreSubscriptions()
+  initGlobalEventListeners()
 
   const url = new URL(window.location.href)
   const searchParamsBeatId = url.searchParams.get('beatId')
@@ -29,7 +38,6 @@ export function initApp() {
   // Kick off fetching the initial beat early if we have the id in query params.
   if (searchParamsBeatId) {
     store.set(selectedBeatIdAtom, searchParamsBeatId)
-    store.get(audioDataAtomFamily(searchParamsBeatId))
   }
 
   /**
@@ -91,9 +99,7 @@ export function initApp() {
        */
       if (!searchParamsBeatId) {
         const initialBeatId = metadata[0].id
-
         store.set(selectedBeatIdAtom, initialBeatId)
-        store.get(audioDataAtomFamily(initialBeatId))
       }
     })
 
@@ -153,4 +159,43 @@ function watchMediaQueries() {
       }
     })
   })
+}
+
+function initStoreSubscriptions() {
+  const loadedBeatIds = new Set<string>()
+  const beatIdAtomFamilies = [
+    audioBufferAtomFamily,
+    audioBufferLoadableAtomFamily,
+    audioFetchingProgressAtomFamily,
+  ]
+
+  // When the beat id changes, load an audioBuffer for it.
+  store.sub(selectedBeatIdAtom, () => {
+    const beatId = store.get(selectedBeatIdAtom)!
+
+    loadedBeatIds.add(beatId)
+    store.get(audioBufferAtomFamily(beatId))
+
+    /**
+     * Jotai atom families store data in a Map under the hood, which presents a
+     * potential memory leak. We remove the first items stored once we reach the
+     * limit. First in, last out.
+     */
+    if (loadedBeatIds.size > MAX_BEATS_LOADED) {
+      const firstId = loadedBeatIds.values().next().value!
+
+      loadedBeatIds.delete(firstId)
+      beatIdAtomFamilies.forEach(family => family.remove(firstId))
+    }
+  })
+}
+
+function initGlobalEventListeners() {
+  // Slider event listeners.
+  document.addEventListener('mousemove', handleMoveSlider)
+  document.addEventListener('touchmove', handleMoveSlider)
+  document.addEventListener('mouseup', handleStopSlider)
+  document.addEventListener('touchend', handleStopSlider)
+
+  // TODO - move all document listeners here
 }
