@@ -15,6 +15,7 @@ import {
   sliderContainerElementAtom,
   sliderDraggingPositionAtom,
 } from '../../globalState'
+import {usePrevious} from '../../hooks/usePrevious'
 import {store} from '../../store'
 
 export function AudioTimeSlider() {
@@ -81,12 +82,10 @@ function SliderProgress() {
 
 function Duration() {
   const durationInSeconds = useAtomValue(durationAtomSelector)
+  const previousDurationInSeconds = usePrevious(durationInSeconds)
+  const seconds = durationInSeconds || previousDurationInSeconds
 
-  return (
-    <div>
-      {durationInSeconds ? secondsToDuration(durationInSeconds) : '--:--'}
-    </div>
-  )
+  return <div>{seconds ? secondsToDuration(seconds) : '--:--'}</div>
 }
 
 function Ball() {

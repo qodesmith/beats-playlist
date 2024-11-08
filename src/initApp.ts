@@ -5,7 +5,7 @@ import {fetchWithProgress, wait} from '@qodestack/utils'
 
 import {
   audioBufferAtomFamily,
-  audioBufferLoadableAtomFamily,
+  audioBufferUnwrappedAtomFamily,
   audioFetchingProgressAtomFamily,
   handleMoveSlider,
   handleStopSlider,
@@ -165,8 +165,8 @@ function initStoreSubscriptions() {
   const loadedBeatIds = new Set<string>()
   const beatIdAtomFamilies = [
     audioBufferAtomFamily,
-    audioBufferLoadableAtomFamily,
     audioFetchingProgressAtomFamily,
+    audioBufferUnwrappedAtomFamily,
   ]
 
   // When the beat id changes, load an audioBuffer for it.
