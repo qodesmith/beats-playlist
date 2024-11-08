@@ -16,56 +16,27 @@ class AudioThing {
   id: string
   startTime: number
   lufs: number | null
-  audioBuffer: AudioBuffer | undefined
-  audioContext: AudioContext | undefined
-  audioBufferSourceNode: AudioBufferSourceNode | undefined
-  gainNode: GainNode | undefined
-  hasStartedInitialPlay: boolean
+  audioBuffer: AudioBuffer
+  audioContext: AudioContext
+  audioBufferSourceNode: AudioBufferSourceNode
+  gainNode: GainNode
 
-  constructor(id: string) {
+  static async init(id: string, position?: number) {
+    const audioBuffer = await store.get(audioBufferAtomFamily(id))
+    const audioThing = new AudioThing(id, audioBuffer, position)
+    store.set(audioThingAtom, audioThing)
+
+    return audioThing
+  }
+
+  constructor(
+    id: string,
+    audioBuffer: AudioBuffer,
+    position?: number /* 0 - 1 */
+  ) {
     this.id = id
-    this.startTime = 0
-    this.lufs = initialMetadataObj[id].lufs ?? null
-    this.hasStartedInitialPlay = false
-
-    /**
-     * https://developer.mozilla.org/en-US/docs/Web/API/AudioContext
-     */
-    this.audioContext = new AudioContext()
-
-    /**
-     * https://developer.mozilla.org/en-US/docs/Web/API/GainNode
-     *
-     * A volume knob.
-     */
-    this.gainNode = this.audioContext.createGain()
-
-    /**
-     * https://developer.mozilla.org/en-US/docs/Web/API/AudioBufferSourceNode
-     *
-     * This represents the 1st domino in the chain - the audio source. At this
-     * point, it is not associated with any data. The data (audioBuffer) will be
-     * added to the source below.
-     */
-    this.audioBufferSourceNode = this.audioContext.createBufferSource()
-
-    store.set(audioThingAtom, this)
-
-    void this.loadAudioBuffer()
-  }
-
-  loadAudioBuffer = async () => {
-    if (!this.audioBuffer) {
-      this.audioBuffer = await store.get(audioBufferAtomFamily(this.id))
-      store.set(_durationAtom, this.audioBuffer.duration)
-    }
-  }
-
-  play = async (position?: number /* 0 - 1 */) => {
-    if (this.hasStartedInitialPlay) return
-    this.hasStartedInitialPlay = true
-
-    await this.loadAudioBuffer()
+    this.audioBuffer = audioBuffer
+    this.lufs = initialMetadataObj[id].lufs
 
     /**
      * https://developer.mozilla.org/en-US/docs/Web/API/AudioContext/AudioContext
@@ -75,6 +46,13 @@ class AudioThing {
      * browser will log warnings.
      */
     this.audioContext = new AudioContext()
+
+    /**
+     * https://developer.mozilla.org/en-US/docs/Web/API/GainNode
+     *
+     * A volume knob.
+     */
+    this.gainNode = this.audioContext.createGain()
 
     /**
      * https://developer.mozilla.org/en-US/docs/Web/API/AudioBufferSourceNode
@@ -97,8 +75,8 @@ class AudioThing {
     )
 
     // Attach the raw data to our audio source so it can be played.
-    this.audioBufferSourceNode.buffer = this.audioBuffer!
-    this.startTime = (position ?? 0) * this.audioBuffer!.duration
+    this.audioBufferSourceNode.buffer = this.audioBuffer
+    this.startTime = (position ?? 0) * this.audioBuffer.duration
 
     /**
      * https://developer.mozilla.org/en-US/docs/Web/API/AudioBufferSourceNode/loop
@@ -107,13 +85,6 @@ class AudioThing {
      */
     this.audioBufferSourceNode.loop =
       store.get(repeatStateSelector) === 'single'
-
-    /**
-     * https://developer.mozilla.org/en-US/docs/Web/API/GainNode
-     *
-     * A volume knob.
-     */
-    this.gainNode = this.audioContext.createGain()
 
     // Wire up the audio source, gain, and output.
     this.audioBufferSourceNode
@@ -141,11 +112,9 @@ class AudioThing {
     this.startPolling()
   }
 
-  audioEndedHandler = () => {
-    this.audioContext?.close()
-
+  audioEndedHandler = async () => {
+    await this.cleanUp()
     const repeatState = store.get(repeatStateSelector)
-    this.cleanUp()
 
     /**
      * We don't need to cover `single` here because we already use the built-in
@@ -159,33 +128,29 @@ class AudioThing {
     }
   }
 
-  cleanUp = () => {
-    if (this.audioContext && this.audioContext.state !== 'closed') {
-      // You can only call `close()` on an AudioContext once.
-      this.audioContext.close()
-    }
-
-    this.audioBufferSourceNode?.removeEventListener(
+  cleanUp = async () => {
+    this.audioBufferSourceNode.removeEventListener(
       'ended',
       this.audioEndedHandler
     )
 
-    this.gainNode?.disconnect()
+    this.gainNode.disconnect()
+
+    if (this.audioContext.state !== 'closed') {
+      // You can only call `close()` on an AudioContext once.
+      await this.audioContext.close()
+    }
   }
 
   getProgressPercent = () => {
-    if (this.audioContext && this.audioBuffer) {
-      const time =
-        (this.audioContext.currentTime + this.startTime) %
-        this.audioBuffer.duration
-      return Number(((time / this.audioBuffer.duration) * 100).toFixed(2))
-    }
+    const {duration} = this.audioBuffer
+    const time = (this.audioContext.currentTime + this.startTime) % duration
 
-    return 0
+    return Number(((time / duration) * 100).toFixed(2))
   }
 
   getCurrentTime = () => {
-    const duration = this.audioBuffer?.duration ?? 0
+    const {duration} = this.audioBuffer
     const percentMultiplier = this.getProgressPercent() / 100 // 0 - 1
     const secondsPlayed = Math.floor(duration * percentMultiplier)
 
@@ -196,35 +161,28 @@ class AudioThing {
     const {lufs, gainNode} = this
     const volumeMultiplier = store.get(volumeMultiplierSelector)
 
-    if (gainNode) {
-      if (lufs != null) {
-        const adjustmentValue = Math.pow(10, (TARGET_LUFS - lufs) / 20)
-        gainNode.gain.value = adjustmentValue * volumeMultiplier
-      } else {
-        gainNode.gain.value = volumeMultiplier
-      }
+    if (lufs != null) {
+      const adjustmentValue = Math.pow(10, (TARGET_LUFS - lufs) / 20)
+      gainNode.gain.value = adjustmentValue * volumeMultiplier
+    } else {
+      gainNode.gain.value = volumeMultiplier
     }
   }
 
   togglePlayPause = async () => {
-    if (!this.hasStartedInitialPlay) {
-      return this.play()
-    }
-
-    if (this.audioContext) {
-      if (this.audioContext.state === 'suspended') {
-        store.set(isPlayingAtom, true)
-        await this.audioContext.resume()
-        this.startPolling()
-      } else if (this.audioContext.state === 'running') {
-        store.set(isPlayingAtom, false)
-        void this.audioContext.suspend()
-      } else if (this.audioContext.state === 'closed') {
-        // The beat has finished and we need to start over, fresh.
-        const newAudioThing = new AudioThing(this.id)
-        store.set(audioThingAtom, newAudioThing)
-        void newAudioThing.play()
-      }
+    if (this.audioContext.state === 'suspended') {
+      // Play.
+      store.set(isPlayingAtom, true)
+      await this.audioContext.resume()
+      this.startPolling()
+    } else if (this.audioContext.state === 'running') {
+      // Pause.
+      store.set(isPlayingAtom, false)
+      await this.audioContext.suspend()
+    } else if (this.audioContext.state === 'closed') {
+      // Restart from the beginning.
+      await this.cleanUp()
+      await AudioThing.init(this.id)
     }
   }
 
@@ -235,35 +193,21 @@ class AudioThing {
     const nextState = repeatStates[nextIdx]
 
     store.set(_repeatStateAtom, nextState)
-
-    if (this.audioBufferSourceNode) {
-      this.audioBufferSourceNode.loop = nextState === 'single'
-    }
+    this.audioBufferSourceNode.loop = nextState === 'single'
   }
 
   /**
    * 0 - 1 value
    */
   setPosition = async (position: number) => {
-    if (!this.audioContext) return
-
-    if (!this.hasStartedInitialPlay) {
-      // The beat hasn't started playing.
-      return this.play(position)
-    }
-
-    this.cleanUp()
-
-    const newAudioThing = new AudioThing(this.id)
-    store.set(audioThingAtom, newAudioThing)
+    await this.cleanUp()
+    await AudioThing.init(this.id, position)
     store.set(isPlayingAtom, true)
-
-    return newAudioThing.play(position)
   }
 
   getShouldContinuePolling = () => {
     const isPlaying = store.get(isPlayingAtom)
-    const isRunning = this.audioContext?.state === 'running'
+    const isRunning = this.audioContext.state === 'running'
     const selectedBeatId = store.get(selectedBeatIdAtom)
     const isSelectedBeat = this.id === selectedBeatId
     const isSliderDragging = store.get(isSliderDraggingAtom)
@@ -293,9 +237,9 @@ class AudioThing {
 // CONTROL FUNCTIONS //
 ///////////////////////
 
-export function handlePlayPause() {
+export async function handlePlayPause() {
   const id = store.get(selectedBeatIdAtom)
-  let audioThing = store.get(audioThingAtom)
+  const audioThing = store.get(audioThingAtom)
 
   if (!id) {
     throw new Error('No beat has been selected yet')
@@ -303,19 +247,18 @@ export function handlePlayPause() {
 
   // 1st time playing or switching to a new song.
   if (!audioThing || audioThing.id !== id) {
-    audioThing?.cleanUp()
-    audioThing = new AudioThing(id)
-    store.set(audioThingAtom, audioThing)
+    await audioThing?.cleanUp()
+    return await AudioThing.init(id)
   }
 
-  audioThing.togglePlayPause()
+  await audioThing.togglePlayPause()
 }
 
 export function toggleShuffle() {
   store.set(_shuffleStateAtom, !store.get(_shuffleStateAtom))
 }
 
-export function handleWaveformClick(
+export async function handleWaveformClick(
   e: React.MouseEvent<HTMLDivElement, MouseEvent>
 ) {
   const id = store.get(selectedBeatIdAtom)
@@ -330,11 +273,10 @@ export function handleWaveformClick(
   const position = offsetX / width // 0 - 1
 
   if (!audioThing) {
-    audioThing = new AudioThing(id)
-    store.set(audioThingAtom, audioThing)
+    audioThing = await AudioThing.init(id, position)
+  } else {
+    await audioThing.setPosition(position)
   }
-
-  audioThing.setPosition(position)
 }
 
 export function handleStartSlider(
@@ -347,7 +289,7 @@ export function handleStartSlider(
   const offsetX = clientX - left
   const position = offsetX / width // 0 -1
   const audioThing = store.get(audioThingAtom)
-  const duration = audioThing?.audioBuffer?.duration ?? 0
+  const duration = audioThing?.audioBuffer.duration ?? 0
   const secondsAtPosition = Math.floor(duration * position)
 
   store.set(isSliderDraggingAtom, true)
@@ -372,7 +314,7 @@ export function handleMoveSlider(e: MouseEvent | TouchEvent) {
   const isSliderDragging = store.get(isSliderDraggingAtom)
 
   if (isSliderDragging) {
-    const duration = store.get(audioThingAtom)?.audioBuffer?.duration ?? 0
+    const duration = store.get(audioThingAtom)?.audioBuffer.duration ?? 0
     let secondsAtPosition = 0
 
     if (isInRange) {
@@ -399,7 +341,7 @@ export function handleStopSlider(e: MouseEvent | TouchEvent) {
 
   if (store.get(isSliderDraggingAtom)) {
     const audioThing = store.get(audioThingAtom)
-    const duration = audioThing?.audioBuffer?.duration ?? 0
+    const duration = audioThing?.audioBuffer.duration ?? 0
     const {width, left} = sliderContainer.getBoundingClientRect()
     const clientX =
       'changedTouches' in e ? e.changedTouches[0].clientX : e.clientX
@@ -521,6 +463,6 @@ export const progressPercentAtom = atom(0)
  */
 export const timeProgressAtom = atom('0:00')
 
-const _durationAtom = atom(0)
-
-export const durationAtomSelector = atom(get => get(_durationAtom))
+export const durationAtomSelector = atom(
+  get => get(audioThingAtom)?.audioBuffer.duration ?? 0
+)
