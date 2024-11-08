@@ -159,7 +159,7 @@ class AudioThing {
 
   adjustGain = () => {
     const {lufs, gainNode} = this
-    const volumeMultiplier = store.get(volumeMultiplierSelector)
+    const volumeMultiplier = store.get(volumeMultiplierAtom)
 
     if (lufs != null) {
       const adjustmentValue = Math.pow(10, (TARGET_LUFS - lufs) / 20)
@@ -453,7 +453,7 @@ export const isPlayingAtom = atom(false)
 
 const _volumeMultiplierAtom = atom(1)
 
-export const volumeMultiplierSelector = atom(
+export const volumeMultiplierAtom = atom(
   get => get(_volumeMultiplierAtom),
   (get, set, value: number) => {
     set(_volumeMultiplierAtom, value)
