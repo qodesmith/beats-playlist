@@ -40,6 +40,7 @@ export function FooterSearch({footerId}: {footerId: string}) {
     >
       <input
         ref={inputRef}
+        name="search"
         type="text"
         className="border-b bg-transparent text-center sm:text-xl"
         placeholder="Enter a search term"
