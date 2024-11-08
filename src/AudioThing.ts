@@ -1,6 +1,6 @@
 import {fetchWithProgress, secondsToDuration} from '@qodestack/utils'
 import {atom} from 'jotai'
-import {atomFamily, atomWithStorage, loadable} from 'jotai/utils'
+import {atomFamily, atomWithStorage, unwrap} from 'jotai/utils'
 
 import {sampleRate, contentLengthHeader, TARGET_LUFS} from './constants'
 import {
@@ -335,7 +335,7 @@ export function handleMoveSlider(e: MouseEvent | TouchEvent) {
  * The mouseup handler should be on the document so we're free to grab the
  * slider, drag around the document, and mouseup wherever we want.
  */
-export function handleStopSlider(e: MouseEvent | TouchEvent) {
+export async function handleStopSlider(e: MouseEvent | TouchEvent) {
   const sliderContainer = store.get(sliderContainerElementAtom)
   if (!sliderContainer) return
 
@@ -350,7 +350,7 @@ export function handleStopSlider(e: MouseEvent | TouchEvent) {
     const newPosition = Math.min(Math.max(position, 0), duration)
 
     store.set(isSliderDraggingAtom, false)
-    audioThing?.setPosition(newPosition)
+    await audioThing?.setPosition(newPosition)
   }
 }
 
@@ -417,10 +417,20 @@ export const audioBufferAtomFamily = atomFamily((id: string) => {
 })
 
 /**
- * Used to simply the waveform visualization logic by avoiding Suspense.
+ * https://jotai.org/docs/utilities/async#unwrap
+ * https://jotai.org/docs/utilities/async#loadable
+ *
+ * Used to simplify the waveform visualization logic by avoiding Suspense. I've
+ * chosen `unwrap` over `loadable` to further simplify the logic. With `unwrap`,
+ * the value is `undefined` until it isn't. With `loadable`, an object is
+ * returned with explicit `state`, `data`, and `error` properties.
+ *
+ * For our use case, a value not being present is good enough. While a new value
+ * is loading, we want the old stale value to remain. This achieves that.
+ *
  */
-export const audioBufferLoadableAtomFamily = atomFamily((id: string) => {
-  return loadable(audioBufferAtomFamily(id))
+export const audioBufferUnwrappedAtomFamily = atomFamily((id: string) => {
+  return unwrap(audioBufferAtomFamily(id))
 })
 
 /**
@@ -463,6 +473,18 @@ export const progressPercentAtom = atom(0)
  */
 export const timeProgressAtom = atom('0:00')
 
-export const durationAtomSelector = atom(
-  get => get(audioThingAtom)?.audioBuffer.duration ?? 0
-)
+/**
+ * This selector returns the duration of the audio. The unwrapped atomFamily
+ * would technically be enough here, but as you change beats it would have a
+ * momentary default value of 0 while the beat is loading. By bringing in
+ * adioThingAtom, we solve that gap since the previous audioThingAtom sticks
+ * around until the new beat is loaded. We show stale data until the new data
+ * has arrived. This is the same way the waveform works.
+ */
+export const durationAtomSelector = atom(get => {
+  const selectedBeatId = get(selectedBeatIdAtom)
+
+  return (
+    get(audioBufferUnwrappedAtomFamily(selectedBeatId ?? ''))?.duration ?? 0
+  )
+})

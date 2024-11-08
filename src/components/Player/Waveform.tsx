@@ -2,7 +2,7 @@ import {useAtomValue} from 'jotai'
 import {useId} from 'react'
 
 import {
-  audioBufferLoadableAtomFamily,
+  audioBufferUnwrappedAtomFamily,
   audioFetchingProgressAtomFamily,
 } from '../../AudioThing'
 import {highlightColorObj} from '../../constants'
@@ -15,27 +15,13 @@ import {Visualizer} from '../Visualizer/Visualizer'
 export function Waveform() {
   const sizeContainerId = useId()
   const beatId = useAtomValue(selectedBeatIdAtom)
-  const audioBufferLoadable = useAtomValue(
-    audioBufferLoadableAtomFamily(beatId ?? '')
-  )
-
-  if (audioBufferLoadable.state === 'hasData') {
-    const audioBuffer = audioBufferLoadable.data
-
-    return (
-      <WaveformContent
-        sizeContainerId={sizeContainerId}
-        isLoading={false}
-        audioBuffer={audioBuffer}
-        beatId={beatId}
-      />
-    )
-  }
+  const audioBuffer = useAtomValue(audioBufferUnwrappedAtomFamily(beatId ?? ''))
 
   return (
     <WaveformContent
       sizeContainerId={sizeContainerId}
-      isLoading
+      isLoading={!audioBuffer}
+      audioBuffer={audioBuffer}
       beatId={beatId}
     />
   )
