@@ -72,3 +72,8 @@ export const MAX_BEATS_LOADED = 40
  * grab that element.
  */
 export const sliderContainerId = 'slider-container'
+
+/**
+ * A `localStorage` key that stores the value of an `atomWithStorage`.
+ */
+export const shuffleStateKey = 'shuffleState'

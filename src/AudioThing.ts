@@ -2,7 +2,12 @@ import {fetchWithProgress, secondsToDuration} from '@qodestack/utils'
 import {atom} from 'jotai'
 import {atomFamily, atomWithStorage, unwrap} from 'jotai/utils'
 
-import {sampleRate, contentLengthHeader, TARGET_LUFS} from './constants'
+import {
+  sampleRate,
+  contentLengthHeader,
+  TARGET_LUFS,
+  shuffleStateKey,
+} from './constants'
 import {
   initialMetadataObj,
   isSliderDraggingAtom,
@@ -461,7 +466,7 @@ export const volumeMultiplierAtom = atom(
   }
 )
 
-const _shuffleStateAtom = atomWithStorage<boolean>('shuffleState', false)
+const _shuffleStateAtom = atomWithStorage<boolean>(shuffleStateKey, false)
 
 export const shuffleStateSelector = atom(get => get(_shuffleStateAtom))
 

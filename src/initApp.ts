@@ -13,6 +13,7 @@ import {
 import {
   MAX_BEATS_LOADED,
   mediaQueryMap,
+  shuffleStateKey,
   tailwindBreakpoints,
   tailwindMediaQueries,
 } from './constants'
@@ -24,6 +25,7 @@ import {
   initialMetadataLoadingProgressAtom,
   tailwindBreakpointAtom,
   initialMetadataObj,
+  shuffledMetadataSelector,
 } from './globalState'
 import {store} from './store'
 
@@ -84,8 +86,6 @@ export function initApp() {
        */
       // @ts-expect-error - this is the only place that mutates this object.
       _initialMetadata.data = metadata
-      Object.freeze(_initialMetadata)
-      Object.freeze(_initialMetadata.data)
 
       for (const video of metadata) {
         // @ts-expect-error This is the only place we write the data.
@@ -93,12 +93,29 @@ export function initApp() {
       }
 
       /**
-       * If we don't have a beat if in the search params, we kick of fetching
+       * If we don't have a beat id in the search params, we kick of fetching
        * the 1st beat in the metadata once it's loaded. Don't return the
        * `store.get(...)` promise so as not to hold up rendering the UI.
        */
       if (!searchParamsBeatId) {
-        const initialBeatId = metadata[0].id
+        /**
+         * Why not just use `shuffleStateSelector` here?
+         * https://github.com/pmndrs/jotai/blob/5802fc0c21b581e4c3dba49accede6706275c238/src/vanilla/utils/atomWithStorage.ts#L237
+         *
+         * Since this value is being read outside of the React render cycle,
+         * the underlying atom may not initialize with reading `localStorage`
+         * for the value. React's mount lifecyle is what triggers Jotai to get
+         * the value from `localStorage`.
+         */
+        const isShuffled = JSON.parse(
+          localStorage.getItem(shuffleStateKey) ?? 'false'
+        )
+        let initialBeatId = metadata[0].id
+
+        if (isShuffled) {
+          initialBeatId = store.get(shuffledMetadataSelector)[0].id
+        }
+
         store.set(selectedBeatIdAtom, initialBeatId)
       }
     })
