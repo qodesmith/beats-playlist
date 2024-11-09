@@ -76,4 +76,4 @@ export const sliderContainerId = 'slider-container'
 /**
  * A `localStorage` key that stores the value of an `atomWithStorage`.
  */
-export const shuffleStateKey = 'shuffleState'
+export const isPlaybackShuffledKey = 'isPlaybackShuffled'

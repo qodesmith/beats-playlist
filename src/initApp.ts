@@ -11,20 +11,19 @@ import {
   handleStopSlider,
 } from './AudioThing'
 import {
+  isPlaybackShuffledKey,
   MAX_BEATS_LOADED,
   mediaQueryMap,
-  shuffleStateKey,
   tailwindBreakpoints,
   tailwindMediaQueries,
 } from './constants'
 import {
-  _initialMetadata,
+  initialMetadata,
   unknownMetadataAtom,
   isAppInitializedAtom,
   selectedBeatIdAtom,
   initialMetadataLoadingProgressAtom,
   tailwindBreakpointAtom,
-  initialMetadataObj,
   shuffledMetadataSelector,
 } from './globalState'
 import {store} from './store'
@@ -85,12 +84,7 @@ export function initApp() {
        * mitigating against changing the original array.
        */
       // @ts-expect-error - this is the only place that mutates this object.
-      _initialMetadata.data = metadata
-
-      for (const video of metadata) {
-        // @ts-expect-error This is the only place we write the data.
-        initialMetadataObj[video.id] = video
-      }
+      initialMetadata.data = metadata
 
       /**
        * If we don't have a beat id in the search params, we kick of fetching
@@ -107,12 +101,12 @@ export function initApp() {
          * for the value. React's mount lifecyle is what triggers Jotai to get
          * the value from `localStorage`.
          */
-        const isShuffled = JSON.parse(
-          localStorage.getItem(shuffleStateKey) ?? 'false'
+        const isPlaybackShuffled = JSON.parse(
+          localStorage.getItem(isPlaybackShuffledKey) ?? 'false'
         )
         let initialBeatId = metadata[0].id
 
-        if (isShuffled) {
+        if (isPlaybackShuffled) {
           initialBeatId = store.get(shuffledMetadataSelector)[0].id
         }
 

@@ -6,16 +6,19 @@ import {
   sampleRate,
   contentLengthHeader,
   TARGET_LUFS,
-  shuffleStateKey,
+  isPlaybackShuffledKey,
 } from './constants'
 import {
-  initialMetadataObj,
+  initialMetadata,
   isSliderDraggingAtom,
   selectedBeatIdAtom,
+  shuffledMetadataNonVisualSelector,
   sliderContainerElementAtom,
   sliderDraggingPositionAtom,
+  visualMetadataSelector,
 } from './globalState'
 import {store} from './store'
+import {scrollElementIntoView} from './utils'
 
 class AudioThing {
   id: string
@@ -29,7 +32,16 @@ class AudioThing {
   static async init(id: string, position?: number) {
     const audioBuffer = await store.get(audioBufferAtomFamily(id))
     const audioThing = new AudioThing(id, audioBuffer, position)
-    store.set(audioThingAtom, audioThing)
+
+    /**
+     * A new AudioThing may have been initialized while we were still trying to
+     * initialize this one. Guard against that and clean up.
+     */
+    if (store.get(selectedBeatIdAtom) === id) {
+      store.set(audioThingAtom, audioThing)
+    } else {
+      audioThing.cleanUp()
+    }
 
     return audioThing
   }
@@ -41,7 +53,7 @@ class AudioThing {
   ) {
     this.id = id
     this.audioBuffer = audioBuffer
-    this.lufs = initialMetadataObj[id].lufs
+    this.lufs = initialMetadata.data.find(item => item.id === id)?.lufs ?? null
 
     /**
      * https://developer.mozilla.org/en-US/docs/Web/API/AudioContext/AudioContext
@@ -242,6 +254,15 @@ class AudioThing {
 // CONTROL FUNCTIONS //
 ///////////////////////
 
+export const isPlaybackShuffledAtom = atomWithStorage<boolean>(
+  isPlaybackShuffledKey,
+  false
+)
+
+export function togglePlaybackShuffle() {
+  store.set(isPlaybackShuffledAtom, !store.get(isPlaybackShuffledAtom))
+}
+
 export async function handlePlayPause() {
   const id = store.get(selectedBeatIdAtom)
   const audioThing = store.get(audioThingAtom)
@@ -257,10 +278,6 @@ export async function handlePlayPause() {
   }
 
   await audioThing.togglePlayPause()
-}
-
-export function toggleShuffle() {
-  store.set(_shuffleStateAtom, !store.get(_shuffleStateAtom))
 }
 
 export async function handleWaveformClick(
@@ -300,6 +317,40 @@ export function handleStartSlider(
   store.set(isSliderDraggingAtom, true)
   store.set(sliderDraggingPositionAtom, position)
   store.set(timeProgressAtom, secondsToDuration(secondsAtPosition))
+}
+
+export function handlePreviousClick() {
+  loadPreviousOrNext('previous')
+}
+
+export function handleNextClick() {
+  loadPreviousOrNext('next')
+}
+
+function loadPreviousOrNext(type: 'previous' | 'next') {
+  const isPlaybackShuffled = store.get(isPlaybackShuffledAtom)
+  const metadata = store.get(
+    isPlaybackShuffled
+      ? shuffledMetadataNonVisualSelector
+      : visualMetadataSelector
+  )
+  const beatCount = metadata.length
+  const selectedBeatId = store.get(selectedBeatIdAtom)
+  const beatIndex = metadata.findIndex(item => item.id === selectedBeatId)
+
+  if (beatIndex === -1) {
+    throw new Error(`No beat found for "${type}"`)
+  }
+
+  const newIndex = beatIndex + (type === 'next' ? 1 : -1)
+  const finalIndex = newIndex === -1 ? beatCount - 1 : newIndex % beatCount
+  const newBeatId = metadata[finalIndex].id
+  const audioThing = store.get(audioThingAtom)
+
+  audioThing?.cleanUp()
+  store.set(selectedBeatIdAtom, newBeatId)
+  scrollElementIntoView(newBeatId, {behavior: 'smooth', block: 'nearest'})
+  AudioThing.init(newBeatId)
 }
 
 /**
@@ -465,10 +516,6 @@ export const volumeMultiplierAtom = atom(
     get(audioThingAtom)?.adjustGain()
   }
 )
-
-const _shuffleStateAtom = atomWithStorage<boolean>(shuffleStateKey, false)
-
-export const shuffleStateSelector = atom(get => get(_shuffleStateAtom))
 
 export const progressPercentAtom = atom(0)
 

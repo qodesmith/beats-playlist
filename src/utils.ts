@@ -1,8 +1,5 @@
 import {pluralize} from '@qodestack/utils'
 
-import {metadataSelector, selectedBeatIdAtom} from './globalState'
-import {store} from './store'
-
 export function secondsToPlainSentence({
   totalSeconds,
   excluded = [],
@@ -96,25 +93,6 @@ export function audioBufferToNumbers(
   const finalNumbers = averages.map(num => num / maxAvg)
 
   return finalNumbers
-}
-
-/**
- * Imperatively get a random beatId from the data.
- */
-export function getRandomBeatId() {
-  const selectedId = store.get(selectedBeatIdAtom)
-  const ids = store.get(metadataSelector).reduce<string[]>((acc, item) => {
-    // Ensure we don't pick the currently selected id.
-    if (selectedId !== item.id) {
-      acc.push(item.id)
-    }
-
-    return acc
-  }, [])
-  const randomIndex = Math.floor(Math.random() * ids.length)
-
-  const randomId = ids[randomIndex]
-  return randomId
 }
 
 /**

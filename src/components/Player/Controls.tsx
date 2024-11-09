@@ -5,10 +5,13 @@ import {Next, Pause, Play, Previous, SearchIcon} from './ControlIcons'
 import {RepeatButton} from './RepeatButton'
 import {ShuffleButton} from './ShuffleButton'
 import {VolumeButton} from './VolumeButton'
-import {handlePlayPause, isPlayingAtom} from '../../AudioThing'
 import {
-  handleNextClickAtom,
-  handlePreviousClickAtom,
+  handleNextClick,
+  handlePlayPause,
+  handlePreviousClick,
+  isPlayingAtom,
+} from '../../AudioThing'
+import {
   isPreviousDisabledSelector,
   isSearchOpenAtom,
   selectedBeatIdAtom,
@@ -17,8 +20,6 @@ import {
 export function Controls({baseSize}: {baseSize: number}) {
   const beatId = useAtomValue(selectedBeatIdAtom)
   const fill = beatId ? 'white' : 'gray'
-  const handlePrevious = useSetAtom(handlePreviousClickAtom)
-  const handleNext = useSetAtom(handleNextClickAtom)
   const isPlaying = useAtomValue(isPlayingAtom)
   const isPreviousDisabled = useAtomValue(isPreviousDisabledSelector)
   const setIsSearchOpen = useSetAtom(isSearchOpenAtom)
@@ -37,7 +38,7 @@ export function Controls({baseSize}: {baseSize: number}) {
       {/* PREVIOUS */}
       <button
         className="grid size-full place-items-center"
-        onClick={isPreviousDisabled ? undefined : handlePrevious}
+        onClick={isPreviousDisabled ? undefined : handlePreviousClick}
       >
         <Previous
           size={baseSize * 3}
@@ -57,7 +58,7 @@ export function Controls({baseSize}: {baseSize: number}) {
       {/* NEXT */}
       <button
         className="grid size-full place-items-center"
-        onClick={handleNext}
+        onClick={handleNextClick}
       >
         <Next size={baseSize * 3} fill={fill} />
       </button>
