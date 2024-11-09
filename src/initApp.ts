@@ -1,7 +1,7 @@
 import type {TailwindBreakpoint, TailwindMediaQuery} from './constants'
 import type {Video} from '@qodestack/dl-yt-playlist'
 
-import {fetchWithProgress, wait} from '@qodestack/utils'
+import {fetchWithProgress, shuffleArray, wait} from '@qodestack/utils'
 
 import {
   audioBufferAtomFamily,
@@ -11,7 +11,6 @@ import {
   handleStopSlider,
 } from './AudioThing'
 import {
-  isPlaybackShuffledKey,
   MAX_BEATS_LOADED,
   mediaQueryMap,
   tailwindBreakpoints,
@@ -24,7 +23,6 @@ import {
   selectedBeatIdAtom,
   initialMetadataLoadingProgressAtom,
   tailwindBreakpointAtom,
-  shuffledMetadataSelector,
 } from './globalState'
 import {store} from './store'
 
@@ -85,6 +83,8 @@ export function initApp() {
        */
       // @ts-expect-error - this is the only place that mutates this object.
       initialMetadata.data = metadata
+      // @ts-expect-error - this is the only place that mutates this object.
+      initialMetadata.shuffledData = shuffleArray(metadata)
 
       /**
        * If we don't have a beat id in the search params, we kick of fetching
@@ -92,25 +92,7 @@ export function initApp() {
        * `store.get(...)` promise so as not to hold up rendering the UI.
        */
       if (!searchParamsBeatId) {
-        /**
-         * Why not just use `shuffleStateSelector` here?
-         * https://github.com/pmndrs/jotai/blob/5802fc0c21b581e4c3dba49accede6706275c238/src/vanilla/utils/atomWithStorage.ts#L237
-         *
-         * Since this value is being read outside of the React render cycle,
-         * the underlying atom may not initialize with reading `localStorage`
-         * for the value. React's mount lifecyle is what triggers Jotai to get
-         * the value from `localStorage`.
-         */
-        const isPlaybackShuffled = JSON.parse(
-          localStorage.getItem(isPlaybackShuffledKey) ?? 'false'
-        )
-        let initialBeatId = metadata[0].id
-
-        if (isPlaybackShuffled) {
-          initialBeatId = store.get(shuffledMetadataSelector)[0].id
-        }
-
-        store.set(selectedBeatIdAtom, initialBeatId)
+        store.set(selectedBeatIdAtom, metadata[0].id)
       }
     })
 

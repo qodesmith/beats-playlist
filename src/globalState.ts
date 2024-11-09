@@ -18,7 +18,10 @@ import {secondsToPlainSentence} from './utils'
  * consume this data as well since they don't need a shuffled version for their
  * purposes.
  */
-export const initialMetadata: {readonly data: Video[]} = {data: []}
+export const initialMetadata: {
+  readonly data: Video[]
+  readonly shuffledData: Video[]
+} = {data: [], shuffledData: []}
 
 /**
  * This atom will resolve to true once the initial fetch calls in `initApp` have
@@ -121,9 +124,7 @@ export const visualMetadataSelector = atom<Video[]>(get => {
  * `previous` and `next` buttons predictable. It has no effect on the visual
  * order of the beat list.
  */
-export const shuffledMetadataSelector = atom(_get_DO_NOT_USE => {
-  return shuffleArray(initialMetadata.data)
-})
+export const shuffledMetadataSelector = atom(() => initialMetadata.shuffledData)
 
 /**
  * Powers the header stats. Stats reflect the search term and selected artist.
