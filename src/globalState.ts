@@ -13,10 +13,12 @@ import {secondsToPlainSentence} from './utils'
 ////////////////////////
 
 /**
- * The only place outside this module that consumes this object is `initApp`.
- * This object will be frozen right after it is written to. A number of atoms
- * consume this data as well since they don't need a shuffled version for their
- * purposes.
+ * When the metadata is initially loaded in `initApp.ts`, both the regular and
+ * shuffled versions of that list will be stored in this object.
+ *
+ * The shuffled list is used behind the scenes to drive randomized play, making
+ * the `previous` and `next` buttons predictable. It has no effect on the visual
+ * order of the beat list.
  */
 export const initialMetadata: {
   readonly data: Video[]
@@ -76,8 +78,8 @@ const _visuallyShuffledMetadataSelector = atom(get => {
  * This selector is a shuffled version of metadata that does not change and is
  * used to power the previous / next buttons when the shuffle button is on.
  */
-export const shuffledMetadataNonVisualSelector = atom(_get_DO_NOT_USE => {
-  return shuffleArray(initialMetadata.data)
+export const shuffledMetadataNonVisualSelector = atom(() => {
+  return initialMetadata.shuffledData
 })
 
 /**
@@ -115,16 +117,6 @@ export const visualMetadataSelector = atom<Video[]>(get => {
 
   return metadata
 })
-
-/**
- * A shuffled version of the metadata array. This selector purposely avoids any
- * dependencies to only shuffle the data once.
- *
- * This list is used behind the scenes to drive randomized play, making the
- * `previous` and `next` buttons predictable. It has no effect on the visual
- * order of the beat list.
- */
-export const shuffledMetadataSelector = atom(() => initialMetadata.shuffledData)
 
 /**
  * Powers the header stats. Stats reflect the search term and selected artist.
