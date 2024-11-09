@@ -4,8 +4,8 @@ import {useCallback, useLayoutEffect, useState} from 'react'
 import {HeaderButton} from './HeaderButton'
 import {
   isMenuOpenAtom,
-  metadataSelector,
   selectedBeatIdAtom,
+  visualMetadataSelector,
 } from '../../globalState'
 import {scrollElementIntoView} from '../../utils'
 
@@ -17,7 +17,7 @@ export function HeaderMenu({
    */
   id: string
 }) {
-  const metadata = useAtomValue(metadataSelector)
+  const metadata = useAtomValue(visualMetadataSelector)
   const selectedBeatId = useAtomValue(selectedBeatIdAtom)
   const [mobileHeight, setMobileHeight] = useState<number>()
   const setMenuState = useSetAtom(isMenuOpenAtom)
