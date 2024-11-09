@@ -139,7 +139,7 @@ class AudioThing {
      * `ended` event does not fire.
      */
     if (repeatState === 'on') {
-      // TODO - play the next track
+      handleNextClick()
     } else if (repeatState === 'off') {
       store.set(isPlayingAtom, false)
     }
