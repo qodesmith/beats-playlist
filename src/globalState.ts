@@ -164,17 +164,6 @@ export const selectedArtistAtom = atom<string>()
 //////////////
 
 /**
- * Determines if the previous button should be disabled.
- */
-export const isPreviousDisabledSelector = atom(get => {
-  const selectedBeatId = get(selectedBeatIdAtom)
-  const metadata = get(visualMetadataSelector)
-  const currentIndex = metadata.findIndex(item => item.id === selectedBeatId)
-
-  return currentIndex <= 0
-})
-
-/**
  * The DOM element for the slider container. Used in event handlers.
  */
 export const sliderContainerElementAtom = atom<HTMLElement | null>(null)

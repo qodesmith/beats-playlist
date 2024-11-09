@@ -11,17 +11,12 @@ import {
   handlePreviousClick,
   isPlayingAtom,
 } from '../../AudioThing'
-import {
-  isPreviousDisabledSelector,
-  isSearchOpenAtom,
-  selectedBeatIdAtom,
-} from '../../globalState'
+import {isSearchOpenAtom, selectedBeatIdAtom} from '../../globalState'
 
 export function Controls({baseSize}: {baseSize: number}) {
   const beatId = useAtomValue(selectedBeatIdAtom)
   const fill = beatId ? 'white' : 'gray'
   const isPlaying = useAtomValue(isPlayingAtom)
-  const isPreviousDisabled = useAtomValue(isPreviousDisabledSelector)
   const setIsSearchOpen = useSetAtom(isSearchOpenAtom)
   const toggleSearch = useCallback(() => {
     setIsSearchOpen(v => !v)
@@ -38,12 +33,9 @@ export function Controls({baseSize}: {baseSize: number}) {
       {/* PREVIOUS */}
       <button
         className="grid size-full place-items-center"
-        onClick={isPreviousDisabled ? undefined : handlePreviousClick}
+        onClick={handlePreviousClick}
       >
-        <Previous
-          size={baseSize * 3}
-          fill={isPreviousDisabled ? 'gray' : fill}
-        />
+        <Previous size={baseSize * 3} fill={fill} />
       </button>
 
       {/* PLAY / PAUSE */}
