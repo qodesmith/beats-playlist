@@ -66,11 +66,9 @@ export function VolumeButton({
   )
 }
 
-const motion1Initial = {opacity: 0}
-const motion1Animate = {opacity: 1}
-const motion2Initial = {opacity: 1}
-const motion2Animate = {opacity: 0, zIndex: -1}
-const motionTransition = {duration: 0.25}
+const opacity0 = {opacity: 0} as const
+const opacity1 = {opacity: 1} as const
+const duration = {duration: 0.25} as const
 
 function AnimateVericalSlider({
   isOpen,
@@ -91,30 +89,12 @@ function AnimateVericalSlider({
 }) {
   return (
     <AnimatePresence mode="popLayout">
-      {isOpen ? (
+      {isOpen && (
         <motion.div
-          key={1}
-          className="relative"
-          initial={motion1Initial}
-          animate={motion1Animate}
-          transition={motionTransition}
-        >
-          <VerticalSlider
-            id={sliderId}
-            multiplier={multiplier}
-            maxMultiplier={maxMultiplier}
-            onChange={onChange}
-            onReset={onReset}
-            fill={fill}
-          />
-        </motion.div>
-      ) : (
-        <motion.div
-          key={2}
-          className="relative"
-          initial={motion2Initial}
-          animate={motion2Animate}
-          transition={motionTransition}
+          initial={opacity0}
+          animate={opacity1}
+          exit={opacity0}
+          transition={duration}
         >
           <VerticalSlider
             id={sliderId}

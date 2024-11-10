@@ -12,9 +12,9 @@ import {
 } from '../globalState'
 import {TestInfo} from './TestInfo'
 
-const duration = {duration: 0.5}
-const opacity0 = {opacity: 0}
-const opacity1 = {opacity: 1}
+const duration = {duration: 0.5} as const
+const opacity0 = {opacity: 0} as const
+const opacity1 = {opacity: 1} as const
 
 export function HomePage() {
   const isAppInitialized = useAtomValue(isAppInitializedAtom)
