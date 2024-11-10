@@ -60,7 +60,7 @@ export function AudioTimeSlider() {
  */
 function FormattedTime() {
   const currentTime = useAtomValue(timeProgressSelector)
-  return <div className="place-self-end">{currentTime}</div>
+  return <div className="select-none place-self-end">{currentTime}</div>
 }
 
 function SliderProgress() {
@@ -79,7 +79,11 @@ function Duration() {
   const previousDurationInSeconds = usePrevious(durationInSeconds)
   const seconds = durationInSeconds || previousDurationInSeconds
 
-  return <div>{seconds ? secondsToDuration(seconds) : '--:--'}</div>
+  return (
+    <div className="select-none">
+      {seconds ? secondsToDuration(seconds) : '--:--'}
+    </div>
+  )
 }
 
 function Ball() {

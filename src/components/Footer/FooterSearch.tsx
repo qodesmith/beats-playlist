@@ -47,7 +47,7 @@ export function FooterSearch({footerId}: {footerId: string}) {
       />
       <button
         type="submit"
-        className="hidden rounded border px-2 py-1 sm:block"
+        className="hidden select-none rounded border px-2 py-1 sm:block"
       >
         Search
       </button>

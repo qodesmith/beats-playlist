@@ -66,7 +66,7 @@ export function BeatListItem({video, rowNum}: Props) {
       {/* ROW NUMBER / DOTS */}
       {!isBelowMedium && (
         <div
-          className={clsx('flex items-center justify-end', {
+          className={clsx('flex select-none items-center justify-end', {
             'opacity-50': !isSelected,
             [highlightColorObj.text]: isSelected,
           })}
