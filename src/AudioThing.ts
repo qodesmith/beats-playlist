@@ -311,24 +311,6 @@ export async function handleWaveformClick(
   }
 }
 
-export function handleStartSlider(
-  e:
-    | React.MouseEvent<HTMLDivElement, MouseEvent>
-    | React.TouchEvent<HTMLDivElement>
-) {
-  const {width, left} = e.currentTarget.getBoundingClientRect()
-  const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
-  const offsetX = clientX - left
-  const position = offsetX / width // 0 -1
-  const audioThing = store.get(audioThingAtom)
-  const duration = audioThing?.audioBuffer.duration ?? 0
-  const secondsAtPosition = Math.floor(duration * position)
-
-  store.set(isSliderDraggingAtom, true)
-  store.set(sliderDraggingPositionAtom, position)
-  store.set(timeProgressAtom, secondsToDuration(secondsAtPosition))
-}
-
 export function handlePreviousClick() {
   loadPreviousOrNext('previous')
 }
@@ -361,6 +343,24 @@ function loadPreviousOrNext(type: 'previous' | 'next') {
   store.set(selectedBeatIdAtom, newBeatId)
   scrollElementIntoView(newBeatId, {behavior: 'smooth', block: 'nearest'})
   AudioThing.init(newBeatId)
+}
+
+export function handleStartSlider(
+  e:
+    | React.MouseEvent<HTMLDivElement, MouseEvent>
+    | React.TouchEvent<HTMLDivElement>
+) {
+  const {width, left} = e.currentTarget.getBoundingClientRect()
+  const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
+  const offsetX = clientX - left
+  const position = offsetX / width // 0 -1
+  const audioThing = store.get(audioThingAtom)
+  const duration = audioThing?.audioBuffer.duration ?? 0
+  const secondsAtPosition = Math.floor(duration * position)
+
+  store.set(isSliderDraggingAtom, true)
+  store.set(sliderDraggingPositionAtom, position)
+  store.set(timeProgressAtom, secondsToDuration(secondsAtPosition))
 }
 
 /**
