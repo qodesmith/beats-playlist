@@ -7,13 +7,12 @@ import {
   durationAtomSelector,
   handleStartSlider,
   progressPercentAtom,
-  timeProgressAtom,
+  timeProgressSelector,
 } from '../../AudioThing'
 import {sliderContainerId} from '../../constants'
 import {
   isSliderDraggingAtom,
   sliderContainerElementAtom,
-  sliderDraggingPositionAtom,
 } from '../../globalState'
 import {usePrevious} from '../../hooks/usePrevious'
 import {store} from '../../store'
@@ -60,22 +59,17 @@ export function AudioTimeSlider() {
  * having to re-render.
  */
 function FormattedTime() {
-  const currentTime = useAtomValue(timeProgressAtom)
+  const currentTime = useAtomValue(timeProgressSelector)
   return <div className="place-self-end">{currentTime}</div>
 }
 
 function SliderProgress() {
   const progressPercent = useAtomValue(progressPercentAtom)
-  const isSliderDragging = useAtomValue(isSliderDraggingAtom)
-  const sliderDragginPosition = useAtomValue(sliderDraggingPositionAtom)
-  const widthPercent = isSliderDragging
-    ? sliderDragginPosition * 100
-    : progressPercent
 
   return (
     <div
       className="absolute left-0 h-1 rounded bg-puerto-rico-400"
-      style={{width: `${widthPercent}%`}}
+      style={{width: `${progressPercent}%`}}
     />
   )
 }
@@ -91,10 +85,6 @@ function Duration() {
 function Ball() {
   const isDragging = useAtomValue(isSliderDraggingAtom)
   const progressPercent = useAtomValue(progressPercentAtom)
-  const sliderDraggingPosition = useAtomValue(sliderDraggingPositionAtom)
-  const leftPercent = isDragging
-    ? sliderDraggingPosition * 100
-    : progressPercent
 
   return (
     <div
@@ -104,7 +94,7 @@ function Ball() {
           'scale-[3]': isDragging,
         }
       )}
-      style={{left: `${leftPercent}%`}}
+      style={{left: `${progressPercent}%`}}
     />
   )
 }

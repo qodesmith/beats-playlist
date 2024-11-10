@@ -184,11 +184,6 @@ export function triggerVisualMetadataShuffle() {
   store.set(_isVisuallyShuffledAtom, true)
 }
 
-/**
- * Value of 0 - 1
- */
-export const sliderDraggingPositionAtom = atom(0)
-
 ////////////////////
 // SIZE CONTAINER //
 ////////////////////

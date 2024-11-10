@@ -14,7 +14,6 @@ import {
   selectedBeatIdAtom,
   shuffledMetadataNonVisualSelector,
   sliderContainerElementAtom,
-  sliderDraggingPositionAtom,
   visualMetadataSelector,
 } from './globalState'
 import {store} from './store'
@@ -144,14 +143,13 @@ class AudioThing {
       store.set(isPlayingAtom, false)
 
       /**
-       * Since progress is tracked via requestAnimationFrame, there may be a
+       * Since progress is polled via requestAnimationFrame, there may be a
        * single frame left to go by the time the beat ends that doesn't get
        * executed. This could leave us with something like 99.93% progress and
        * being 1 second shy of the full time. Therefore, We update progress
        * accordingly.
        */
       store.set(progressPercentAtom, 100)
-      store.set(timeProgressAtom, secondsToDuration(this.audioBuffer.duration))
     }
   }
 
@@ -174,14 +172,6 @@ class AudioThing {
     const time = (this.audioContext.currentTime + this.startTime) % duration
 
     return Number(((time / duration) * 100).toFixed(2))
-  }
-
-  getCurrentTime = () => {
-    const {duration} = this.audioBuffer
-    const percentMultiplier = this.getProgressPercent() / 100 // 0 - 1
-    const secondsPlayed = Math.floor(duration * percentMultiplier)
-
-    return secondsToDuration(secondsPlayed)
   }
 
   adjustGain = () => {
@@ -250,7 +240,6 @@ class AudioThing {
       requestAnimationFrame(() => {
         if (_this.getShouldContinuePolling()) {
           store.set(progressPercentAtom, _this.getProgressPercent())
-          store.set(timeProgressAtom, _this.getCurrentTime())
           poll()
         }
       })
@@ -353,14 +342,10 @@ export function handleStartSlider(
   const {width, left} = e.currentTarget.getBoundingClientRect()
   const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
   const offsetX = clientX - left
-  const position = offsetX / width // 0 -1
-  const audioThing = store.get(audioThingAtom)
-  const duration = audioThing?.audioBuffer.duration ?? 0
-  const secondsAtPosition = Math.floor(duration * position)
+  const progress = offsetX / width // 0 - 1
 
   store.set(isSliderDraggingAtom, true)
-  store.set(sliderDraggingPositionAtom, position)
-  store.set(timeProgressAtom, secondsToDuration(secondsAtPosition))
+  store.set(progressPercentAtom, progress * 100)
 }
 
 /**
@@ -380,19 +365,15 @@ export function handleMoveSlider(e: MouseEvent | TouchEvent) {
   const isSliderDragging = store.get(isSliderDraggingAtom)
 
   if (isSliderDragging) {
-    const duration = store.get(audioThingAtom)?.audioBuffer.duration ?? 0
-    let secondsAtPosition = 0
+    let progress = 0
 
     if (isInRange) {
-      const newPosition = (clientX - left) / width // 0 - 1
-      secondsAtPosition = Math.floor(duration * newPosition)
-      store.set(sliderDraggingPositionAtom, newPosition)
+      progress = (clientX - left) / width // 0 - 1
     } else {
-      secondsAtPosition = isBeforeRange ? 0 : duration
-      store.set(sliderDraggingPositionAtom, isBeforeRange ? 0 : 1)
+      progress = isBeforeRange ? 0 : 1
     }
 
-    store.set(timeProgressAtom, secondsToDuration(secondsAtPosition))
+    store.set(progressPercentAtom, progress * 100)
   }
 }
 
@@ -527,13 +508,19 @@ export const volumeMultiplierAtom = atom(
   }
 )
 
+/** 1 - 100 */
 export const progressPercentAtom = atom(0)
 
 /**
- * This atom powers the time progress indicator in the footer, an updated time
- * to the left of the slider - a string in the format of `<minutes>:<seconds>`.
+ * This selector powers the time progress in the footer, an updated time to the
+ * left of the slider - a string in the format of `<minutes>:<seconds>`.
  */
-export const timeProgressAtom = atom('0:00')
+export const timeProgressSelector = atom(get => {
+  const duration = get(audioThingAtom)?.audioBuffer.duration ?? 0
+  const progressPercent = get(progressPercentAtom)
+
+  return secondsToDuration(duration * (progressPercent / 100))
+})
 
 /**
  * This selector returns the duration of the audio. The unwrapped atomFamily
