@@ -142,6 +142,16 @@ class AudioThing {
       handleNextClick()
     } else if (repeatState === 'off') {
       store.set(isPlayingAtom, false)
+
+      /**
+       * Since progress is tracked via requestAnimationFrame, there may be a
+       * single frame left to go by the time the beat ends that doesn't get
+       * executed. This could leave us with something like 99.93% progress and
+       * being 1 second shy of the full time. Therefore, We update progress
+       * accordingly.
+       */
+      store.set(progressPercentAtom, 100)
+      store.set(timeProgressAtom, secondsToDuration(this.audioBuffer.duration))
     }
   }
 
