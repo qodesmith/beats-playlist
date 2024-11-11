@@ -1,9 +1,9 @@
 import type {ReactNode} from 'react'
 
 import clsx from 'clsx'
-import {AnimatePresence, motion} from 'framer-motion'
+import {AnimatePresence, motion, useMotionValue} from 'framer-motion'
 import {useAtom, useSetAtom} from 'jotai'
-import {useCallback, useEffect} from 'react'
+import {useCallback, useEffect, useLayoutEffect} from 'react'
 
 import {rowContextMenuClass, rowMenuButtonClass} from '../../constants'
 import {
@@ -11,6 +11,7 @@ import {
   rowContextMenuDataAtom,
   toastMessagesAtom,
 } from '../../globalState'
+import {useCompareTailwindBreakpoint} from '../../hooks/useCompareTailwindBreakpoint'
 import {CopyIcon} from '../icons/CopyIcon'
 import {NotepadIcon} from '../icons/NotepadIcon'
 import {ShareIcon} from '../icons/ShareIcon'
@@ -21,6 +22,7 @@ const animate = {opacity: 1, scale: 1, zIndex: 1} as const
 const exit = {opacity: 0, scale: 0.8, transitionEnd: {zIndex: -1}} as const
 
 export function RowContextMenu() {
+  const isMobile = useCompareTailwindBreakpoint('<', 'sm')
   const [rowContextMenuData, setRowContextMenuData] = useAtom(
     rowContextMenuDataAtom
   )
@@ -28,18 +30,7 @@ export function RowContextMenu() {
     ? initialMetadata.obj[rowContextMenuData.id]
     : null
   const setToastMessages = useSetAtom(toastMessagesAtom)
-  const style = (() => {
-    if (!rowContextMenuData) return
-
-    const {x, top} = rowContextMenuData
-    const menu = document.querySelector(`.${rowContextMenuClass}`)
-    const halfMenuHeight = (menu?.getBoundingClientRect().height ?? 0) / 2
-
-    return {
-      right: window.innerWidth - x + 20,
-      top: halfMenuHeight > top ? top : top - halfMenuHeight,
-    }
-  })()
+  const style = {top: useMotionValue(0), right: useMotionValue(0)} as const
   const handleCopy = useCallback(() => {
     const {origin} = new URL(window.location.href)
     navigator.clipboard.writeText(`${origin}?beatId=${beat?.id}`).then(() => {
@@ -67,6 +58,21 @@ export function RowContextMenu() {
 
     return () => window.removeEventListener('click', handler)
   }, [setRowContextMenuData])
+
+  useLayoutEffect(() => {
+    if (!rowContextMenuData) return
+
+    const {top, x} = rowContextMenuData
+    const menu = document.querySelector(`.${rowContextMenuClass}`)
+    const halfMenuHeight = (menu?.getBoundingClientRect().height ?? 0) / 2
+
+    if (isMobile) {
+      // Do something
+    } else {
+      style.top.set(halfMenuHeight > top ? top : top - halfMenuHeight)
+      style.right.set(window.innerWidth - x + 20)
+    }
+  }, [isMobile, rowContextMenuData, style.right, style.top])
 
   return (
     <AnimatePresence mode="popLayout">
