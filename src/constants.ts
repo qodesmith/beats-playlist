@@ -77,3 +77,8 @@ export const sliderContainerId = 'slider-container'
  * A `localStorage` key that stores the value of an `atomWithStorage`.
  */
 export const isPlaybackShuffledKey = 'isPlaybackShuffled'
+
+/**
+ * The triple-dot button in each row.
+ */
+export const rowMenuButtonClass = 'row-menu-button'

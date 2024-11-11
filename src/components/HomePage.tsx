@@ -3,6 +3,7 @@ import {useAtomValue} from 'jotai'
 
 import {AudioLoader} from './AudioLoader'
 import {BeatList} from './BeatList/BeatList'
+import {RowContextMenu} from './BeatList/RowContextMenu'
 import {Footer} from './Footer/Footer'
 import {Header} from './Header/Header'
 import {SearchDisplay} from './SearchDisplay'
@@ -21,35 +22,40 @@ export function HomePage() {
   const loadingProgress = useAtomValue(initialMetadataLoadingProgressAtom)
 
   return (
-    <AnimatePresence mode="popLayout">
-      {isAppInitialized ? (
-        <motion.div
-          key={1}
-          id="home-page"
-          className="flex h-full flex-col"
-          initial={opacity0}
-          animate={opacity1}
-          transition={duration}
-        >
-          {__DEV__ && <TestInfo />}
-          <Header />
-          <SearchDisplay />
-          <BeatList />
-          <Footer />
-        </motion.div>
-      ) : (
-        <motion.div
-          key={2}
-          className="grid h-full w-full place-content-center"
-          initial={opacity1}
-          animate={opacity1}
-          exit={opacity0}
-          transition={duration}
-        >
-          <AudioLoader size={100} />
-          <div className="text-center">{loadingProgress}%</div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <>
+      <AnimatePresence mode="popLayout">
+        {isAppInitialized ? (
+          <motion.div
+            key={1}
+            id="home-page"
+            className="flex h-full flex-col"
+            initial={opacity0}
+            animate={opacity1}
+            transition={duration}
+          >
+            {__DEV__ && <TestInfo />}
+            <Header />
+            <SearchDisplay />
+            <BeatList />
+            <Footer />
+          </motion.div>
+        ) : (
+          <motion.div
+            key={2}
+            className="grid h-full w-full place-content-center"
+            initial={opacity1}
+            animate={opacity1}
+            exit={opacity0}
+            transition={duration}
+          >
+            <AudioLoader size={100} />
+            <div className="text-center">{loadingProgress}%</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Popup context menu for beats in the list. */}
+      <RowContextMenu />
+    </>
   )
 }

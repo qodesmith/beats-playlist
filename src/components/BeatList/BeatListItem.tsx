@@ -76,7 +76,13 @@ export function BeatListItem({video, rowNum}: Props) {
       )}
 
       {/* MENU BUTTON - MOBILE */}
-      {isBelowMedium && <RowMenuButton className="px-2" type="vertical" />}
+      {isBelowMedium && (
+        <RowMenuButton
+          type="vertical"
+          isBelowMedium={isBelowMedium}
+          beatId={id}
+        />
+      )}
 
       {/* THUMBNAIL */}
       <button
@@ -167,8 +173,9 @@ export function BeatListItem({video, rowNum}: Props) {
       {/* MENU BUTTON - DESKTOP */}
       {!isBelowMedium && (
         <RowMenuButton
-          className="h-[30px] place-items-center place-self-center group-hover:grid"
           type="horizontal"
+          isBelowMedium={isBelowMedium}
+          beatId={id}
         />
       )}
     </div>

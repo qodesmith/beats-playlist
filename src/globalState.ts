@@ -200,11 +200,16 @@ export const sizeContainerAtomFamily = atomFamily((_id: string) => {
 // MENU / SEARCH //
 ///////////////////
 
+/**
+ * Header hamburger menu.
+ */
 export const isMenuOpenAtom = atom(false)
 
 export const searchAtom = atom('')
 
 export const isSearchOpenAtom = atom(false)
+
+export const rowContextMenuIdAtom = atom<string>()
 
 ////////////////
 // BREAKPOINT //

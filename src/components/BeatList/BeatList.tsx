@@ -1,16 +1,36 @@
+import clsx from 'clsx'
 import {useAtomValue} from 'jotai'
+import {memo} from 'react'
 
 import {BeatListItem} from './BeatListItem'
-import {visualMetadataSelector} from '../../globalState'
+import {rowContextMenuIdAtom, visualMetadataSelector} from '../../globalState'
 
 export function BeatList() {
-  const visualMetadata = useAtomValue(visualMetadataSelector)
+  const rowContextMenuId = useAtomValue(rowContextMenuIdAtom)
 
   return (
-    <div className="flex w-full flex-grow flex-col overflow-y-auto overflow-x-hidden px-2">
-      {visualMetadata.map((video, i) => {
-        return <BeatListItem key={video.id} video={video} rowNum={i + 1} />
-      })}
+    <div
+      className={clsx(
+        'flex w-full flex-grow flex-col overflow-x-hidden px-2',
+        rowContextMenuId ? 'overflow-y-hidden' : 'overflow-y-auto'
+      )}
+    >
+      <BeatListItems />
     </div>
   )
 }
+
+/**
+ * Prevent this list from re-rendering when its parent re-renders.
+ */
+const BeatListItems = memo(function BeatListItems() {
+  const visualMetadata = useAtomValue(visualMetadataSelector)
+
+  return (
+    <>
+      {visualMetadata.map((video, i) => {
+        return <BeatListItem key={video.id} video={video} rowNum={i + 1} />
+      })}
+    </>
+  )
+})
