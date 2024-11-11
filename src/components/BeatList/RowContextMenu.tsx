@@ -1,8 +1,8 @@
-import type {ReactNode} from 'react'
+import type {CSSProperties, ReactNode} from 'react'
 
 import clsx from 'clsx'
 import {useAtom, useSetAtom} from 'jotai'
-import {useCallback, useEffect, useRef} from 'react'
+import {useCallback, useEffect, useLayoutEffect, useRef, useState} from 'react'
 
 import {rowMenuButtonClass} from '../../constants'
 import {
@@ -20,6 +20,7 @@ export function RowContextMenu() {
   const ref = useRef<HTMLDivElement>(null)
   const beat = rowContextMenuId ? initialMetadata.obj[rowContextMenuId] : null
   const setToastMessages = useSetAtom(toastMessagesAtom)
+  const [menuStyle, setMenuStyle] = useState<CSSProperties>()
   const handleCopy = useCallback(() => {
     const {origin} = new URL(window.location.href)
     navigator.clipboard.writeText(`${origin}?beatId=${beat?.id}`).then(() => {
@@ -49,19 +50,28 @@ export function RowContextMenu() {
   }, [setRowContextMenuId])
 
   // Logic to position the menu.
-  useEffect(() => {
-    if (!rowContextMenuId) return
+  useLayoutEffect(() => {
+    if (!rowContextMenuId || !ref.current) return
 
+    const halfMenuHeight = ref.current.getBoundingClientRect().height / 2
     const menuButtonSelector = `#${rowContextMenuId} .${rowMenuButtonClass}`
     const menuButton = document.querySelector(menuButtonSelector) as Element
-    // const rect = menuButton.getBoundingClientRect()
+    const rect = menuButton.getBoundingClientRect()
+    const {top, x} = rect
+    const menuStyle = {
+      right: window.innerWidth - x + 20,
+      top: halfMenuHeight > top ? top : top - halfMenuHeight,
+    } as CSSProperties
+
+    setMenuStyle(menuStyle)
   }, [rowContextMenuId])
 
   return (
     <div
       ref={ref}
+      style={menuStyle}
       className={clsx(
-        'fixed top-0 select-none rounded border border-neutral-800 bg-black py-1 text-sm',
+        'fixed select-none rounded border border-neutral-800 bg-black py-1 text-sm',
         rowContextMenuId ? 'opacity-1' : '-z-50 opacity-0'
       )}
     >
@@ -131,7 +141,7 @@ function SectionTitle({children}: {children: ReactNode}) {
   return (
     <>
       <div className="mt-1 border-t border-neutral-800" />
-      <div className="py-3 font-bold">{children}</div>
+      <div className="py-3 pl-4 font-bold">{children}</div>
       <div className="mb-1 border-t border-neutral-800" />
     </>
   )
