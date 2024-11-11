@@ -3,9 +3,9 @@ import type {ReactNode} from 'react'
 import clsx from 'clsx'
 import {AnimatePresence, motion} from 'framer-motion'
 import {useAtom, useSetAtom} from 'jotai'
-import {useCallback, useEffect, useRef} from 'react'
+import {useCallback, useEffect} from 'react'
 
-import {rowMenuButtonClass} from '../../constants'
+import {rowContextMenuClass, rowMenuButtonClass} from '../../constants'
 import {
   initialMetadata,
   rowContextMenuDataAtom,
@@ -24,7 +24,6 @@ export function RowContextMenu() {
   const [rowContextMenuData, setRowContextMenuData] = useAtom(
     rowContextMenuDataAtom
   )
-  const ref = useRef<HTMLDivElement>(null)
   const beat = rowContextMenuData?.id
     ? initialMetadata.obj[rowContextMenuData.id]
     : null
@@ -33,7 +32,8 @@ export function RowContextMenu() {
     if (!rowContextMenuData) return
 
     const {x, top} = rowContextMenuData
-    const halfMenuHeight = ref.current?.getBoundingClientRect().height ?? 0 / 2
+    const menu = document.querySelector(`.${rowContextMenuClass}`)
+    const halfMenuHeight = (menu?.getBoundingClientRect().height ?? 0) / 2
 
     return {
       right: window.innerWidth - x + 20,
@@ -54,7 +54,8 @@ export function RowContextMenu() {
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       const target = e.target as Element
-      const isMenuClick = !!ref.current?.contains(target)
+      const contextMenu = document.querySelector(`.${rowContextMenuClass}`)
+      const isMenuClick = !!contextMenu?.contains(target)
       const isRowMenuButtonClick = !!target.closest(`.${rowMenuButtonClass}`)
 
       if (!isMenuClick && !isRowMenuButtonClick) {
@@ -72,12 +73,12 @@ export function RowContextMenu() {
       {rowContextMenuData && (
         <motion.div
           key={rowContextMenuData.id}
-          ref={ref}
           style={style}
           initial={initial}
           animate={animate}
           exit={exit}
           className={clsx(
+            rowContextMenuClass,
             'fixed select-none rounded border border-neutral-800 bg-black py-1 text-sm'
           )}
         >

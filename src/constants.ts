@@ -82,3 +82,8 @@ export const isPlaybackShuffledKey = 'isPlaybackShuffled'
  * The triple-dot button in each row.
  */
 export const rowMenuButtonClass = 'row-menu-button'
+
+/**
+ * The context menu opened by the triple-dot button in each row.
+ */
+export const rowContextMenuClass = 'row-context-menu'
