@@ -210,7 +210,16 @@ export const searchAtom = atom('')
 
 export const isSearchOpenAtom = atom(false)
 
-export const rowContextMenuIdAtom = atom<string>()
+export const rowContextMenuDataAtom = atom<{
+  id: string
+
+  /**
+   * These values belong to the triple-dot menu button. They are used to
+   * calculate where to position the context menu.
+   */
+  top: number
+  x: number
+}>()
 
 ////////////////
 // BREAKPOINT //

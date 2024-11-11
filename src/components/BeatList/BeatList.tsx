@@ -3,10 +3,10 @@ import {useAtomValue} from 'jotai'
 import {memo} from 'react'
 
 import {BeatListItem} from './BeatListItem'
-import {rowContextMenuIdAtom, visualMetadataSelector} from '../../globalState'
+import {rowContextMenuDataAtom, visualMetadataSelector} from '../../globalState'
 
 export function BeatList() {
-  const rowContextMenuId = useAtomValue(rowContextMenuIdAtom)
+  const rowContextMenuId = useAtomValue(rowContextMenuDataAtom)?.id
 
   return (
     <div

@@ -1,11 +1,11 @@
 import type {ComponentProps} from 'react'
 
 import clsx from 'clsx'
-import {useAtomValue, useSetAtom} from 'jotai'
-import {useCallback} from 'react'
+import {useAtom} from 'jotai'
+import {useCallback, useRef} from 'react'
 
 import {rowMenuButtonClass} from '../../constants'
-import {rowContextMenuIdAtom} from '../../globalState'
+import {rowContextMenuDataAtom} from '../../globalState'
 import {TripleDots} from '../TripleDots'
 
 export function RowMenuButton({
@@ -17,15 +17,21 @@ export function RowMenuButton({
   isBelowMedium: boolean
   beatId: string
 }) {
-  const rowContextMenuId = useAtomValue(rowContextMenuIdAtom)
-  const isRowMenuOpen = rowContextMenuId === beatId
-  const setRowContextMenuId = useSetAtom(rowContextMenuIdAtom)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const [rowContextMenuData, setRowContextMenuData] = useAtom(
+    rowContextMenuDataAtom
+  )
+  const isRowMenuOpen = rowContextMenuData?.id === beatId
   const handleClick = useCallback(() => {
-    setRowContextMenuId(beatId)
-  }, [beatId, setRowContextMenuId])
+    if (buttonRef.current) {
+      const {top, x} = buttonRef.current.getBoundingClientRect()
+      setRowContextMenuData({id: beatId, top, x})
+    }
+  }, [beatId, setRowContextMenuData])
 
   return (
     <button
+      ref={buttonRef}
       className={clsx(
         rowMenuButtonClass,
         'relative',
