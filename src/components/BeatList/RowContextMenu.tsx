@@ -26,7 +26,7 @@ export function RowContextMenu() {
       setRowContextMenuId(undefined)
       setToastMessages(msgs => [
         ...msgs,
-        {id: Date.now(), message: 'URL copied!'},
+        {id: Math.random(), message: 'URL copied!'},
       ])
     })
   }, [beat?.id, setRowContextMenuId, setToastMessages])
