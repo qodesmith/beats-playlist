@@ -52,7 +52,7 @@ class AudioThing {
   ) {
     this.id = id
     this.audioBuffer = audioBuffer
-    this.lufs = initialMetadata.data.find(item => item.id === id)?.lufs ?? null
+    this.lufs = initialMetadata.obj[id].lufs
 
     /**
      * https://developer.mozilla.org/en-US/docs/Web/API/AudioContext/AudioContext

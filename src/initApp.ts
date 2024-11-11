@@ -86,6 +86,11 @@ export function initApp() {
       // @ts-expect-error - this is the only place that mutates this object.
       initialMetadata.shuffledData = shuffleArray(metadata)
 
+      // Store an object version of the data for quick access via an id.
+      metadata.forEach(video => {
+        initialMetadata.obj[video.id] = video
+      })
+
       /**
        * If we don't have a beat id in the search params, we kick of fetching
        * the 1st beat in the metadata once it's loaded. Don't return the
