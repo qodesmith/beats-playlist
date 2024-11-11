@@ -12,6 +12,7 @@ import {
   isAppInitializedAtom,
 } from '../globalState'
 import {TestInfo} from './TestInfo'
+import {ToastContainer} from './Toast/Toast'
 
 const duration = {duration: 0.5} as const
 const opacity0 = {opacity: 0} as const
@@ -56,6 +57,9 @@ export function HomePage() {
 
       {/* Popup context menu for beats in the list. */}
       <RowContextMenu />
+
+      {/* Toast messages. */}
+      <ToastContainer />
     </>
   )
 }

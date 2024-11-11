@@ -23,7 +23,8 @@ import {secondsToPlainSentence} from './utils'
 export const initialMetadata: {
   readonly data: Video[]
   readonly shuffledData: Video[]
-} = {data: [], shuffledData: []}
+  readonly obj: Record<string, Video>
+} = {data: [], shuffledData: [], obj: {}}
 
 /**
  * This atom will resolve to true once the initial fetch calls in `initApp` have
@@ -216,3 +217,9 @@ export const rowContextMenuIdAtom = atom<string>()
 ////////////////
 
 export const tailwindBreakpointAtom = atom<TailwindBreakpoint | null>(null)
+
+///////////
+// TOAST //
+///////////
+
+export const toastMessagesAtom = atom<{id: number; message: string}[]>([])
