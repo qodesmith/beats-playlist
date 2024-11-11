@@ -24,13 +24,12 @@ export function RowContextMenu() {
   const handleCopy = useCallback(() => {
     const {origin} = new URL(window.location.href)
     navigator.clipboard.writeText(`${origin}?beatId=${beat?.id}`).then(() => {
-      setRowContextMenuId(undefined)
       setToastMessages(msgs => [
         ...msgs,
         {id: Math.random(), message: 'URL copied!'},
       ])
     })
-  }, [beat?.id, setRowContextMenuId, setToastMessages])
+  }, [beat?.id, setToastMessages])
 
   // Logic to hide the menu.
   useEffect(() => {
@@ -119,13 +118,21 @@ function ListItem({
   icon?: ReactNode
   onClick?: () => void
 }) {
+  const setRowContextMenuId = useSetAtom(rowContextMenuIdAtom)
+  const closeMenuOnClick = useCallback(() => {
+    if (!disabled) {
+      setRowContextMenuId(undefined)
+      onClick?.()
+    }
+  }, [disabled, onClick, setRowContextMenuId])
+
   return (
     <li
       className={clsx(
         'relative mx-1 rounded py-1 pl-10 pr-2 hover:bg-neutral-800',
         disabled ? 'cursor-not-allowed' : 'cursor-pointer'
       )}
-      onClick={onClick}
+      onClick={closeMenuOnClick}
     >
       <div className={clsx(disabled && 'opacity-30')}>
         {icon && (
