@@ -66,6 +66,7 @@ function RowContextMenu({beatId}: {beatId: string}) {
   const setToastMessages = useSetAtom(toastMessagesAtom)
   const menuRef = useRef<HTMLUListElement>(null)
   const menuId = `${rowContextMenuClass}-${beatId}`
+  const {channelUrl} = initialMetadata.obj[beatId]
 
   // Copy URL handler.
   const handleCopy = useCallback(() => {
@@ -105,8 +106,19 @@ function RowContextMenu({beatId}: {beatId: string}) {
       <ListItem icon={<CopyIcon size={16} />} onClick={handleCopy}>
         Copy link
       </ListItem>
-      <ListItem icon={<YouTubeLogo size={14} />}>YouTube video</ListItem>
-      <ListItem icon={<YouTubeLogo size={14} />}>YouTube channel</ListItem>
+      <ListItem
+        icon={<YouTubeLogo size={14} />}
+        href={`https://youtube.com/watch?v=${beatId}`}
+      >
+        YouTube video
+      </ListItem>
+      <ListItem
+        icon={<YouTubeLogo size={14} />}
+        href={channelUrl}
+        disabled={!channelUrl}
+      >
+        YouTube channel
+      </ListItem>
 
       <li className="py-2">
         <hr className="border-neutral-800" />
@@ -131,11 +143,13 @@ function ListItem({
   disabled,
   icon,
   onClick,
+  href,
 }: {
   children: ReactNode
   disabled?: boolean
   icon?: ReactNode
   onClick?: () => void
+  href?: string | null | undefined
 }) {
   const setRowContextMenuData = useSetAtom(rowContextMenuDataAtom)
   const isMobile = useCompareTailwindBreakpoint('<', 'md')
@@ -145,6 +159,15 @@ function ListItem({
       onClick?.()
     }
   }, [disabled, onClick, setRowContextMenuData])
+
+  const content = (
+    <>
+      {icon && (
+        <div className="absolute left-3 top-1/2 -translate-y-1/2">{icon}</div>
+      )}
+      {children}
+    </>
+  )
 
   return (
     <li
@@ -156,10 +179,13 @@ function ListItem({
       )}
     >
       <div className={disabled ? 'opacity-30' : undefined}>
-        {icon && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2">{icon}</div>
+        {href ? (
+          <a href={href} target="_blank">
+            {content}
+          </a>
+        ) : (
+          content
         )}
-        {children}
       </div>
     </li>
   )
