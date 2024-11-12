@@ -6,6 +6,7 @@ import {useCallback, useRef} from 'react'
 
 import {rowMenuButtonClass} from '../../constants'
 import {rowContextMenuDataAtom} from '../../globalState'
+import {useCompareTailwindBreakpoint} from '../../hooks/useCompareTailwindBreakpoint'
 import {TripleDots} from '../TripleDots'
 
 export function RowMenuButton({
@@ -18,16 +19,19 @@ export function RowMenuButton({
   beatId: string
 }) {
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const isMobile = useCompareTailwindBreakpoint('<', 'md')
   const [rowContextMenuData, setRowContextMenuData] = useAtom(
     rowContextMenuDataAtom
   )
   const isRowMenuOpen = rowContextMenuData?.id === beatId
   const handleClick = useCallback(() => {
-    if (buttonRef.current) {
+    if (isMobile && rowContextMenuData) {
+      setRowContextMenuData(undefined)
+    } else if (buttonRef.current) {
       const {top, x} = buttonRef.current.getBoundingClientRect()
       setRowContextMenuData({id: beatId, top, x})
     }
-  }, [beatId, setRowContextMenuData])
+  }, [beatId, isMobile, rowContextMenuData, setRowContextMenuData])
 
   return (
     <button

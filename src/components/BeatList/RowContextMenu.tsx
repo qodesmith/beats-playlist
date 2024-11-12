@@ -12,6 +12,7 @@ import {
   toastMessagesAtom,
 } from '../../globalState'
 import {useCompareTailwindBreakpoint} from '../../hooks/useCompareTailwindBreakpoint'
+import {CloseButton} from '../CloseButton'
 import {CopyIcon} from '../icons/CopyIcon'
 import {NotepadIcon} from '../icons/NotepadIcon'
 import {ShareIcon} from '../icons/ShareIcon'
@@ -22,13 +23,17 @@ const animate = {opacity: 1, scale: 1, zIndex: 1} as const
 const exit = {opacity: 0, scale: 0.8, transitionEnd: {zIndex: -1}} as const
 
 export function RowContextMenu() {
-  const isMobile = useCompareTailwindBreakpoint('<', 'sm')
+  const isMobile = useCompareTailwindBreakpoint('<', 'md')
   const [rowContextMenuData, setRowContextMenuData] = useAtom(
     rowContextMenuDataAtom
   )
+  const closeMenu = useCallback(() => {
+    setRowContextMenuData(undefined)
+  }, [setRowContextMenuData])
   const beat = rowContextMenuData?.id
     ? initialMetadata.obj[rowContextMenuData.id]
     : null
+  const menuId = beat ? `context-menu-${beat.id}` : undefined
   const setToastMessages = useSetAtom(toastMessagesAtom)
   const style = {top: useMotionValue(0), right: useMotionValue(0)} as const
   const handleCopy = useCallback(() => {
@@ -41,37 +46,37 @@ export function RowContextMenu() {
     })
   }, [beat?.id, setToastMessages])
 
-  // Logic to hide the menu.
+  /**
+   * Logic to hide the menu.
+   * NOTE: Clicking menu items is already handled in the items themselves.
+   */
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       const target = e.target as Element
-      const contextMenu = document.querySelector(`.${rowContextMenuClass}`)
-      const isMenuClick = !!contextMenu?.contains(target)
-      const isRowMenuButtonClick = !!target.closest(`.${rowMenuButtonClass}`)
+      const menu = menuId ? document.getElementById(menuId) : null
+      const shouldCloseMenu =
+        !menu?.contains(target) && !target.closest(`.${rowMenuButtonClass}`)
 
-      if (!isMenuClick && !isRowMenuButtonClick) {
-        setRowContextMenuData(undefined)
+      if (shouldCloseMenu) {
+        closeMenu()
       }
     }
 
     window.addEventListener('click', handler)
 
     return () => window.removeEventListener('click', handler)
-  }, [setRowContextMenuData])
+  }, [closeMenu, menuId])
 
+  // Logic to position the menu (non-mobile).
   useLayoutEffect(() => {
-    if (!rowContextMenuData) return
+    if (!rowContextMenuData || isMobile) return
 
     const {top, x} = rowContextMenuData
     const menu = document.querySelector(`.${rowContextMenuClass}`)
     const halfMenuHeight = (menu?.getBoundingClientRect().height ?? 0) / 2
 
-    if (isMobile) {
-      // Do something
-    } else {
-      style.top.set(halfMenuHeight > top ? top : top - halfMenuHeight)
-      style.right.set(window.innerWidth - x + 20)
-    }
+    style.top.set(halfMenuHeight > top ? top : top - halfMenuHeight)
+    style.right.set(window.innerWidth - x + 20)
   }, [isMobile, rowContextMenuData, style.right, style.top])
 
   return (
@@ -79,15 +84,21 @@ export function RowContextMenu() {
       {rowContextMenuData && (
         <motion.div
           key={rowContextMenuData.id}
-          style={style}
+          id={menuId}
+          style={isMobile ? undefined : style}
           initial={initial}
           animate={animate}
           exit={exit}
           className={clsx(
             rowContextMenuClass,
-            'fixed select-none rounded border border-neutral-800 bg-black py-1 text-sm'
+            'fixed bottom-0 w-full select-none rounded border border-neutral-800 bg-black py-1 md:bottom-auto md:w-auto md:text-sm'
           )}
         >
+          {isMobile && (
+            <div className="flex justify-end pb-2 pt-1">
+              <CloseButton onClick={closeMenu} />
+            </div>
+          )}
           <ul>
             <ListItem icon={<CopyIcon size={14} />} onClick={handleCopy}>
               Copy link
@@ -137,6 +148,7 @@ function ListItem({
   onClick?: () => void
 }) {
   const setRowContextMenuData = useSetAtom(rowContextMenuDataAtom)
+  const isMobile = useCompareTailwindBreakpoint('<', 'md')
   const closeMenuOnClick = useCallback(() => {
     if (!disabled) {
       setRowContextMenuData(undefined)
@@ -148,8 +160,9 @@ function ListItem({
     <li
       onClick={closeMenuOnClick}
       className={clsx(
-        'relative mx-1 rounded py-1 pl-10 pr-2 hover:bg-neutral-800',
-        disabled ? 'cursor-not-allowed' : 'cursor-pointer'
+        'relative mx-1 rounded pl-10 pr-2 hover:bg-neutral-800',
+        disabled ? 'cursor-not-allowed' : 'cursor-pointer',
+        isMobile ? 'py-2' : 'py-1'
       )}
     >
       <div className={disabled ? 'opacity-30' : undefined}>
