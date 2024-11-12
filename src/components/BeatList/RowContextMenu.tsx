@@ -63,8 +63,19 @@ export function RowContextMenuContainer() {
 
 function RowContextMenu({beatId}: {beatId: string}) {
   const setRowContextMenuData = useSetAtom(rowContextMenuDataAtom)
+  const setToastMessages = useSetAtom(toastMessagesAtom)
   const menuRef = useRef<HTMLUListElement>(null)
   const menuId = `${rowContextMenuClass}-${beatId}`
+
+  // Copy URL handler.
+  const handleCopy = useCallback(() => {
+    const url = `${window.location.origin}?beatId=${beatId}`
+
+    navigator.clipboard.writeText(url).then(() => {
+      const newMessage = {id: Math.random(), message: 'URL copied!'}
+      setToastMessages(messages => [...messages, newMessage])
+    })
+  }, [beatId, setToastMessages])
 
   // Close menu when clicking outside of it.
   useEffect(() => {
@@ -91,7 +102,9 @@ function RowContextMenu({beatId}: {beatId: string}) {
 
   return (
     <ul ref={menuRef} id={menuId}>
-      <ListItem icon={<CopyIcon size={16} />}>Copy link</ListItem>
+      <ListItem icon={<CopyIcon size={16} />} onClick={handleCopy}>
+        Copy link
+      </ListItem>
       <ListItem icon={<YouTubeLogo size={14} />}>YouTube video</ListItem>
       <ListItem icon={<YouTubeLogo size={14} />}>YouTube channel</ListItem>
 
