@@ -51,12 +51,23 @@ export function RowContextMenuContainer() {
     <AnimatePresence mode="popLayout">
       {rowContextMenuData && (
         <motion.div
+          /**
+           * Since Framer Motion handles duplicate components in the DOM during
+           * transition, to get simultaneous fade out / fade in transitions, we
+           * need to provide a key. If no key is provided, the component will
+           * transition in, but swap immediately (i.e. no transition) to the
+           * second component rendered on the screen.
+           */
+          key={rowContextMenuData.beatId}
           id={motionDivId}
           className={clsx(
             'fixed select-none rounded border border-neutral-800 bg-black py-1 text-sm',
             isMobile && 'bottom-0 w-full'
           )}
           style={isMobile ? undefined : style}
+          initial={initial}
+          animate={animate}
+          exit={exit}
         >
           <RowContextMenu beatId={rowContextMenuData.beatId} />
         </motion.div>
@@ -92,13 +103,11 @@ function RowContextMenu({beatId}: {beatId: string}) {
   useEffect(() => {
     function handler(e: MouseEvent) {
       if (menuRef.current) {
-        const target = e.target as Node
+        const target = e.target as Element
         const isMenuClick = menuRef.current.contains(target)
-        const thisMenuButtonSelector = `${rowMenuButtonClass}-${beatId}`
-        const thisMenuButton = document.getElementById(thisMenuButtonSelector)
-        const isThisMenuButtonClick = !!thisMenuButton?.contains(target)
+        const isMenuButtonClick = !!target.closest(`.${rowMenuButtonClass}`)
 
-        if (!isMenuClick && !isThisMenuButtonClick) {
+        if (!isMenuClick && !isMenuButtonClick) {
           closeMenu()
         }
       }
