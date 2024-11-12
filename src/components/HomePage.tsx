@@ -3,7 +3,7 @@ import {useAtomValue} from 'jotai'
 
 import {AudioLoader} from './AudioLoader'
 import {BeatList} from './BeatList/BeatList'
-import {RowContextMenu} from './BeatList/RowContextMenu'
+import {RowContextMenuContainer} from './BeatList/RowContextMenu'
 import {Footer} from './Footer/Footer'
 import {Header} from './Header/Header'
 import {SearchDisplay} from './SearchDisplay'
@@ -56,7 +56,7 @@ export function HomePage() {
       </AnimatePresence>
 
       {/* Popup context menu for beats in the list. */}
-      <RowContextMenu />
+      <RowContextMenuContainer />
 
       {/* Toast messages. */}
       <ToastContainer />

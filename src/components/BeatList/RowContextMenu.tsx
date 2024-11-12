@@ -2,8 +2,8 @@ import type {ReactNode} from 'react'
 
 import clsx from 'clsx'
 import {AnimatePresence, motion, useMotionValue} from 'framer-motion'
-import {useAtom, useSetAtom} from 'jotai'
-import {useCallback, useEffect, useLayoutEffect} from 'react'
+import {useAtomValue, useSetAtom} from 'jotai'
+import {useCallback, useEffect, useLayoutEffect, useMemo, useRef} from 'react'
 
 import {rowContextMenuClass, rowMenuButtonClass} from '../../constants'
 import {
@@ -22,117 +22,94 @@ const initial = {opacity: 0, scale: 0.8, zIndex: -1} as const
 const animate = {opacity: 1, scale: 1, zIndex: 1} as const
 const exit = {opacity: 0, scale: 0.8, transitionEnd: {zIndex: -1}} as const
 
-export function RowContextMenu() {
-  const isMobile = useCompareTailwindBreakpoint('<', 'md')
-  const [rowContextMenuData, setRowContextMenuData] = useAtom(
-    rowContextMenuDataAtom
+export function RowContextMenuContainer() {
+  const rowContextMenuData = useAtomValue(rowContextMenuDataAtom)
+  const motionTop = useMotionValue(0)
+  const motionRight = useMotionValue(0)
+  const motionDivId = `motion-div-${rowContextMenuClass}`
+  const style = useMemo(
+    () => ({top: motionTop, right: motionRight}),
+    [motionRight, motionTop]
   )
-  const closeMenu = useCallback(() => {
-    setRowContextMenuData(undefined)
-  }, [setRowContextMenuData])
-  const beat = rowContextMenuData?.id
-    ? initialMetadata.obj[rowContextMenuData.id]
-    : null
-  const menuId = beat ? `context-menu-${beat.id}` : undefined
-  const setToastMessages = useSetAtom(toastMessagesAtom)
-  const style = {top: useMotionValue(0), right: useMotionValue(0)} as const
-  const handleCopy = useCallback(() => {
-    const {origin} = new URL(window.location.href)
-    navigator.clipboard.writeText(`${origin}?beatId=${beat?.id}`).then(() => {
-      setToastMessages(msgs => [
-        ...msgs,
-        {id: Math.random(), message: 'URL copied!'},
-      ])
-    })
-  }, [beat?.id, setToastMessages])
 
-  /**
-   * Logic to hide the menu.
-   * NOTE: Clicking menu items is already handled in the items themselves.
-   */
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      const target = e.target as Element
-      const menu = menuId ? document.getElementById(menuId) : null
-      const shouldCloseMenu =
-        !menu?.contains(target) && !target.closest(`.${rowMenuButtonClass}`)
-
-      if (shouldCloseMenu) {
-        closeMenu()
-      }
-    }
-
-    window.addEventListener('click', handler)
-
-    return () => window.removeEventListener('click', handler)
-  }, [closeMenu, menuId])
-
-  // Logic to position the menu (non-mobile).
+  // Calculate the position of the menu.
   useLayoutEffect(() => {
-    if (!rowContextMenuData || isMobile) return
+    if (rowContextMenuData) {
+      const {height, top, left} = rowContextMenuData
+      const motionDiv = document.getElementById(motionDivId)!
+      const menuHeight = motionDiv.getBoundingClientRect().height
+      const hasSpaceBelow = menuHeight < window.innerHeight - top
+      const newTop = hasSpaceBelow ? top : top + height - menuHeight
 
-    const {top, x} = rowContextMenuData
-    const menu = document.querySelector(`.${rowContextMenuClass}`)
-    const halfMenuHeight = (menu?.getBoundingClientRect().height ?? 0) / 2
-
-    style.top.set(halfMenuHeight > top ? top : top - halfMenuHeight)
-    style.right.set(window.innerWidth - x + 20)
-  }, [isMobile, rowContextMenuData, style.right, style.top])
+      motionTop.set(newTop)
+      motionRight.set(window.innerWidth - left + 24)
+    }
+  }, [motionDivId, motionRight, motionTop, rowContextMenuData])
 
   return (
     <AnimatePresence mode="popLayout">
       {rowContextMenuData && (
         <motion.div
-          key={rowContextMenuData.id}
-          id={menuId}
-          style={isMobile ? undefined : style}
-          initial={initial}
-          animate={animate}
-          exit={exit}
-          className={clsx(
-            rowContextMenuClass,
-            'fixed bottom-0 w-full select-none rounded border border-neutral-800 bg-black py-1 md:bottom-auto md:w-auto md:text-sm'
-          )}
+          id={motionDivId}
+          className="fixed select-none rounded border border-neutral-800 bg-black py-1 text-sm"
+          style={style}
         >
-          {isMobile && (
-            <div className="flex justify-end pb-2 pt-1">
-              <CloseButton onClick={closeMenu} />
-            </div>
-          )}
-          <ul>
-            <ListItem icon={<CopyIcon size={14} />} onClick={handleCopy}>
-              Copy link
-            </ListItem>
-            <a href={`https://youtube.com/watch?v=${beat?.id}`} target="_blank">
-              <ListItem icon={<YouTubeLogo size={12} />}>
-                YouTube video
-              </ListItem>
-            </a>
-            <a href={beat?.channelUrl ?? undefined} target="_blank">
-              <ListItem
-                icon={<YouTubeLogo size={12} />}
-                disabled={!beat?.channelUrl}
-              >
-                YouTube channel
-              </ListItem>
-            </a>
-
-            <SectionTitle>Coming soon</SectionTitle>
-
-            <ListItem disabled icon={<ShareIcon size={14} />}>
-              Share link
-            </ListItem>
-            <ListItem disabled icon="">
-              Add to playlist
-            </ListItem>
-            <ListItem disabled>Remove from playlist</ListItem>
-            <ListItem disabled icon={<NotepadIcon size={14} />}>
-              Open pad for lyrics
-            </ListItem>
-          </ul>
+          <RowContextMenu beatId={rowContextMenuData.beatId} />
         </motion.div>
       )}
     </AnimatePresence>
+  )
+}
+
+function RowContextMenu({beatId}: {beatId: string}) {
+  const setRowContextMenuData = useSetAtom(rowContextMenuDataAtom)
+  const menuRef = useRef<HTMLUListElement>(null)
+  const menuId = `${rowContextMenuClass}-${beatId}`
+
+  // Close menu when clicking outside of it.
+  useEffect(() => {
+    function handler(e: MouseEvent) {
+      if (menuRef.current) {
+        const target = e.target as Node
+        const isMenuClick = menuRef.current.contains(target)
+        const thisMenuButtonSelector = `${rowMenuButtonClass}-${beatId}`
+        const thisMenuButton = document.getElementById(thisMenuButtonSelector)
+        const isThisMenuButtonClick = !!thisMenuButton?.contains(target)
+
+        if (!isMenuClick && !isThisMenuButtonClick) {
+          setRowContextMenuData(undefined)
+        }
+      }
+    }
+
+    window.addEventListener('click', handler)
+
+    return () => {
+      window.removeEventListener('click', handler)
+    }
+  }, [beatId, setRowContextMenuData])
+
+  return (
+    <ul ref={menuRef} id={menuId}>
+      <ListItem icon={<CopyIcon size={16} />}>Copy link</ListItem>
+      <ListItem icon={<YouTubeLogo size={14} />}>YouTube video</ListItem>
+      <ListItem icon={<YouTubeLogo size={14} />}>YouTube channel</ListItem>
+
+      <li className="py-2">
+        <hr className="border-neutral-800" />
+        <div className="py-4 pl-11 font-bold">Coming soon</div>
+        <hr className="border-neutral-800" />
+      </li>
+
+      <ListItem disabled icon={<ShareIcon size={14} />}>
+        Share link
+      </ListItem>
+      <ListItem disabled>Add to playlist</ListItem>
+      <ListItem disabled>Remove from playlist</ListItem>
+      <ListItem disabled icon={<NotepadIcon size={14} />}>
+        Open pad for lyrics
+      </ListItem>
+    </ul>
   )
 }
 
@@ -160,9 +137,9 @@ function ListItem({
     <li
       onClick={closeMenuOnClick}
       className={clsx(
-        'relative mx-1 rounded pl-10 pr-2',
+        'relative mx-1 rounded py-2 pl-10 pr-2',
         disabled ? 'cursor-not-allowed' : 'cursor-pointer',
-        isMobile ? 'py-2' : 'py-1 hover:bg-neutral-800'
+        !isMobile && 'hover:bg-neutral-800'
       )}
     >
       <div className={disabled ? 'opacity-30' : undefined}>
@@ -172,15 +149,5 @@ function ListItem({
         {children}
       </div>
     </li>
-  )
-}
-
-function SectionTitle({children}: {children: ReactNode}) {
-  return (
-    <>
-      <div className="mt-1 border-t border-neutral-800" />
-      <div className="py-3 pl-4 font-bold">{children}</div>
-      <div className="mb-1 border-t border-neutral-800" />
-    </>
   )
 }

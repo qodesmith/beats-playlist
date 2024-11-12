@@ -23,18 +23,20 @@ export function RowMenuButton({
   const [rowContextMenuData, setRowContextMenuData] = useAtom(
     rowContextMenuDataAtom
   )
-  const isRowMenuOpen = rowContextMenuData?.id === beatId
+  const isRowMenuOpen = rowContextMenuData?.beatId === beatId
   const handleClick = useCallback(() => {
     if (isMobile && rowContextMenuData) {
       setRowContextMenuData(undefined)
     } else if (buttonRef.current) {
-      const {top, x} = buttonRef.current.getBoundingClientRect()
-      setRowContextMenuData({id: beatId, top, x})
+      const {height, top, bottom, left} =
+        buttonRef.current.getBoundingClientRect()
+      setRowContextMenuData({beatId, height, top, bottom, left})
     }
   }, [beatId, isMobile, rowContextMenuData, setRowContextMenuData])
 
   return (
     <button
+      id={`${rowMenuButtonClass}-${beatId}`}
       ref={buttonRef}
       className={clsx(
         rowMenuButtonClass,

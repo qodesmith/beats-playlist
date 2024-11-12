@@ -211,14 +211,16 @@ export const searchAtom = atom('')
 export const isSearchOpenAtom = atom(false)
 
 export const rowContextMenuDataAtom = atom<{
-  id: string
+  beatId: string
 
   /**
    * These values belong to the triple-dot menu button. They are used to
    * calculate where to position the context menu.
    */
+  height: number
   top: number
-  x: number
+  bottom: number
+  left: number
 }>()
 
 ////////////////
