@@ -6,13 +6,13 @@ import {BeatListItem} from './BeatListItem'
 import {rowContextMenuDataAtom, visualMetadataSelector} from '../../globalState'
 
 export function BeatList() {
-  const rowContextMenuId = useAtomValue(rowContextMenuDataAtom)?.id
+  const isMenuOpen = !!useAtomValue(rowContextMenuDataAtom)
 
   return (
     <div
       className={clsx(
         'flex w-full flex-grow flex-col overflow-x-hidden px-2',
-        rowContextMenuId ? 'overflow-y-hidden' : 'overflow-y-auto'
+        isMenuOpen ? 'overflow-y-hidden' : 'overflow-y-auto'
       )}
     >
       <BeatListItems />
