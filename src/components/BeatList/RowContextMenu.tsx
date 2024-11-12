@@ -160,9 +160,9 @@ function ListItem({
     <li
       onClick={closeMenuOnClick}
       className={clsx(
-        'relative mx-1 rounded pl-10 pr-2 hover:bg-neutral-800',
+        'relative mx-1 rounded pl-10 pr-2',
         disabled ? 'cursor-not-allowed' : 'cursor-pointer',
-        isMobile ? 'py-2' : 'py-1'
+        isMobile ? 'py-2' : 'py-1 hover:bg-neutral-800'
       )}
     >
       <div className={disabled ? 'opacity-30' : undefined}>
