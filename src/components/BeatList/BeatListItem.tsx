@@ -11,7 +11,6 @@ import {highlightColorObj} from '../../constants'
 import {selectedArtistAtom, selectedBeatIdAtom} from '../../globalState'
 import {useCompareTailwindBreakpoint} from '../../hooks/useCompareTailwindBreakpoint'
 import {Play} from '../Player/ControlIcons'
-import {YouTubeLogo} from '../YouTubeLogo'
 
 type Props = {
   video: Video
@@ -19,14 +18,7 @@ type Props = {
 }
 
 export function BeatListItem({video, rowNum}: Props) {
-  const {
-    id,
-    title,
-    channelName,
-    dateAddedToPlaylist,
-    durationInSeconds,
-    channelUrl,
-  } = video
+  const {id, title, channelName, dateAddedToPlaylist, durationInSeconds} = video
   const [shouldScrollTitle, setShouldScrollTitle] = useState(false)
   const scrollRef = useRef<{difference: number; percent: number} | undefined>()
   const [selectedBeatId, setSelectedBeatId] = useAtom(selectedBeatIdAtom)
@@ -138,24 +130,19 @@ export function BeatListItem({video, rowNum}: Props) {
         >
           {title}
         </button>
-        <div className="flex items-center gap-3">
-          <a href={channelUrl ?? '#'} target="_blank">
-            <YouTubeLogo size={15} />
-          </a>
-          <button
-            className={clsx(
-              highlightColorObj.textHover,
-              'p-0.5 pl-0 text-sm text-neutral-500 md:p-1 md:pl-0'
-            )}
-            onClick={() => {
-              setSelectedArtist(v => {
-                return v === undefined ? channelName : undefined
-              })
-            }}
-          >
-            {channelName || <>&mdash;</>}
-          </button>
-        </div>
+        <button
+          className={clsx(
+            highlightColorObj.textHover,
+            'p-0.5 pl-0 text-sm text-neutral-500 md:p-1 md:pl-0'
+          )}
+          onClick={() => {
+            setSelectedArtist(v => {
+              return v === undefined ? channelName : undefined
+            })
+          }}
+        >
+          {channelName || <>&mdash;</>}
+        </button>
       </div>
 
       {/* DATE ADDED */}
