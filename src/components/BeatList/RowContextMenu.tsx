@@ -24,6 +24,7 @@ const exit = {opacity: 0, scale: 0.8, transitionEnd: {zIndex: -1}} as const
 
 export function RowContextMenuContainer() {
   const rowContextMenuData = useAtomValue(rowContextMenuDataAtom)
+  const isMobile = useCompareTailwindBreakpoint('<', 'md')
   const motionTop = useMotionValue(0)
   const motionRight = useMotionValue(0)
   const motionDivId = `motion-div-${rowContextMenuClass}`
@@ -34,7 +35,7 @@ export function RowContextMenuContainer() {
 
   // Calculate the position of the menu.
   useLayoutEffect(() => {
-    if (rowContextMenuData) {
+    if (rowContextMenuData && !isMobile) {
       const {height, top, left} = rowContextMenuData
       const motionDiv = document.getElementById(motionDivId)!
       const menuHeight = motionDiv.getBoundingClientRect().height
@@ -44,15 +45,18 @@ export function RowContextMenuContainer() {
       motionTop.set(newTop)
       motionRight.set(window.innerWidth - left + 24)
     }
-  }, [motionDivId, motionRight, motionTop, rowContextMenuData])
+  }, [isMobile, motionDivId, motionRight, motionTop, rowContextMenuData])
 
   return (
     <AnimatePresence mode="popLayout">
       {rowContextMenuData && (
         <motion.div
           id={motionDivId}
-          className="fixed select-none rounded border border-neutral-800 bg-black py-1 text-sm"
-          style={style}
+          className={clsx(
+            'fixed select-none rounded border border-neutral-800 bg-black py-1 text-sm',
+            isMobile && 'bottom-0 w-full'
+          )}
+          style={isMobile ? undefined : style}
         >
           <RowContextMenu beatId={rowContextMenuData.beatId} />
         </motion.div>
@@ -64,9 +68,15 @@ export function RowContextMenuContainer() {
 function RowContextMenu({beatId}: {beatId: string}) {
   const setRowContextMenuData = useSetAtom(rowContextMenuDataAtom)
   const setToastMessages = useSetAtom(toastMessagesAtom)
+  const isMobile = useCompareTailwindBreakpoint('<', 'md')
   const menuRef = useRef<HTMLUListElement>(null)
   const menuId = `${rowContextMenuClass}-${beatId}`
   const {channelUrl} = initialMetadata.obj[beatId]
+
+  // Close menu handler.
+  const closeMenu = useCallback(() => {
+    setRowContextMenuData(undefined)
+  }, [setRowContextMenuData])
 
   // Copy URL handler.
   const handleCopy = useCallback(() => {
@@ -89,7 +99,7 @@ function RowContextMenu({beatId}: {beatId: string}) {
         const isThisMenuButtonClick = !!thisMenuButton?.contains(target)
 
         if (!isMenuClick && !isThisMenuButtonClick) {
-          setRowContextMenuData(undefined)
+          closeMenu()
         }
       }
     }
@@ -99,10 +109,15 @@ function RowContextMenu({beatId}: {beatId: string}) {
     return () => {
       window.removeEventListener('click', handler)
     }
-  }, [beatId, setRowContextMenuData])
+  }, [beatId, closeMenu])
 
   return (
     <ul ref={menuRef} id={menuId}>
+      {isMobile && (
+        <li className="text-right">
+          <CloseButton onClick={closeMenu} />
+        </li>
+      )}
       <ListItem icon={<CopyIcon size={16} />} onClick={handleCopy}>
         Copy link
       </ListItem>
@@ -163,7 +178,11 @@ function ListItem({
   const content = (
     <>
       {icon && (
-        <div className="absolute left-3 top-1/2 -translate-y-1/2">{icon}</div>
+        // Padding increases the click surface area. This is clickable because
+        // it's rendered inside an element with a click event handler.
+        <div className="absolute left-1 top-1/2 -translate-y-1/2 p-2">
+          {icon}
+        </div>
       )}
       {children}
     </>
@@ -171,16 +190,27 @@ function ListItem({
 
   return (
     <li
-      onClick={closeMenuOnClick}
       className={clsx(
-        'relative mx-1 rounded py-2 pl-10 pr-2',
+        'relative mx-1 rounded pl-10 pr-2',
         disabled ? 'cursor-not-allowed' : 'cursor-pointer',
         !isMobile && 'hover:bg-neutral-800'
       )}
     >
-      <div className={disabled ? 'opacity-30' : undefined}>
+      <div
+        onClick={!href ? closeMenuOnClick : undefined}
+        className={clsx(
+          isMobile ? 'inline-block' : 'block',
+          disabled && 'opacity-30',
+          !href && 'py-2'
+        )}
+      >
         {href ? (
-          <a href={href} target="_blank">
+          <a
+            className={clsx('py-2', isMobile ? 'inline-block' : 'block')}
+            href={href}
+            target="_blank"
+            onClick={closeMenuOnClick}
+          >
             {content}
           </a>
         ) : (
