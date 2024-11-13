@@ -165,8 +165,13 @@ app.get('/api/unknown-metadata', async c => {
 
 app.get('/api/thumbnails/:id', c => {
   const id = c.req.param('id')
+  const file = Bun.file(`${beatsBasePath}/thumbnails/${id}.jpg`)
 
-  return new Response(Bun.file(`${beatsBasePath}/thumbnails/${id}.jpg`), {
+  if (file.size === 0) {
+    return new Response(null, {status: 404})
+  }
+
+  return new Response(file, {
     headers: {
       // Cache for 1 year
       'Cache-Control': 'public, max-age=31536000',

@@ -79,9 +79,7 @@ export function BeatListItem({video, rowNum}: Props) {
       {/* THUMBNAIL */}
       <button
         className="h-11 w-11 rounded bg-neutral-500 bg-cover bg-center"
-        style={{
-          backgroundImage: `url("/api/thumbnails/${id}[small]")`,
-        }}
+        style={{backgroundImage: `url('/api/thumbnails/${id}[small]')`}}
         onClick={handleClickToPlay}
       >
         {isSelected && (
