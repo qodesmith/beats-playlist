@@ -58,7 +58,13 @@ app.get('/', () => new Response(Bun.file('/app/index.html')))
  * explicitly hit via client code.
  */
 app.get('/assets/:file', c => {
-  const file = c.req.param('file')
+  const fileName = c.req.param('file')
+  const file = Bun.file(`/app/assets/${fileName}`)
+
+  if (file.size === 0) {
+    return new Response(null, {status: 404})
+  }
+
   return new Response(Bun.file(`/app/assets/${file}`))
 })
 
@@ -183,7 +189,13 @@ app.get('/api/thumbnails/:id', c => {
 
 app.get('/api/beats/:id', c => {
   const id = c.req.param('id')
-  return new Response(Bun.file(`${beatsBasePath}/audio/${id}.mp3`))
+  const file = Bun.file(`${beatsBasePath}/audio/${id}.mp3`)
+
+  if (file.size === 0) {
+    return new Response(null, {status: 404})
+  }
+
+  return new Response(file)
 })
 
 // TODO - add authentication to this route
