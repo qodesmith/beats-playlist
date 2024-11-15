@@ -162,9 +162,8 @@ export function WaveformCanvas({
 
   const opacity = (() => {
     if (!audioBuffer) return 0.5
-    if (isLoading && isReflection) return 0.1
+    if (isReflection) return isLoading ? 0.1 : 0.2
     if (isLoading) return 0.5
-    if (isReflection) return 0.2
     return 1
   })()
 
