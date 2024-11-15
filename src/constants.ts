@@ -60,14 +60,6 @@ export const contentLengthHeader = 'Original-Content-Length'
 export const sampleRate = 48_000
 
 /**
- * Determines how many beats can be stored in Jotai atom families. Atom families
- * store data in a Map under the hood and so represent a memory leak if not
- * explicitly handled. After this amount of beats loaded we remove the first
- * entries. First in, last out.
- */
-export const MAX_BEATS_LOADED = 40
-
-/**
  * An id applied to the slider container and used by various event listeners to
  * grab that element.
  */

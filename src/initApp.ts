@@ -5,13 +5,13 @@ import {fetchWithProgress, shuffleArray, wait} from '@qodestack/utils'
 
 import {
   audioBufferAtomFamily,
+  audioBufferIdsLoaded,
   audioBufferUnwrappedAtomFamily,
   audioFetchingProgressAtomFamily,
   handleMoveSlider,
   handleStopSlider,
 } from './AudioThing'
 import {
-  MAX_BEATS_LOADED,
   mediaQueryMap,
   tailwindBreakpoints,
   tailwindMediaQueries,
@@ -160,31 +160,35 @@ function watchMediaQueries() {
 }
 
 function initStoreSubscriptions() {
-  const loadedBeatIds = new Set<string>()
   const beatIdAtomFamilies = [
     audioBufferAtomFamily,
-    audioFetchingProgressAtomFamily,
     audioBufferUnwrappedAtomFamily,
+    audioFetchingProgressAtomFamily,
+
+    // Removing these atoms happens after the fetch in audioBufferAtomFamily.
+    // audioBufferAbortControllerAtomFamily,
   ]
 
-  // When the beat id changes, load an audioBuffer for it.
-  store.sub(selectedBeatIdAtom, () => {
-    const beatId = store.get(selectedBeatIdAtom)!
+  /**
+   * Watch the list of loaded audio buffers and remove atoms from various
+   * families once we cross a threshold. First in, last out. This is because
+   * atom families store atoms in a Map under the hood which will increase in
+   * size infinitely. We have to manage removing them manually.
+   *
+   * Assuming an average size of 8mb per beat...
+   * Desktop - 1GB = 125 beats
+   * Mobile - 500MB = 62 beats
+   */
+  store.sub(audioBufferIdsLoaded, () => {
+    const idsLoaded = store.get(audioBufferIdsLoaded)
+    const isMobile = store.get(tailwindBreakpointAtom) === null
+    const maxCount = isMobile ? 62 : 125
+    const id = idsLoaded[0]
 
-    loadedBeatIds.add(beatId)
-    store.get(audioBufferAtomFamily(beatId))
+    if (idsLoaded.length <= maxCount) return
 
-    /**
-     * Jotai atom families store data in a Map under the hood, which presents a
-     * potential memory leak. We remove the first items stored once we reach the
-     * limit. First in, last out.
-     */
-    if (loadedBeatIds.size > MAX_BEATS_LOADED) {
-      const firstId = loadedBeatIds.values().next().value!
-
-      loadedBeatIds.delete(firstId)
-      beatIdAtomFamilies.forEach(family => family.remove(firstId))
-    }
+    store.set(audioBufferIdsLoaded, idsLoaded.slice(1))
+    beatIdAtomFamilies.forEach(family => family.remove(id))
   })
 }
 

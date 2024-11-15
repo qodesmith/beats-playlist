@@ -319,8 +319,27 @@ function loadPreviousOrNext(type: 'previous' | 'next') {
   const selectedBeatId = store.get(selectedBeatIdAtom)
   const beatIndex = metadata.findIndex(item => item.id === selectedBeatId)
 
-  if (beatIndex === -1) {
+  if (beatIndex === -1 || !selectedBeatId) {
     throw new Error(`No beat found for "${type}"`)
+  }
+
+  const abortController = store.get(
+    audioBufferAbortControllerAtomFamily(selectedBeatId)
+  )
+  const loadingProgress = store.get(
+    audioFetchingProgressAtomFamily(selectedBeatId)
+  )
+
+  /**
+   * If a beat is loading and hasn't reached 65% yet, and we switch to a new
+   * beat, we abandon that fetch call to save bandwidth.
+   */
+  if (loadingProgress < 65) {
+    abortController.abort()
+    audioBufferAtomFamily.remove(selectedBeatId)
+    audioBufferUnwrappedAtomFamily.remove(selectedBeatId)
+    audioFetchingProgressAtomFamily.remove(selectedBeatId)
+    // `audioBufferAbortControllerAtomFamily` is removed elsewhere.
   }
 
   const newIndex = beatIndex + (type === 'next' ? 1 : -1)
@@ -408,6 +427,20 @@ export async function handleStopSlider(e: MouseEvent | TouchEvent) {
 export const audioThingAtom = atom<AudioThing>()
 
 /**
+ * Used to cancel a fetch request.
+ */
+export const audioBufferAbortControllerAtomFamily = atomFamily(
+  (_id: string) => {
+    return atom(new AbortController())
+  }
+)
+
+/**
+ * The source of truth for which beats have fully loaded.
+ */
+export const audioBufferIdsLoaded = atom<string[]>([])
+
+/**
  * Fetches the audio and converts it to an audioBuffer. Uses `fetchWithProgress`
  * under the hood and sets a progress atom that can be consumed.
  */
@@ -432,13 +465,45 @@ export const audioBufferAtomFamily = atomFamily((id: string) => {
    * avoid Jotai re-renders.
    */
   return atom(async _get_DO_NOT_USE___AVOID_JOTAI_RERENDERS => {
+    const abortController = store.get(audioBufferAbortControllerAtomFamily(id))
     const res = await fetchWithProgress({
       url: `/api/beats/${id}`,
       contentLengthHeader,
       onProgress: percent => {
         store.set(audioFetchingProgressAtomFamily(id), Math.round(percent))
       },
+      options: {signal: abortController.signal},
     })
+      .catch(() => {
+        // TODO - handle non AbortErrors
+        // if ((e as Error).name === 'AbortError') {
+        //   console.warn('audioBufferAtomFamily - error fetching:', e)
+        // }
+        return null
+      })
+      .then(res => {
+        /**
+         * Track the ids that have been loaded so that we can remove atoms from
+         * various families once they reach a certain limit to manage memory.
+         */
+        store.set(audioBufferIdsLoaded, [
+          ...store.get(audioBufferIdsLoaded),
+          id,
+        ])
+
+        return res
+      })
+
+    /**
+     * By the time we get here, we've either cancelled the fetch call or it has
+     * completed. Either way, get rid of the AbortController.
+     */
+    audioBufferAbortControllerAtomFamily.remove(id)
+
+    if (res === null) {
+      return new AudioBuffer({numberOfChannels: 1, length: 1, sampleRate})
+    }
+
     const arrayBuffer = await res.arrayBuffer()
 
     /**
