@@ -51,6 +51,14 @@ export function calculateRMS(audioBuffer: AudioBuffer) {
 }
 
 /**
+ * Using a WeakMap here avoids creating a strong reference to the data. The only
+ * strong references to this data is in atom families, which are cleaned up with
+ * various logic. When those atom families are cleaned up, these cached values
+ * will automatically be garbage collected.
+ */
+const audioBufferNumbersWeakMap = new WeakMap<AudioBuffer, number[]>()
+
+/**
  * Converts an audio buffer to an array of numbers ranging from 0 - 1. These
  * numbers will drive the visualization of audio waveforms.
  */
@@ -62,7 +70,10 @@ export function audioBufferToNumbers({
   audioBuffer: AudioBuffer
   barCount: number
   type: 'average' | 'peak'
-}) {
+}): number[] {
+  const cachedNumbers = audioBufferNumbersWeakMap.get(audioBuffer)
+  if (cachedNumbers) return cachedNumbers
+
   const float32Array = audioBuffer.getChannelData(0)
   const length = float32Array.length
   const chunkSize = Math.ceil(length / barCount)
@@ -108,6 +119,9 @@ export function audioBufferToNumbers({
 
   // Convert numbers to 0 - 1 values.
   const finalNumbers = values.map(num => num / maxValue)
+
+  // Cache the values to avoid expensive recalculations.
+  audioBufferNumbersWeakMap.set(audioBuffer, finalNumbers)
 
   return finalNumbers
 }
