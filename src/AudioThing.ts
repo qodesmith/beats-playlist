@@ -1,4 +1,4 @@
-import {fetchWithProgress, secondsToDuration} from '@qodestack/utils'
+import {fetchWithProgress, secondsToDuration, wait} from '@qodestack/utils'
 import {atom} from 'jotai'
 import {atomFamily, atomWithStorage, unwrap} from 'jotai/utils'
 
@@ -7,6 +7,7 @@ import {
   contentLengthHeader,
   TARGET_LUFS,
   isPlaybackShuffledKey,
+  muteTimeSeconds,
 } from './constants'
 import {
   initialMetadata,
@@ -174,28 +175,50 @@ class AudioThing {
     return Number(((time / duration) * 100).toFixed(2))
   }
 
-  adjustGain = () => {
-    const {lufs, gainNode} = this
+  calculateGain = () => {
+    const {lufs} = this
     const volumeMultiplier = store.get(volumeMultiplierAtom)
 
     if (lufs != null) {
       const adjustmentValue = Math.pow(10, (TARGET_LUFS - lufs) / 20)
-      gainNode.gain.value = adjustmentValue * volumeMultiplier
-    } else {
-      gainNode.gain.value = volumeMultiplier
+      return adjustmentValue * volumeMultiplier
     }
+
+    return volumeMultiplier
+  }
+
+  adjustGain = () => {
+    this.gainNode.gain.value = this.calculateGain()
   }
 
   togglePlayPause = async () => {
     if (this.audioContext.state === 'suspended') {
       // Play.
       store.set(isPlayingAtom, true)
+      this.gainNode.gain.value = 0
+
       await this.audioContext.resume()
+
+      const finalTime = this.audioContext.currentTime + muteTimeSeconds
+      this.gainNode.gain.linearRampToValueAtTime(
+        this.calculateGain(),
+        finalTime
+      )
+
       this.startPolling()
     } else if (this.audioContext.state === 'running') {
       // Pause.
       store.set(isPlayingAtom, false)
-      await this.audioContext.suspend()
+
+      const finalTime = this.audioContext.currentTime + muteTimeSeconds
+      this.gainNode.gain.linearRampToValueAtTime(0, finalTime)
+
+      await wait(muteTimeSeconds * 1000)
+
+      // @ts-expect-error A new beat may have been played by this time.
+      if (this.audioContext.state !== 'closed') {
+        await this.audioContext.suspend()
+      }
     } else if (this.audioContext.state === 'closed') {
       // Restart from the beginning.
       await this.cleanUp()

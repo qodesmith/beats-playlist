@@ -79,3 +79,8 @@ export const rowMenuButtonClass = 'row-menu-button'
  * The context menu opened by the triple-dot button in each row.
  */
 export const rowContextMenuClass = 'row-context-menu'
+
+/**
+ * The amount of seconds to ramp the audio up/down when muting/unmuting.
+ */
+export const muteTimeSeconds = 0.01 // 10ms
