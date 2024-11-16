@@ -65,7 +65,7 @@ app.get('/assets/:file', c => {
     return new Response(null, {status: 404})
   }
 
-  return new Response(Bun.file(`/app/assets/${file}`))
+  return new Response(file)
 })
 
 /**
