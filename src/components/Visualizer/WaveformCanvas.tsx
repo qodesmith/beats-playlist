@@ -82,7 +82,7 @@ export function WaveformCanvas({
 
     return !audioBuffer
       ? Array.from<number>({length: barCount}).fill(0)
-      : audioBufferToNumbers(audioBuffer, barCount)
+      : audioBufferToNumbers({audioBuffer, barCount, type: 'peak'})
   }, [audioBuffer, barWidth, width])
 
   // Effect to draw the canvas.

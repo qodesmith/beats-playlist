@@ -54,43 +54,60 @@ export function calculateRMS(audioBuffer: AudioBuffer) {
  * Converts an audio buffer to an array of numbers ranging from 0 - 1. These
  * numbers will drive the visualization of audio waveforms.
  */
-export function audioBufferToNumbers(
-  audioBuffer: AudioBuffer,
-  finalNumOfPoints: number = 100
-) {
+export function audioBufferToNumbers({
+  audioBuffer,
+  barCount,
+  type,
+}: {
+  audioBuffer: AudioBuffer
+  barCount: number
+  type: 'average' | 'peak'
+}) {
   const float32Array = audioBuffer.getChannelData(0)
   const length = float32Array.length
-  const chunkSize = Math.ceil(length / finalNumOfPoints)
-  const averages: number[] = []
+  const chunkSize = Math.ceil(length / barCount)
+  const values: number[] = []
+  const isPeak = type === 'peak'
+  const batchNumbers = []
 
   let tempTotal = 0
   let tempItemsCount = 0
-  let maxAvg = 0
+  let maxValue = 0
 
   for (let i = 0; i < length; i++) {
     const num = float32Array[i]
     tempTotal += Math.abs(num)
     tempItemsCount++
+    batchNumbers.push(num)
 
+    // Time to push capture a value and reset the batch.
     if (tempItemsCount === chunkSize) {
-      const avg = tempTotal / tempItemsCount
-      averages.push(avg)
+      const currentValue = isPeak
+        ? Math.max(...batchNumbers) // Find the max value in the batch.
+        : tempTotal / tempItemsCount // Find the avg value of the batch.
+      values.push(currentValue)
+
+      // Reset values needed to start a new batch.
       tempItemsCount = 0
       tempTotal = 0
+      batchNumbers.length = 0
 
-      if (maxAvg < avg) maxAvg = avg
+      // Keep track of the max value found.
+      if (maxValue < currentValue) maxValue = currentValue
     }
   }
 
   // Process last few numbers that didn't make a whole chunk.
   if (tempItemsCount) {
-    const lastAvg = tempTotal / tempItemsCount
-    averages.push(lastAvg)
-    if (maxAvg < lastAvg) maxAvg = lastAvg
+    const lastValue = isPeak
+      ? Math.max(...batchNumbers)
+      : tempTotal / tempItemsCount
+    values.push(lastValue)
+    if (maxValue < lastValue) maxValue = lastValue
   }
 
-  // Convert numbers to 0 - 1 values
-  const finalNumbers = averages.map(num => num / maxAvg)
+  // Convert numbers to 0 - 1 values.
+  const finalNumbers = values.map(num => num / maxValue)
 
   return finalNumbers
 }
