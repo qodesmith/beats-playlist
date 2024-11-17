@@ -1,7 +1,7 @@
 // src/components/Toast.tsx
 
-import {AnimatePresence, motion} from 'framer-motion'
 import {useAtomValue, useSetAtom} from 'jotai'
+import {AnimatePresence, motion} from 'motion/react'
 import {useCallback, useEffect, useRef} from 'react'
 
 import {isAppInitializedAtom, toastMessagesAtom} from '../../globalState'

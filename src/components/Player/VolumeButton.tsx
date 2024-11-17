@@ -1,5 +1,5 @@
-import {AnimatePresence, motion} from 'framer-motion'
 import {useAtom} from 'jotai'
+import {AnimatePresence, motion} from 'motion/react'
 import {useCallback, useEffect, useState, useId, useRef} from 'react'
 
 import {VolumeIcon} from './ControlIcons'

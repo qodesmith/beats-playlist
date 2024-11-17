@@ -1,8 +1,8 @@
 import type {ReactNode} from 'react'
 
 import clsx from 'clsx'
-import {AnimatePresence, motion, useMotionValue} from 'framer-motion'
 import {useAtomValue, useSetAtom} from 'jotai'
+import {AnimatePresence, motion, useMotionValue} from 'motion/react'
 import {useCallback, useEffect, useLayoutEffect, useMemo, useRef} from 'react'
 
 import {rowContextMenuClass, rowMenuButtonClass} from '../../constants'

@@ -1,5 +1,5 @@
-import {AnimatePresence, motion} from 'framer-motion'
 import {useAtomValue} from 'jotai'
+import {AnimatePresence, motion} from 'motion/react'
 
 import {AudioLoader} from './AudioLoader'
 import {BeatList} from './BeatList/BeatList'
