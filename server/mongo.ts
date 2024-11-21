@@ -1,6 +1,6 @@
 import {MongoClient} from 'mongodb'
 
-const {MONGO_USER, MONGO_PASSWORD, MONGO_HOST, MONGO_PORT} = Bun.env
+const {MONGO_USER, MONGO_PASSWORD, MONGO_HOST, MONGO_PORT} = process.env
 const mongoUrl = `mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}`
 
 /**

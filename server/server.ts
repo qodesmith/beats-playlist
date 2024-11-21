@@ -14,7 +14,7 @@ import {deletePlaylistItem} from './youtubeApi'
 dotenv.config({path: '/youtube_auth/download-youtube-beats.env'})
 
 // Beats longer than this value will not be returned.
-const MAX_DURATION_SECONDS = Number(Bun.env.MAX_DURATION_SECONDS) || 60 * 8
+const MAX_DURATION_SECONDS = Number(process.env.MAX_DURATION_SECONDS) || 60 * 8
 const {SERVER_PORT, NODE_ENV, FETCHNOW_QUERY_KEY, FETCHNOW_QUERY_VALUE} =
   process.env
 const app = new Hono()
