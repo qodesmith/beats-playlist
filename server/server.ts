@@ -5,9 +5,12 @@ import path from 'node:path'
 
 import {$} from 'bun'
 import dotenv from 'dotenv'
+import {eq} from 'drizzle-orm'
 import {Hono} from 'hono'
 
 import {gzip} from './gzipMiddleware'
+import {getDatabase} from './sqlite/db'
+import {beatsTable} from './sqlite/schema'
 import {deletePlaylistItem} from './youtubeApi'
 
 // Load secret env vars from the Unraid server.
@@ -29,8 +32,8 @@ const beatsBasePath =
 ////////////////
 
 /**
- * Currently using a custom gzip middleware since Hono's `hono/compress`
- * middleware doesn't currently work with Bun.
+ * Using a custom gzip middleware since Hono's `hono/compress` middleware
+ * doesn't currently work with Bun.
  *
  * Once Bun implements `CompressionStream`, we can switch to Hono's
  * `hono/compress` middleware.
@@ -53,9 +56,7 @@ app.get('/', () => new Response(Bun.file('/app/index.html')))
 /**
  * https://vitejs.dev/config/build-options.html#build-assetsdir
  *
- * When Vite builds for production, the resulting `index.html` file will make
- * script and link calls to `/assets` for JS and CSS. This endpoint is never
- * explicitly hit via client code.
+ * Static assets requested via the `indext.html` file.
  */
 app.get('/assets/:file', c => {
   const fileName = c.req.param('file')
@@ -80,12 +81,11 @@ app.get('/play-logo.png', () => new Response(Bun.file('/app/play-logo.png')))
 /////////
 
 app.get('/api/metadata', async c => {
-  const metadata: Video[] = await Bun.file(
-    `${beatsBasePath}/metadata.json`
-  ).json()
+  const db = getDatabase()
+  const beats = await db.query.beatsTable.findMany()
 
   // Filter out videos we don't have an mp3 file for or that are too long.
-  const filteredVideos = metadata.filter(
+  const filteredVideos = beats.filter(
     ({audioFileExtension, durationInSeconds}) => {
       return !!audioFileExtension && durationInSeconds <= MAX_DURATION_SECONDS
     }
@@ -111,13 +111,12 @@ app.get('/api/metadata', async c => {
 })
 
 app.get('/api/unknown-metadata', async c => {
-  const metadata: Video[] = await Bun.file(
-    `${beatsBasePath}/metadata.json`
-  ).json()
-  const allIdsSet = new Set(metadata.map(({id}) => id))
+  const db = getDatabase()
+  const beats = await db.query.beatsTable.findMany()
+  const allIdsSet = new Set(beats.map(({id}) => id))
 
   // Filter out videos we don't have an mp3 file for or that are too long.
-  const filteredVideos = metadata.filter(
+  const filteredVideos = beats.filter(
     ({audioFileExtension, durationInSeconds}) => {
       return !!audioFileExtension && durationInSeconds <= MAX_DURATION_SECONDS
     }
@@ -199,11 +198,19 @@ app.get('/api/beats/:id', c => {
 })
 
 // TODO - add authentication to this route
-app.delete('/api/delete/:id', async c => {
-  const id = c.req.param('id')
+app.delete('/api/delete/:playlistItemId', async c => {
+  const playlistItemId = c.req.param('playlistItemId')
 
   try {
-    const {status, statusText} = await deletePlaylistItem(id)
+    const db = getDatabase()
+
+    // Delete the item from the YouTube playlist.
+    const {status, statusText} = await deletePlaylistItem(playlistItemId)
+
+    // Delete the item from the database.
+    await db
+      .delete(beatsTable)
+      .where(eq(beatsTable.playlistItemId, playlistItemId))
 
     if (status >= 200 && status < 300) {
       return c.json({error: null})
