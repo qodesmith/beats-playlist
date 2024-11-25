@@ -85,11 +85,11 @@ export const playlistsBeatsTable = sqliteTable(
   {
     playlistId: integer()
       // When the playlist is deleted, delete this row.
-      .references(() => playlistsTable.id)
+      .references(() => playlistsTable.id, {onDelete: 'cascade'})
       .notNull(),
     beatId: text()
       // When the beat is deleted, delete this row.
-      .references(() => beatsTable.id)
+      .references(() => beatsTable.id, {onDelete: 'cascade'})
       .notNull(),
   },
   table => ({
@@ -114,11 +114,11 @@ export const lyricsBeatsTable = sqliteTable(
   {
     lyricId: integer()
       // When the lyric is deleted, delete this row.
-      .references(() => playlistsTable.id)
+      .references(() => playlistsTable.id, {onDelete: 'cascade'})
       .notNull(),
     beatId: text()
       // When the beat is deleted, delete this row.
-      .references(() => beatsTable.id)
+      .references(() => beatsTable.id, {onDelete: 'cascade'})
       .notNull(),
   },
   table => ({
