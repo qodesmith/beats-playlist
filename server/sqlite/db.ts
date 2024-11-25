@@ -11,7 +11,10 @@ let db: BunSQLiteDatabase<typeof schema> & {$client: Database}
 
 export function getDatabase() {
   if (!db) {
-    const dbPath = path.resolve(import.meta.dir, process.env.SQLITE_DB_NAME!)
+    const dbPath = path.resolve(
+      import.meta.dirname,
+      process.env.SQLITE_DB_NAME!
+    )
     const sqlite = new Database(dbPath, {create: true})
     db = drizzle({client: sqlite, schema})
   }

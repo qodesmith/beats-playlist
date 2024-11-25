@@ -35,7 +35,7 @@ const db = getDatabase()
 ///////////
 
 const metadataPath = path.resolve(
-  import.meta.dir,
+  import.meta.dirname,
   '../../public/beats/metadata.json'
 )
 const beatsData: Video[] = await Bun.file(metadataPath).json()
