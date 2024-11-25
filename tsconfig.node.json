@@ -10,7 +10,7 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
-    "target": "ES2017" // Allows top-level await statements.
+    "target": "ESNext" // Allows top-level await statements.
   },
   "include": ["vite.config.ts", "server/**/*.ts"]
 }
