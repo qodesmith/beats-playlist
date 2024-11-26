@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install ffmpeg unzip -y
 
 COPY ./package.json /app/
 COPY ./dist/ /app/
-COPY ./server/*.ts /app/
+COPY ./server/ /app/
 
 WORKDIR /app
 
