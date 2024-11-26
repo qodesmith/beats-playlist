@@ -15,7 +15,12 @@
     "buildDocker": "docker build -t qodesmith/beats-playlist:1.0.0 --platform=linux/amd64 .",
     "pushDocker": "docker push qodesmith/beats-playlist:1.0.0",
     "deploy": "bun run build && bun run buildDocker && bun run pushDocker",
-    "deployServerOnly": "bun run buildDocker && bun run pushDocker"
+    "deployServerOnly": "bun run buildDocker && bun run pushDocker",
+    "db:generate": "bunx drizzle-kit generate --config=./server/sqlite/drizzle.config.ts",
+    "db:migrate": "bunx drizzle-kit migrate --config=./server/sqlite/drizzle.config.ts",
+    "db:both": "bun run db:generate && bun run db:migrate",
+    "db:seed": "bun server/sqlite/seed.ts",
+    "db:init": "bun run db:both && bun run db:seed"
   },
   "dependencies": {
     "@googleapis/youtube": "^20.0.0",
