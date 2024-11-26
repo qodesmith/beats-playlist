@@ -7,6 +7,7 @@ import {$} from 'bun'
 
 import {getDatabase} from './db'
 import * as tables from './schema'
+import {getEnvVar} from '../getEnvVar'
 const {
   beatsTable,
   usersTable,
@@ -21,13 +22,19 @@ const {
  * bun --env-file=<path> seed.ts
  */
 
+const SQLITE_DB_NAME = getEnvVar('SQLITE_DB_NAME')
+
 // Delete the database.
-unlinkSync('./beats-playlist.dev.sqlite')
+const dbPath = path.resolve(import.meta.dirname, `../sqlite/${SQLITE_DB_NAME}`)
+try {
+  unlinkSync(dbPath)
+} catch {
+  // noop
+}
 
-// Create the database.
-await $`npx drizzle-kit push`
-
-// Create the database.
+// Create the database and tables according to the schema.
+const configPath = path.resolve(import.meta.dirname, './drizzle.config.ts')
+await $`npx drizzle-kit push --config="${configPath}"`
 const db = getDatabase()
 
 ///////////
