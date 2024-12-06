@@ -12,6 +12,7 @@ import {gzip} from './gzipMiddleware'
 import {getDatabase} from './sqlite/db'
 import {beatsTable} from './sqlite/schema'
 import {deletePlaylistItem} from './youtubeApi'
+import {noDirectRequestMiddleware} from './noDirectRequestMiddleware'
 
 // Load secret env vars from the Unraid server.
 dotenv.config({path: '/youtube_auth/download-youtube-beats.env'})
@@ -80,7 +81,7 @@ app.get('/play-logo.png', () => new Response(Bun.file('/app/play-logo.png')))
 // API //
 /////////
 
-app.get('/api/metadata', async c => {
+app.get('/api/metadata', noDirectRequestMiddleware, async c => {
   const db = getDatabase()
   const beats = await db.query.beatsTable.findMany()
 
@@ -110,7 +111,7 @@ app.get('/api/metadata', async c => {
   // }
 })
 
-app.get('/api/unknown-metadata', async c => {
+app.get('/api/unknown-metadata', noDirectRequestMiddleware, async c => {
   const db = getDatabase()
   const beats = await db.query.beatsTable.findMany()
   const allIdsSet = new Set(beats.map(({id}) => id))
@@ -168,7 +169,7 @@ app.get('/api/unknown-metadata', async c => {
   return c.json({unknownMetadata, failures})
 })
 
-app.get('/api/thumbnails/:id', c => {
+app.get('/api/thumbnails/:id', noDirectRequestMiddleware, c => {
   const id = c.req.param('id')
   const file = Bun.file(`${beatsBasePath}/thumbnails/${id}.jpg`)
 
@@ -186,7 +187,7 @@ app.get('/api/thumbnails/:id', c => {
   })
 })
 
-app.get('/api/beats/:id', c => {
+app.get('/api/beats/:id', noDirectRequestMiddleware, c => {
   const id = c.req.param('id')
   const file = Bun.file(`${beatsBasePath}/audio/${id}.mp3`)
 
