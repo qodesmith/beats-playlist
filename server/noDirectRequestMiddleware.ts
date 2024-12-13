@@ -11,7 +11,7 @@ export const noDirectRequestMiddleware = createMiddleware(async (c, next) => {
   })
 
   if (isForbidden) {
-    c.res = new Response('Swing and a miss...', {
+    c.res = new Response("Please don't link directly to these assets.", {
       status: 403,
       headers: {
         'Content-Type': 'application/json',
