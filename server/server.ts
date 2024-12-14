@@ -10,6 +10,7 @@ import {$} from 'bun'
 import dotenv from 'dotenv'
 import {eq, inArray, desc} from 'drizzle-orm'
 import {Hono} from 'hono'
+import {errorToObject} from '@qodestack/utils'
 
 import {gzip} from './gzipMiddleware'
 import {getDatabase} from './sqlite/db'
@@ -151,7 +152,7 @@ app.post('/api/beats', cronOnlyMiddleware, async c => {
       failedToParse,
     })
   } catch (error) {
-    return c.json({error, failedToParse})
+    return c.json({error: errorToObject(error), failedToParse})
   }
 })
 
@@ -300,7 +301,7 @@ app.delete('/api/delete/:playlistItemId', async c => {
       throw {status, statusText}
     }
   } catch (error) {
-    return c.json({error})
+    return c.json({error: errorToObject(error)})
   }
 })
 
