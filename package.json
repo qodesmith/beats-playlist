@@ -20,7 +20,8 @@
     "db:migrate": "bunx drizzle-kit migrate --config=./server/sqlite/drizzle.config.ts",
     "db:both": "bun run db:generate && bun run db:migrate",
     "db:seed": "bun server/sqlite/seed.ts",
-    "db:init": "bun run db:both && bun run db:seed"
+    "db:init": "bun run db:both && bun run db:seed",
+    "db:view": "bunx drizzle-kit studio --config=./server/sqlite/drizzle.config.ts"
   },
   "dependencies": {
     "@googleapis/youtube": "^20.0.0",
