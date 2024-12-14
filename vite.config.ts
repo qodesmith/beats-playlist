@@ -60,8 +60,11 @@ function copyPublicAssetsAfterBuild(): PluginOption {
 
 const excludedPublicSet = new Set([
   /**
-   * ffmpeg command:
-   * ffmpeg -i forbidden-original.webm -c:v libvpx-vp9 -crf 50 -b:v 0 -r 3 forbidden.webm
+   * Animated gif => webm:
+   * ffmpeg -i input.gif -c vp9 -b:v 0 -crf 40 output.webm
+   *
+   * Reduce size of webm:
+   * ffmpeg -i forbidden-original.webm -c:v libvpx-vp9 -crf 50 -b:v 0 -r 10 forbidden.webm
    */
   'forbidden.gif',
   'forbidden-original.webm',

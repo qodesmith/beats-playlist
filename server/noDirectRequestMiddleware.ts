@@ -11,11 +11,18 @@ export const noDirectRequestMiddleware = createMiddleware(async (c, next) => {
   })
 
   if (isForbidden) {
-    c.res = new Response("Please don't link directly to these assets.", {
-      status: 403,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+    // 640 x 342
+    const html = `
+      <body style="height:100%;background:#000;display:grid;place-items:center;margin:0;">
+        <video autoplay muted loop style="max-width:640px;width:100%;">
+          <source src="/forbidden.webm" type="video/webm">
+          Please don't link directly to these assets.
+        </video>
+      </body>
+    `
+    c.res = new Response(html, {
+      status: 200,
+      headers: {'Content-Type': 'text/html'},
     })
   } else {
     await next()
