@@ -95,6 +95,11 @@ app.get('/assets/:file', c => {
  */
 app.get('/play-logo.png', () => new Response(Bun.file('/app/play-logo.png')))
 
+/**
+ * Returned when trying to access assets (such as beats) directly.
+ */
+app.get('/forbidden.webm', () => new Response(Bun.file('/app/forbidden.webm')))
+
 /////////////////////////
 // CRON-ONLY ENDPOINTS //
 /////////////////////////
