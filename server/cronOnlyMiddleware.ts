@@ -21,7 +21,7 @@ export const cronOnlyMiddleware = createMiddleware(async (c, next) => {
 
   try {
     const {email, password, ...data}: {email: string; password: string} =
-      await c.res.json()
+      await c.req.json()
 
     /**
      * Since the body of a request can only be read once, we store the rest of
@@ -44,14 +44,18 @@ export const cronOnlyMiddleware = createMiddleware(async (c, next) => {
 
     // `user` is potentially undefined even though TS doesn't recognize that.
     const hash = user?.password ?? ''
-    const verify = Bun.password.verifySync(hash, password)
+    const verify = Bun.password.verifySync(password, hash)
 
     if (verify) {
       await next()
     } else {
       c.res = failedResponse
     }
-  } catch {
+  } catch (e) {
+    if (Bun.env.NODE_ENV !== 'production') {
+      console.log('cronOnlyMiddleware failure:', e)
+    }
+
     c.res = failedResponse
   }
 })
