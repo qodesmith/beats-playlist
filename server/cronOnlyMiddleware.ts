@@ -1,6 +1,6 @@
 import {createMiddleware} from 'hono/factory'
 import {getDatabase} from './sqlite/db'
-import {User, usersTable} from './sqlite/schema'
+import {usersTable} from './sqlite/schema'
 import {eq} from 'drizzle-orm'
 
 /**
@@ -9,12 +9,15 @@ import {eq} from 'drizzle-orm'
  * particular endpoint it's hitting.
  */
 export const cronOnlyMiddleware = createMiddleware(async (c, next) => {
-  const failedResponse = new Response('Swing and a miss...', {
-    status: 403,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
+  const failedResponse = new Response(
+    JSON.stringify({nothing: 'to see here...'}),
+    {
+      status: 403,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  )
 
   try {
     const {email, password, ...data}: {email: string; password: string} =
