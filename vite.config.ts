@@ -41,11 +41,14 @@ function copyPublicAssetsAfterBuild(): PluginOption {
     name: 'copyPublicAssetsAfterBuild',
     closeBundle() {
       const items = fs.readdirSync('./public')
-      const files = items.filter(item =>
-        fs.statSync(`./public/${item}`).isFile()
-      )
+      const filesOnly = items.filter(item => {
+        return (
+          fs.statSync(`./public/${item}`).isFile() &&
+          !excludedPublicSet.has(item)
+        )
+      })
 
-      files.forEach(file => {
+      filesOnly.forEach(file => {
         const publicPath = `./public/${file}`
         const distPath = `./dist/${file}`
 
@@ -54,3 +57,12 @@ function copyPublicAssetsAfterBuild(): PluginOption {
     },
   }
 }
+
+const excludedPublicSet = new Set([
+  /**
+   * ffmpeg command:
+   * ffmpeg -i forbidden-original.webm -c:v libvpx-vp9 -crf 50 -b:v 0 -r 3 forbidden.webm
+   */
+  'forbidden.gif',
+  'forbidden-original.webm',
+])
