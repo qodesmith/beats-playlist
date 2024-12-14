@@ -23,6 +23,8 @@ const {
  */
 
 const SQLITE_DB_NAME = getEnvVar('SQLITE_DB_NAME')
+const CRON_EMAIL = getEnvVar('EMAIL')
+const CRON_PASSWORD = getEnvVar('PASSWORD')
 
 // Delete the database.
 const dbPath = path.resolve(import.meta.dirname, `../sqlite/${SQLITE_DB_NAME}`)
@@ -54,20 +56,25 @@ await db.insert(beatsTable).values(beatsData)
 
 const admin: typeof usersTable.$inferInsert = {
   email: 'admin@example.com',
-  password: 'password',
+  password: Bun.password.hashSync('password'),
   isAdmin: true,
   avatarColor: '#f6df1d',
 }
 const larry: typeof usersTable.$inferInsert = {
-  email: 'user@example.com',
-  password: 'password',
+  email: 'larry@example.com',
+  password: Bun.password.hashSync('password'),
   avatarColor: 'cornflowerblue',
 }
+const cron: typeof usersTable.$inferInsert = {
+  email: CRON_EMAIL,
+  password: Bun.password.hashSync(CRON_PASSWORD),
+}
 
-const [{id: adminId}, {id: larryId}] = await db
+const insertedRecords = await db
   .insert(usersTable)
-  .values([admin, larry])
+  .values([admin, larry, cron])
   .returning()
+const [{id: adminId}, {id: larryId}] = insertedRecords
 
 ///////////////
 // PLAYLISTS //
