@@ -3,9 +3,12 @@ import type {Video} from '@qodestack/dl-yt-playlist'
 import fs from 'node:fs'
 import path from 'node:path'
 
+import {VideoSchema} from '@qodestack/dl-yt-playlist/schemas'
+import {safeParse} from 'valibot'
+
 import {$} from 'bun'
 import dotenv from 'dotenv'
-import {eq} from 'drizzle-orm'
+import {eq, inArray, desc} from 'drizzle-orm'
 import {Hono} from 'hono'
 
 import {gzip} from './gzipMiddleware'
@@ -13,6 +16,7 @@ import {getDatabase} from './sqlite/db'
 import {beatsTable} from './sqlite/schema'
 import {deletePlaylistItem} from './youtubeApi'
 import {noDirectRequestMiddleware} from './noDirectRequestMiddleware'
+import {cronOnlyMiddleware} from './cronOnlyMiddleware'
 
 // Load secret env vars from the Unraid server.
 dotenv.config({path: '/youtube_auth/download-youtube-beats.env'})
@@ -21,16 +25,30 @@ dotenv.config({path: '/youtube_auth/download-youtube-beats.env'})
 const MAX_DURATION_SECONDS = Number(process.env.MAX_DURATION_SECONDS) || 60 * 8
 const {SERVER_PORT, NODE_ENV, FETCHNOW_QUERY_KEY, FETCHNOW_QUERY_VALUE} =
   process.env
-const app = new Hono()
+
+/**
+ * These variables represent data that will be stored on the context. This will
+ * make it type-safe to access.
+ */
+type Variables = {
+  '/api/ids-for-download': {
+    ids: string[]
+  }
+  '/api/beats': {
+    beats: Video[]
+  }
+}
+
+const app = new Hono<{Variables: Variables}>()
 
 const beatsBasePath =
   NODE_ENV === 'production'
     ? '/beats'
     : path.resolve(import.meta.dirname, '../public/beats')
 
-////////////////
-// MIDDLEWARE //
-////////////////
+///////////////////////
+// GLOBAL MIDDLEWARE //
+///////////////////////
 
 /**
  * Using a custom gzip middleware since Hono's `hono/compress` middleware
@@ -77,13 +95,71 @@ app.get('/assets/:file', c => {
  */
 app.get('/play-logo.png', () => new Response(Bun.file('/app/play-logo.png')))
 
+/////////////////////////
+// CRON-ONLY ENDPOINTS //
+/////////////////////////
+
+/**
+ * The cron job will produce a list of ids for potential download. This endpoint
+ * filters those ids down to those not in the database.
+ */
+app.post('/api/ids-for-download', cronOnlyMiddleware, async c => {
+  const {ids} = c.get('/api/ids-for-download')
+
+  const existingRecords = await getDatabase()
+    .select({id: beatsTable.id})
+    .from(beatsTable)
+    .where(inArray(beatsTable.id, ids))
+
+  const existingIdSet = new Set(existingRecords.map(({id}) => id))
+
+  const idsForDownload = ids.filter(id => !existingIdSet.has(id))
+
+  return c.json({idsForDownload})
+})
+
+app.post('/api/beats', cronOnlyMiddleware, async c => {
+  const {beats} = c.get('/api/beats')
+  const newBeats: Video[] = []
+  const failedToParse: {beat: unknown; issues: unknown[]}[] = []
+
+  beats.forEach(beat => {
+    const parsed = safeParse(VideoSchema, beat)
+
+    if (parsed.success) {
+      newBeats.push(parsed.output)
+    } else {
+      failedToParse.push({beat, issues: parsed.issues})
+    }
+  })
+
+  // Save beats to the database.
+  try {
+    const inserted = await getDatabase()
+      .insert(beatsTable)
+      .values(newBeats)
+      .returning({id: beatsTable.id})
+
+    return c.json({
+      error: null,
+      inserted: inserted.map(({id}) => id),
+      failedToParse,
+    })
+  } catch (error) {
+    return c.json({error, failedToParse})
+  }
+})
+
 /////////
 // API //
 /////////
 
 app.get('/api/metadata', noDirectRequestMiddleware, async c => {
   const db = getDatabase()
-  const beats = await db.query.beatsTable.findMany()
+  const beats = await db
+    .select()
+    .from(beatsTable)
+    .orderBy(desc(beatsTable.dateAddedToPlaylist))
 
   // Filter out videos we don't have an mp3 file for or that are too long.
   const filteredVideos = beats.filter(
