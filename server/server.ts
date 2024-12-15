@@ -129,6 +129,14 @@ app.post('/api/beats', cronOnlyMiddleware, async c => {
   const newBeats: Video[] = []
   const failedToParse: {beat: unknown; issues: unknown[]}[] = []
 
+  if (!beats.length) {
+    return c.json({
+      error: null,
+      inserted: [],
+      failedToParse,
+    })
+  }
+
   beats.forEach(beat => {
     const parsed = safeParse(VideoSchema, beat)
 
