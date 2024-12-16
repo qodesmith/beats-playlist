@@ -20,7 +20,9 @@ type Props = {
 export function BeatListItem({video, rowNum}: Props) {
   const {id, title, channelName, dateAddedToPlaylist, durationInSeconds} = video
   const [shouldScrollTitle, setShouldScrollTitle] = useState(false)
-  const scrollRef = useRef<{difference: number; percent: number} | undefined>()
+  const scrollRef = useRef<{difference: number; percent: number} | undefined>(
+    undefined
+  )
   const [selectedBeatId, setSelectedBeatId] = useAtom(selectedBeatIdAtom)
   const isSelected = selectedBeatId === id
   const dateAdded = new Date(dateAddedToPlaylist).toLocaleDateString()
