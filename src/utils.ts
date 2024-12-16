@@ -56,7 +56,10 @@ export function calculateRMS(audioBuffer: AudioBuffer) {
  * various logic. When those atom families are cleaned up, these cached values
  * will automatically be garbage collected.
  */
-const audioBufferNumbersWeakMap = new WeakMap<AudioBuffer, number[]>()
+const audioBufferNumbersWeakMap = new WeakMap<
+  AudioBuffer,
+  {finalNumbers: number[]; barCount: number}
+>()
 
 /**
  * Converts an audio buffer to an array of numbers ranging from 0 - 1. These
@@ -72,7 +75,8 @@ export function audioBufferToNumbers({
   type: 'average' | 'peak'
 }): number[] {
   const cachedNumbers = audioBufferNumbersWeakMap.get(audioBuffer)
-  if (cachedNumbers) return cachedNumbers
+  const cachedBarCountMatch = barCount === cachedNumbers?.barCount
+  if (cachedNumbers && cachedBarCountMatch) return cachedNumbers.finalNumbers
 
   const float32Array = audioBuffer.getChannelData(0)
   const length = float32Array.length
@@ -121,7 +125,7 @@ export function audioBufferToNumbers({
   const finalNumbers = values.map(num => num / maxValue)
 
   // Cache the values to avoid expensive recalculations.
-  audioBufferNumbersWeakMap.set(audioBuffer, finalNumbers)
+  audioBufferNumbersWeakMap.set(audioBuffer, {finalNumbers, barCount})
 
   return finalNumbers
 }
