@@ -15,6 +15,7 @@ import {
   invariant,
   isValidDate,
   createLogger,
+  emptyLog,
 } from '@qodestack/utils'
 
 import {gzip} from './gzipMiddleware'
@@ -27,12 +28,15 @@ import {cronOnlyMiddleware} from './cronOnlyMiddleware'
 // Load secret env vars from the Unraid server.
 dotenv.config({path: '/youtube_auth/download-youtube-beats.env'})
 
-const log = createLogger({timeZone: 'America/New_York'})
-
-// Beats longer than this value will not be returned.
-const MAX_DURATION_SECONDS = Number(process.env.MAX_DURATION_SECONDS) || 60 * 8
+const isTest = process.env.NODE_ENV === 'test'
+const log = isTest ? emptyLog : createLogger({timeZone: 'America/New_York'})
 const {SERVER_PORT, NODE_ENV, FETCHNOW_QUERY_KEY, FETCHNOW_QUERY_VALUE} =
   process.env
+
+const getMaxDuration = () => {
+  // Beats longer than this value will not be returned.
+  return Number(process.env.MAX_DURATION_SECONDS) || 60 * 8
+}
 
 /**
  * These variables represent data that will be stored on the context. This will
@@ -47,7 +51,7 @@ type Variables = {
   }
 }
 
-const app = new Hono<{Variables: Variables}>()
+export const app = new Hono<{Variables: Variables}>()
 
 const beatsBasePath =
   NODE_ENV === 'production'
@@ -181,7 +185,7 @@ app.get('/api/metadata', noDirectRequestMiddleware, async c => {
   const db = getDatabase()
 
   invariant(isoDate && isValidDate(new Date(isoDate)), 'Invalid date')
-  invariant(isNaN(limit), 'Invalid limit')
+  invariant(!isNaN(limit), 'Invalid limit')
 
   const andClause = and(
     /**
@@ -192,7 +196,7 @@ app.get('/api/metadata', noDirectRequestMiddleware, async c => {
     lte(beatsTable.dateAddedToPlaylist, isoDate),
 
     // Filter out beats that are too long.
-    lte(beatsTable.durationInSeconds, MAX_DURATION_SECONDS),
+    lte(beatsTable.durationInSeconds, getMaxDuration()),
 
     // Filter out beats that don't have an audio file extension.
     isNotNull(beatsTable.audioFileExtension)
@@ -235,7 +239,7 @@ app.get('/api/new-metadata', noDirectRequestMiddleware, async c => {
         gt(beatsTable.dateAddedToPlaylist, isoDate),
 
         // Filter out beats that are too long.
-        lte(beatsTable.durationInSeconds, MAX_DURATION_SECONDS),
+        lte(beatsTable.durationInSeconds, getMaxDuration()),
 
         // Filter out beats that don't have an audio file extension.
         isNotNull(beatsTable.audioFileExtension)
@@ -253,7 +257,7 @@ app.get('/api/unknown-metadata', noDirectRequestMiddleware, async c => {
   // Filter out videos we don't have an mp3 file for or that are too long.
   const filteredVideos = beats.filter(
     ({audioFileExtension, durationInSeconds}) => {
-      return !!audioFileExtension && durationInSeconds <= MAX_DURATION_SECONDS
+      return !!audioFileExtension && durationInSeconds <= getMaxDuration()
     }
   )
   const filteredVideosSet = new Set(
