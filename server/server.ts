@@ -8,7 +8,17 @@ import {safeParse} from 'valibot'
 
 import {$} from 'bun'
 import dotenv from 'dotenv'
-import {eq, inArray, desc, count, lte, and, isNotNull, gt} from 'drizzle-orm'
+import {
+  eq,
+  inArray,
+  desc,
+  count,
+  lte,
+  and,
+  isNotNull,
+  gt,
+  lt,
+} from 'drizzle-orm'
 import {Hono} from 'hono'
 import {
   errorToObject,
@@ -211,7 +221,7 @@ app.get('/api/metadata', noDirectRequestMiddleware, async c => {
          * Because we sort them in descending order, that can change what "page"
          * beats are on.
          */
-        lte(beatsTable.dateAddedToPlaylist, isoDate),
+        lt(beatsTable.dateAddedToPlaylist, isoDate),
 
         // Filter out beats that are too long.
         lte(beatsTable.durationInSeconds, getMaxDuration()),
