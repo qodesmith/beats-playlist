@@ -8,9 +8,14 @@ import {safeParse} from 'valibot'
 
 import {$} from 'bun'
 import dotenv from 'dotenv'
-import {eq, inArray, desc} from 'drizzle-orm'
+import {eq, inArray, desc, count, lte, and, isNotNull, gt} from 'drizzle-orm'
 import {Hono} from 'hono'
-import {errorToObject} from '@qodestack/utils'
+import {
+  errorToObject,
+  invariant,
+  isValidDate,
+  createLogger,
+} from '@qodestack/utils'
 
 import {gzip} from './gzipMiddleware'
 import {getDatabase} from './sqlite/db'
@@ -21,6 +26,8 @@ import {cronOnlyMiddleware} from './cronOnlyMiddleware'
 
 // Load secret env vars from the Unraid server.
 dotenv.config({path: '/youtube_auth/download-youtube-beats.env'})
+
+const log = createLogger({timeZone: 'America/New_York'})
 
 // Beats longer than this value will not be returned.
 const MAX_DURATION_SECONDS = Number(process.env.MAX_DURATION_SECONDS) || 60 * 8
@@ -169,36 +176,73 @@ app.post('/api/beats', cronOnlyMiddleware, async c => {
 /////////
 
 app.get('/api/metadata', noDirectRequestMiddleware, async c => {
+  const isoDate = c.req.query('isoDate')
+  const limit = Number(c.req.query('limit'))
   const db = getDatabase()
-  const beats = await db
+
+  invariant(isoDate && isValidDate(new Date(isoDate)), 'Invalid date')
+  invariant(isNaN(limit), 'Invalid limit')
+
+  const andClause = and(
+    /**
+     * Beats may have been added to the playlist after the initial request.
+     * Because we sort them in descending order, that can change what "page"
+     * beats are on.
+     */
+    lte(beatsTable.dateAddedToPlaylist, isoDate),
+
+    // Filter out beats that are too long.
+    lte(beatsTable.durationInSeconds, MAX_DURATION_SECONDS),
+
+    // Filter out beats that don't have an audio file extension.
+    isNotNull(beatsTable.audioFileExtension)
+  )
+
+  const totalQuery = db
+    .select({total: count()})
+    .from(beatsTable)
+    .where(andClause)
+
+  const beatsQuery = db
     .select()
     .from(beatsTable)
     .orderBy(desc(beatsTable.dateAddedToPlaylist))
+    .where(andClause)
 
-  // Filter out videos we don't have an mp3 file for or that are too long.
-  const filteredVideos = beats.filter(
-    ({audioFileExtension, durationInSeconds}) => {
-      return !!audioFileExtension && durationInSeconds <= MAX_DURATION_SECONDS
-    }
-  )
+  if (limit) {
+    beatsQuery.limit(limit)
+  }
 
-  return c.json({metadata: filteredVideos})
+  const [[{total}], beats] = await Promise.all([totalQuery, beatsQuery])
 
-  // Paginated version:
-  // const page = Number(query.page) || 1
-  // const limit = Number(query.limit) || 50
-  // const startIndex = (page - 1) * limit
-  // const endIndex = page * limit
+  return c.json({total, metadata: beats})
+})
 
-  // const metadata: Video[] = await Bun.file('/beats/metadata.json').json()
-  // const paginatedMetadata = metadata.slice(startIndex, endIndex)
+app.get('/api/new-metadata', noDirectRequestMiddleware, async c => {
+  const isoDate = c.req.query('isoDate')
+  invariant(isoDate && isValidDate(new Date(isoDate)), 'Invalid date')
 
-  // return {
-  //   page,
-  //   limit,
-  //   total: metadata.length,
-  //   data: paginatedMetadata,
-  // }
+  const newBeats = await getDatabase()
+    .select()
+    .from(beatsTable)
+    .orderBy(desc(beatsTable.dateAddedToPlaylist))
+    .where(
+      and(
+        /**
+         * This endpoint returns beats added after the initial app load. This
+         * isoDate represents the first beat's `dateAddedToPlaylist` value.
+         */
+        gt(beatsTable.dateAddedToPlaylist, isoDate),
+
+        // Filter out beats that are too long.
+        lte(beatsTable.durationInSeconds, MAX_DURATION_SECONDS),
+
+        // Filter out beats that don't have an audio file extension.
+        isNotNull(beatsTable.audioFileExtension)
+      )
+    )
+
+  return c.json({metadata: newBeats})
 })
 
 app.get('/api/unknown-metadata', noDirectRequestMiddleware, async c => {
@@ -324,6 +368,14 @@ app.post('/fetchnow', async c => {
   return hasMatch
     ? fetch(`http://download-youtube-beats:10001`, {method: 'POST'})
     : c.json({error: 'Unathorized'}, 401)
+})
+
+app.onError((error, c) => {
+  const errorObj = errorToObject(error)
+  log.error('URL:', c.req.url)
+  log.error(errorObj)
+  log.text(''.repeat(100))
+  return c.text('Internal server error', 500)
 })
 
 const server = Bun.serve({
