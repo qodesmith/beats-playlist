@@ -187,31 +187,39 @@ app.get('/api/metadata', noDirectRequestMiddleware, async c => {
   invariant(isoDate && isValidDate(new Date(isoDate)), 'Invalid date')
   invariant(!isNaN(limit), 'Invalid limit')
 
-  const andClause = and(
-    /**
-     * Beats may have been added to the playlist after the initial request.
-     * Because we sort them in descending order, that can change what "page"
-     * beats are on.
-     */
-    lte(beatsTable.dateAddedToPlaylist, isoDate),
-
-    // Filter out beats that are too long.
-    lte(beatsTable.durationInSeconds, getMaxDuration()),
-
-    // Filter out beats that don't have an audio file extension.
-    isNotNull(beatsTable.audioFileExtension)
-  )
-
   const totalQuery = db
     .select({total: count()})
     .from(beatsTable)
-    .where(andClause)
+    .where(
+      and(
+        // Filter out beats that are too long.
+        lte(beatsTable.durationInSeconds, getMaxDuration()),
+
+        // Filter out beats that don't have an audio file extension.
+        isNotNull(beatsTable.audioFileExtension)
+      )
+    )
 
   const beatsQuery = db
     .select()
     .from(beatsTable)
     .orderBy(desc(beatsTable.dateAddedToPlaylist))
-    .where(andClause)
+    .where(
+      and(
+        /**
+         * Beats may have been added to the playlist after the initial request.
+         * Because we sort them in descending order, that can change what "page"
+         * beats are on.
+         */
+        lte(beatsTable.dateAddedToPlaylist, isoDate),
+
+        // Filter out beats that are too long.
+        lte(beatsTable.durationInSeconds, getMaxDuration()),
+
+        // Filter out beats that don't have an audio file extension.
+        isNotNull(beatsTable.audioFileExtension)
+      )
+    )
 
   if (limit) {
     beatsQuery.limit(limit)
