@@ -195,7 +195,6 @@ app.get('/api/metadata', noDirectRequestMiddleware, async c => {
   const db = getDatabase()
 
   invariant(isoDate && isValidDate(new Date(isoDate)), 'Invalid date')
-  invariant(!isNaN(limit), 'Invalid limit')
 
   const totalQuery = db
     .select({total: count()})
@@ -231,7 +230,7 @@ app.get('/api/metadata', noDirectRequestMiddleware, async c => {
       )
     )
 
-  if (limit) {
+  if (!isNaN(limit)) {
     beatsQuery.limit(limit)
   }
 

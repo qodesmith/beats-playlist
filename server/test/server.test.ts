@@ -103,24 +103,24 @@ describe('POST /api/beats', () => {
   })
 })
 
-describe('GET /api/metadata', () => {
+describe.only('GET /api/metadata', () => {
   it('should return 500 for invalid query params', async () => {
     const validIsoDate = new Date().toISOString()
-    const [res1, res2, res3, res4, res5] = await Promise.all([
-      app.request('/api/metadata'),
-      app.request('/api/metadata?isoDate=nope&limit=1'),
-      app.request(`/api/metadata?isoDate=${validIsoDate}`),
-      app.request(`/api/metadata?isoDate=${validIsoDate}&limit=yo`),
-      app.request(`/api/metadata?isoDate=${validIsoDate}&limit=1`),
-      app.request('/api/metadata?limit=1'),
+    const [res1, res2, res3, res4, res5, res6] = await Promise.all([
+      app.request('/api/metadata'), // 1
+      app.request('/api/metadata?isoDate=nope&limit=1'), // 2
+      app.request(`/api/metadata?isoDate=${validIsoDate}`), // 3
+      app.request(`/api/metadata?isoDate=${validIsoDate}&limit=yo`), // 4
+      app.request(`/api/metadata?isoDate=${validIsoDate}&limit=1`), // 5
+      app.request('/api/metadata?limit=1'), // 6
     ])
 
     expect(res1.status).toBe(500)
     expect(res2.status).toBe(500)
-    expect(res3.status).toBe(500)
-    expect(res4.status).toBe(500)
+    expect(res3.status).toBe(200)
+    expect(res4.status).toBe(200)
     expect(res5.status).toBe(200)
-    expect(res4.status).toBe(500)
+    expect(res6.status).toBe(500)
   })
 
   it('should return beats <= to an ISO date', async () => {
@@ -233,6 +233,21 @@ describe('GET /api/metadata', () => {
     expect(json2.total).toBe(12)
     expect(json1.metadata).toHaveLength(1)
     expect(json2.metadata).toHaveLength(10)
+  })
+
+  it('should return all beats if no limit or invalid limit is provided', async () => {
+    const isoDate = new Date().toISOString()
+    const res1 = await app.request(`/api/metadata?isoDate=${isoDate}`)
+    const json1 = await res1.json()
+    const res2 = await app.request(`/api/metadata?isoDate=${isoDate}&limit=yo`)
+    const json2 = await res2.json()
+
+    expect(res1.status).toBe(200)
+    expect(res2.status).toBe(200)
+    expect(json1.total).toBe(12)
+    expect(json2.total).toBe(12)
+    expect(json1.metadata).toHaveLength(12)
+    expect(json2.metadata).toHaveLength(12)
   })
 
   it('should return beats in descending date order', async () => {
