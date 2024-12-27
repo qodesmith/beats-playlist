@@ -3,12 +3,20 @@
  * These tests assume a local SQLite database populated with data.
  */
 
-import {describe, expect, it, beforeEach} from 'bun:test'
+import {describe, expect, it, beforeEach, mock} from 'bun:test'
 import {app} from '../server'
 import {Video} from '@qodestack/dl-yt-playlist'
 import {getDatabase} from '../sqlite/db'
 import {beatsTable} from '../sqlite/schema'
 import {eq, not} from 'drizzle-orm'
+
+mock.module('../youtubeApi', () => {
+  return {
+    deletePlaylistItem: async () => {
+      return {status: 299, statusText: 'We good!'}
+    },
+  }
+})
 
 beforeEach(async () => {
   await getDatabase({fresh: true})
@@ -516,5 +524,33 @@ describe('GET /api/thumbnails/:id', async () => {
     expect(res2.headers.get('Expires')).toBeString()
     expect(res1.headers.get('Content-Type')).toBe('image/jpeg')
     expect(res2.headers.get('Content-Type')).toBe('image/jpeg')
+  })
+
+  it('should return 404 for a thumbnail that does not exist', async () => {
+    const res = await app.request('/api/thumbnails/test')
+
+    expect(res.status).toBe(404)
+  })
+})
+
+describe('GET /api/beats/:id', async () => {
+  it('should return an mp3 file for a beat', async () => {
+    const res = await app.request('/api/beats/test')
+
+    expect(res.status).toBe(200)
+    expect(res.headers.get('content-type')).toBe('audio/mpeg')
+  })
+
+  it('should return 404 for a beat that does not exist', async () => {
+    const res = await app.request('/api/beats/nope')
+
+    expect(res.status).toBe(404)
+  })
+})
+
+// TODO
+describe.skip('DELETE /api/delete/:playlistItemId', async () => {
+  it('should delete a beat from the database', async () => {
+    const res = await app.request('/api/delete/', {method: 'DELETE'})
   })
 })
