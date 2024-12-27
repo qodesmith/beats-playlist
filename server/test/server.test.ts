@@ -118,7 +118,7 @@ describe.only('GET /api/metadata', () => {
     expect(res1.status).toBe(500)
     expect(res2.status).toBe(500)
     expect(res3.status).toBe(200)
-    expect(res4.status).toBe(200)
+    expect(res4.status).toBe(500)
     expect(res5.status).toBe(200)
     expect(res6.status).toBe(500)
   })
@@ -235,19 +235,14 @@ describe.only('GET /api/metadata', () => {
     expect(json2.metadata).toHaveLength(10)
   })
 
-  it('should return all beats if no limit or invalid limit is provided', async () => {
+  it('should return all beats if no limit is provided', async () => {
     const isoDate = new Date().toISOString()
-    const res1 = await app.request(`/api/metadata?isoDate=${isoDate}`)
-    const json1 = await res1.json()
-    const res2 = await app.request(`/api/metadata?isoDate=${isoDate}&limit=yo`)
-    const json2 = await res2.json()
+    const res = await app.request(`/api/metadata?isoDate=${isoDate}`)
+    const json = await res.json()
 
-    expect(res1.status).toBe(200)
-    expect(res2.status).toBe(200)
-    expect(json1.total).toBe(12)
-    expect(json2.total).toBe(12)
-    expect(json1.metadata).toHaveLength(12)
-    expect(json2.metadata).toHaveLength(12)
+    expect(res.status).toBe(200)
+    expect(json.total).toBe(12)
+    expect(json.metadata).toHaveLength(12)
   })
 
   it('should return beats in descending date order', async () => {

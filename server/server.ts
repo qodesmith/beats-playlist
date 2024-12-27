@@ -191,10 +191,11 @@ app.post('/api/beats', cronOnlyMiddleware, async c => {
 
 app.get('/api/metadata', noDirectRequestMiddleware, async c => {
   const isoDate = c.req.query('isoDate')
-  const limit = Number(c.req.query('limit'))
+  const limit = c.req.query('limit')
   const db = getDatabase()
 
   invariant(isoDate && isValidDate(new Date(isoDate)), 'Invalid date')
+  invariant(limit ? !isNaN(+limit) : true, 'Invalid limit')
 
   const totalQuery = db
     .select({total: count()})
@@ -230,8 +231,8 @@ app.get('/api/metadata', noDirectRequestMiddleware, async c => {
       )
     )
 
-  if (!isNaN(limit)) {
-    beatsQuery.limit(limit)
+  if (limit !== undefined) {
+    beatsQuery.limit(+limit)
   }
 
   const [[{total}], beats] = await Promise.all([totalQuery, beatsQuery])
