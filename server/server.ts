@@ -362,6 +362,10 @@ app.get('/api/beats/:id', noDirectRequestMiddleware, c => {
 
 // TODO - add authentication to this route
 app.delete('/api/delete/:playlistItemId', async c => {
+  if (Date.now()) {
+    return c.json({error: 'Not implementedd'})
+  }
+
   const playlistItemId = c.req.param('playlistItemId')
 
   try {
