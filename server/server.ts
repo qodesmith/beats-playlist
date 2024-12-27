@@ -269,22 +269,28 @@ app.get('/api/new-metadata', noDirectRequestMiddleware, async c => {
 
 app.get('/api/unknown-metadata', noDirectRequestMiddleware, async c => {
   const db = getDatabase()
-  const beats = await db.query.beatsTable.findMany()
+  const beats = await db
+    .select()
+    .from(beatsTable)
+    .orderBy(desc(beatsTable.dateAddedToPlaylist))
+    .where(
+      and(
+        // Filter out beats that are too long.
+        lte(beatsTable.durationInSeconds, getMaxDuration()),
+
+        // Filter out beats that don't have an audio file extension.
+        isNotNull(beatsTable.audioFileExtension)
+      )
+    )
   const allIdsSet = new Set(beats.map(({id}) => id))
 
-  // Filter out videos we don't have an mp3 file for or that are too long.
-  const filteredVideos = beats.filter(
-    ({audioFileExtension, durationInSeconds}) => {
-      return !!audioFileExtension && durationInSeconds <= getMaxDuration()
-    }
-  )
-  const filteredVideosSet = new Set(
-    filteredVideos.map(v => `${v.id}.${v.audioFileExtension}`)
+  const filteredBeatsSet = new Set(
+    beats.map(v => `${v.id}.${v.audioFileExtension}`)
   )
   const unknownMetadataFileNames = fs
     .readdirSync(`${beatsBasePath}/audio`)
     .filter(item => {
-      return !filteredVideosSet.has(item) && !allIdsSet.has(item.slice(0, -4))
+      return !filteredBeatsSet.has(item) && !allIdsSet.has(item.slice(0, -4))
     })
 
   const unknownMetadata: Video[] = []
