@@ -103,34 +103,70 @@ describe('POST /api/beats', () => {
   })
 })
 
-describe.only('GET /api/metadata', () => {
+describe('GET /api/metadata', () => {
   it('should return 500 for invalid query params', async () => {
     const validIsoDate = new Date().toISOString()
-    const [res1, res2, res3, res4, res5, res6] = await Promise.all([
-      app.request('/api/metadata'), // 1
-      app.request('/api/metadata?isoDate=nope&limit=1'), // 2
-      app.request(`/api/metadata?isoDate=${validIsoDate}`), // 3
-      app.request(`/api/metadata?isoDate=${validIsoDate}&limit=yo`), // 4
-      app.request(`/api/metadata?isoDate=${validIsoDate}&limit=1`), // 5
-      app.request('/api/metadata?limit=1'), // 6
-    ])
 
+    const res1 = await app.request('/api/metadata')
     expect(res1.status).toBe(500)
-    expect(res2.status).toBe(500)
+
+    const res2 = await app.request(`/api/metadata?isoDate=${validIsoDate}`)
+    expect(res2.status).toBe(200)
+
+    const res3 = await app.request(
+      `/api/metadata?isoDate=${validIsoDate}&limit=3`
+    )
     expect(res3.status).toBe(200)
+
+    const res4 = await app.request(
+      `/api/metadata?isoDate=${validIsoDate}&limit=nope`
+    )
     expect(res4.status).toBe(500)
+
+    const res5 = await app.request(
+      // `page` without `limit` has no bearing.
+      `/api/metadata?isoDate=${validIsoDate}&page=1`
+    )
     expect(res5.status).toBe(200)
-    expect(res6.status).toBe(500)
+
+    const res6 = await app.request(
+      // `page` without `limit` has no bearing.
+      `/api/metadata?isoDate=${validIsoDate}&page=nope`
+    )
+    expect(res6.status).toBe(200)
+
+    const res7 = await app.request(
+      `/api/metadata?isoDate=${validIsoDate}&limit=3&page=1`
+    )
+    expect(res7.status).toBe(200)
+
+    const res8 = await app.request(
+      `/api/metadata?isoDate=${validIsoDate}&limit=3&page=nope`
+    )
+    expect(res8.status).toBe(500)
+
+    const res9 = await app.request(
+      `/api/metadata?isoDate=${validIsoDate}&limit=nope&page=1`
+    )
+    expect(res9.status).toBe(500)
   })
 
-  it('should return beats <= to an ISO date', async () => {
-    const isoDate = new Date(2024, 6, 9).toISOString()
-    const res = await app.request(`/api/metadata?isoDate=${isoDate}&limit=100`)
-    const json = await res.json()
+  it('should return all beats <= to an ISO date', async () => {
+    const isoDate1 = new Date(2024, 6, 9).toISOString()
+    const res1 = await app.request(`/api/metadata?isoDate=${isoDate1}`)
+    const json1 = await res1.json()
 
-    expect(res.status).toBe(200)
-    expect(json.total).toBe(12)
-    expect(json.metadata).toHaveLength(3)
+    expect(res1.status).toBe(200)
+    expect(json1.total).toBe(3)
+    expect(json1.metadata).toHaveLength(3)
+
+    const isoDate2 = new Date().toISOString()
+    const res2 = await app.request(`/api/metadata?isoDate=${isoDate2}`)
+    const json2 = await res2.json()
+
+    expect(res2.status).toBe(200)
+    expect(json2.total).toBe(12)
+    expect(json2.metadata).toHaveLength(12)
   })
 
   it('should return beats <= to a maximum duration', async () => {
@@ -138,7 +174,7 @@ describe.only('GET /api/metadata', () => {
     Bun.env.MAX_DURATION_SECONDS = '30'
 
     const isoDate = new Date().toISOString()
-    const res1 = await app.request(`/api/metadata?isoDate=${isoDate}&limit=100`)
+    const res1 = await app.request(`/api/metadata?isoDate=${isoDate}`)
     const json = await res1.json()
 
     expect(res1.status).toBe(200)
@@ -167,7 +203,7 @@ describe.only('GET /api/metadata', () => {
     })
 
     Bun.env.MAX_DURATION_SECONDS = '1'
-    const res2 = await app.request(`/api/metadata?isoDate=${isoDate}&limit=100`)
+    const res2 = await app.request(`/api/metadata?isoDate=${isoDate}`)
     const json2 = await res2.json()
 
     expect(json2).toEqual({total: 0, metadata: []})
@@ -212,7 +248,7 @@ describe.only('GET /api/metadata', () => {
     expect(allBeats2).toHaveLength(13)
 
     const isoDate = new Date().toISOString()
-    const res = await app.request(`/api/metadata?isoDate=${isoDate}&limit=100`)
+    const res = await app.request(`/api/metadata?isoDate=${isoDate}`)
     const json = await res.json()
 
     expect(res.status).toBe(200)
@@ -245,9 +281,19 @@ describe.only('GET /api/metadata', () => {
     expect(json.metadata).toHaveLength(12)
   })
 
+  it('should ignore page if no limit is provided', async () => {
+    const isoDate = new Date().toISOString()
+    const res = await app.request(`/api/metadata?isoDate=${isoDate}&page=1`)
+    const json = await res.json()
+
+    expect(res.status).toBe(200)
+    expect(json.total).toBe(12)
+    expect(json.metadata).toHaveLength(12)
+  })
+
   it('should return beats in descending date order', async () => {
     const isoDate = new Date().toISOString()
-    const res = await app.request(`/api/metadata?isoDate=${isoDate}&limit=100`)
+    const res = await app.request(`/api/metadata?isoDate=${isoDate}`)
     const json = await res.json()
     const metadata = json.metadata as Video[]
     const dates = metadata.map(({dateAddedToPlaylist}) => dateAddedToPlaylist)
@@ -258,8 +304,10 @@ describe.only('GET /api/metadata', () => {
   })
 
   it('should paginate the results', async () => {
-    const isoDate1 = new Date().toISOString()
-    const res1 = await app.request(`/api/metadata?isoDate=${isoDate1}&limit=5`)
+    const isoDate = new Date().toISOString()
+    const res1 = await app.request(
+      `/api/metadata?isoDate=${isoDate}&limit=5&page=1`
+    )
     const json1 = await res1.json()
     const metadata1 = json1.metadata as Video[]
 
@@ -267,34 +315,25 @@ describe.only('GET /api/metadata', () => {
     expect(json1.total).toBe(12)
     expect(metadata1).toHaveLength(5)
 
-    const isoDate2 = metadata1.at(-1)!.dateAddedToPlaylist
-    const res2 = await app.request(`/api/metadata?isoDate=${isoDate2}&limit=5`)
+    const res2 = await app.request(
+      `/api/metadata?isoDate=${isoDate}&limit=5&page=2`
+    )
     const json2 = await res2.json()
     const metadata2 = json2.metadata as Video[]
 
     expect(res2.status).toBe(200)
     expect(json2.total).toBe(12)
     expect(metadata2).toHaveLength(5)
-    expect(metadata2).not.toContainAnyValues(metadata1)
 
-    const isoDate3 = metadata2.at(-1)!.dateAddedToPlaylist
-    const res3 = await app.request(`/api/metadata?isoDate=${isoDate3}&limit=5`)
+    const res3 = await app.request(
+      `/api/metadata?isoDate=${isoDate}&limit=5&page=3`
+    )
     const json3 = await res3.json()
     const metadata3 = json3.metadata as Video[]
 
     expect(res3.status).toBe(200)
     expect(json3.total).toBe(12)
     expect(metadata3).toHaveLength(2)
-    expect(metadata3).not.toContainAnyValues(metadata2)
-
-    const isoDate4 = metadata3.at(-1)!.dateAddedToPlaylist
-    const res4 = await app.request(`/api/metadata?isoDate=${isoDate4}&limit=5`)
-    const json4 = await res4.json()
-    const metadata4 = json4.metadata as Video[]
-
-    expect(res4.status).toBe(200)
-    expect(json4.total).toBe(12)
-    expect(metadata4).toHaveLength(0)
   })
 })
 

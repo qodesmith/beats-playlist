@@ -190,49 +190,54 @@ app.post('/api/beats', cronOnlyMiddleware, async c => {
 /////////
 
 app.get('/api/metadata', noDirectRequestMiddleware, async c => {
+  /**
+   * This represents the 1st beat in the list. Newer beats may have been added
+   * after the initial request, putting them "above" this beat, so we filter
+   * those out by providing an explicit isoDate.
+   */
   const isoDate = c.req.query('isoDate')
   const limit = c.req.query('limit')
+  const page = c.req.query('page')
   const db = getDatabase()
 
   invariant(isoDate && isValidDate(new Date(isoDate)), 'Invalid date')
   invariant(limit ? !isNaN(+limit) : true, 'Invalid limit')
+  invariant(limit ? (page ? !isNaN(+page) : true) : true, 'Invalid page')
+
+  const andClause = and(
+    /**
+     * Beats may have been added to the playlist after the initial request.
+     * Because we sort them in descending order, that can change what "page"
+     * beats are on. The isoDate represents where the 1st beat starts from.
+     */
+    lt(beatsTable.dateAddedToPlaylist, isoDate),
+
+    // Filter out beats that are too long.
+    lte(beatsTable.durationInSeconds, getMaxDuration()),
+
+    // Filter out beats that don't have an audio file extension.
+    isNotNull(beatsTable.audioFileExtension)
+  )
 
   const totalQuery = db
     .select({total: count()})
     .from(beatsTable)
-    .where(
-      and(
-        // Filter out beats that are too long.
-        lte(beatsTable.durationInSeconds, getMaxDuration()),
-
-        // Filter out beats that don't have an audio file extension.
-        isNotNull(beatsTable.audioFileExtension)
-      )
-    )
+    .where(andClause)
 
   const beatsQuery = db
     .select()
     .from(beatsTable)
     .orderBy(desc(beatsTable.dateAddedToPlaylist))
-    .where(
-      and(
-        /**
-         * Beats may have been added to the playlist after the initial request.
-         * Because we sort them in descending order, that can change what "page"
-         * beats are on.
-         */
-        lt(beatsTable.dateAddedToPlaylist, isoDate),
+    .where(andClause)
 
-        // Filter out beats that are too long.
-        lte(beatsTable.durationInSeconds, getMaxDuration()),
-
-        // Filter out beats that don't have an audio file extension.
-        isNotNull(beatsTable.audioFileExtension)
-      )
-    )
-
-  if (limit !== undefined) {
+  if (limit) {
+    // We've already ensured that limit is a number above.
     beatsQuery.limit(+limit)
+
+    if (page) {
+      // We've already ensured that page is a number above.
+      beatsQuery.offset((+page - 1) * +limit)
+    }
   }
 
   const [[{total}], beats] = await Promise.all([totalQuery, beatsQuery])
