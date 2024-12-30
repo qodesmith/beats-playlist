@@ -3,7 +3,7 @@ import type {Video} from '@qodestack/dl-yt-playlist'
 import {secondsToDuration} from '@qodestack/utils'
 import clsx from 'clsx'
 import {useAtom, useAtomValue, useSetAtom} from 'jotai'
-import {useCallback, useRef, useState} from 'react'
+import {useCallback, useMemo, useRef, useState} from 'react'
 
 import {RowMenuButton} from './RowMenuButton'
 import {handlePlayPause, isPlayingAtom} from '../../AudioThing'
@@ -11,6 +11,7 @@ import {highlightColorObj} from '../../constants'
 import {selectedArtistAtom, selectedBeatIdAtom} from '../../globalState'
 import {useCompareTailwindBreakpoint} from '../../hooks/useCompareTailwindBreakpoint'
 import {Play} from '../Player/ControlIcons'
+import {getRandomRgb} from '../../utils'
 
 type Props = {
   video: Video
@@ -45,6 +46,14 @@ export function BeatListItem({video, rowNum}: Props) {
     setShouldScrollTitle(false)
   }, [])
   const isBelowMedium = useCompareTailwindBreakpoint('<', 'md')
+  const thumbnailStyle = useMemo(() => {
+    const rgb1 = getRandomRgb()
+    const rgb2 = getRandomRgb()
+
+    return {
+      backgroundImage: `url("/api/thumbnails/${id}[small]"), linear-gradient(to bottom right, ${rgb1}, ${rgb2})`,
+    }
+  }, [id])
 
   return (
     <div
@@ -80,8 +89,8 @@ export function BeatListItem({video, rowNum}: Props) {
 
       {/* THUMBNAIL */}
       <button
-        className="h-11 w-11 rounded bg-neutral-500 bg-cover bg-center"
-        style={{backgroundImage: `url('/api/thumbnails/${id}[small]')`}}
+        className="h-11 w-11 rounded bg-cover bg-center"
+        style={thumbnailStyle}
         onClick={handleClickToPlay}
       >
         {isSelected && (

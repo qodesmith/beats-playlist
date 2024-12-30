@@ -1,4 +1,4 @@
-import {pluralize} from '@qodestack/utils'
+import {getRandomNumber, pluralize} from '@qodestack/utils'
 
 export function secondsToPlainSentence({
   totalSeconds,
@@ -146,4 +146,12 @@ export function scrollElementIntoView(
           : {behavior: 'smooth', block: 'center', ...options}
       )
   }
+}
+
+export function getRandomRgb() {
+  const r = getRandomNumber(0, 255)
+  const g = getRandomNumber(0, 255)
+  const b = getRandomNumber(0, 255)
+
+  return `rgb(${r},${g},${b})`
 }
