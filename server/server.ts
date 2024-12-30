@@ -366,33 +366,33 @@ app.get('/api/beats/:id', noDirectRequestMiddleware, c => {
 })
 
 // TODO - add authentication to this route
-app.delete('/api/delete/:playlistItemId', async c => {
-  if (Date.now()) {
-    return c.json({error: 'Not implementedd'})
-  }
+// app.delete('/api/delete/:playlistItemId', async c => {
+//   if (Date.now()) {
+//     return c.json({error: 'Not implementedd'})
+//   }
 
-  const playlistItemId = c.req.param('playlistItemId')
+//   const playlistItemId = c.req.param('playlistItemId')
 
-  try {
-    const db = getDatabase()
+//   try {
+//     const db = getDatabase()
 
-    // Delete the item from the YouTube playlist.
-    const {status, statusText} = await deletePlaylistItem(playlistItemId)
+//     // Delete the item from the YouTube playlist.
+//     const {status, statusText} = await deletePlaylistItem(playlistItemId)
 
-    // Delete the item from the database.
-    await db
-      .delete(beatsTable)
-      .where(eq(beatsTable.playlistItemId, playlistItemId))
+//     // Delete the item from the database.
+//     await db
+//       .delete(beatsTable)
+//       .where(eq(beatsTable.playlistItemId, playlistItemId))
 
-    if (status >= 200 && status < 300) {
-      return c.json({error: null})
-    } else {
-      throw {status, statusText}
-    }
-  } catch (error) {
-    return c.json({error: errorToObject(error)})
-  }
-})
+//     if (status >= 200 && status < 300) {
+//       return c.json({error: null})
+//     } else {
+//       throw {status, statusText}
+//     }
+//   } catch (error) {
+//     return c.json({error: errorToObject(error)})
+//   }
+// })
 
 app.post('/fetchnow', async c => {
   if (!FETCHNOW_QUERY_KEY || !FETCHNOW_QUERY_VALUE) {
@@ -403,7 +403,7 @@ app.post('/fetchnow', async c => {
   const hasMatch = queryObj[FETCHNOW_QUERY_KEY] === FETCHNOW_QUERY_VALUE
 
   return hasMatch
-    ? fetch(`http://download-youtube-beats:10001`, {method: 'POST'})
+    ? fetch('http://download-youtube-beats:10001', {method: 'POST'})
     : c.json({error: 'Unathorized'}, 401)
 })
 
