@@ -29,19 +29,19 @@
 		"format:fix": "biome format --write ."
 	},
 	"dependencies": {
-		"@googleapis/youtube": "^20.0.0",
-		"@libsql/client": "^0.14.0",
+		"@googleapis/youtube": "^25.0.0",
+		"@libsql/client": "^0.15.4",
 		"@qodestack/dl-yt-playlist": "^8.1.1",
 		"@qodestack/utils": "^2.20.0",
 		"compressible": "^2.0.18",
 		"dotenv": "^16.5.0",
-		"drizzle-kit": "^0.30.6",
-		"drizzle-orm": "^0.38.4",
+		"drizzle-kit": "^0.31.0",
+		"drizzle-orm": "^0.43.1",
 		"hono": "^4.7.7",
-		"valibot": "^0.36.0"
+		"valibot": "^1.0.0"
 	},
 	"devDependencies": {
-		"@qodestack/biome-config": "^1.1.0",
+		"@qodestack/biome-config": "^1.2.0",
 		"@tanstack/react-virtual": "^3.13.6",
 		"@types/bun": "^1.2.10",
 		"@types/compressible": "^2.0.2",
@@ -58,7 +58,7 @@
 		"react-dom": "^19.1.0",
 		"tailwindcss": "^3.4.17",
 		"typescript": "^5.8.3",
-		"vite": "^6.3.2",
+		"vite": "^6.3.3",
 		"vite-plugin-mkcert": "^1.17.8"
 	}
 }
