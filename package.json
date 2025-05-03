@@ -41,7 +41,7 @@
     "valibot": "^0.36.0"
   },
   "devDependencies": {
-    "@qodestack/biome-config": "^1.5.0",
+    "@qodestack/biome-config": "^1.5.1",
     "@tanstack/react-virtual": "^3.13.6",
     "@types/bun": "^1.2.11",
     "@types/compressible": "^2.0.2",

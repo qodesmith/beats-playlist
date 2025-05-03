@@ -16,7 +16,7 @@
         "valibot": "^0.36.0",
       },
       "devDependencies": {
-        "@qodestack/biome-config": "^1.5.0",
+        "@qodestack/biome-config": "^1.5.1",
         "@tanstack/react-virtual": "^3.13.6",
         "@types/bun": "^1.2.11",
         "@types/compressible": "^2.0.2",
@@ -206,7 +206,7 @@
 
     "@pkgjs/parseargs": ["@pkgjs/parseargs@0.11.0", "", {}, "sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg=="],
 
-    "@qodestack/biome-config": ["@qodestack/biome-config@1.5.0", "", { "dependencies": { "@biomejs/biome": "2.0.0-beta.2", "@biomejs/js-api": "^0.7.1", "gradient-string": "^3.0.0", "picocolors": "^1.1.1" }, "peerDependencies": { "@biomejs/wasm-nodejs": "^1.9.4" }, "bin": { "biomeInit": "src/cli.mjs" } }, "sha512-gfjzdiS5Gj+xiB6JLgdNWzXUUjAZDdZRU3bGhWrwawdyfREMKKqTxSVu+c3SmvLCdSuIKHWN7ev1OG6xUv5jsQ=="],
+    "@qodestack/biome-config": ["@qodestack/biome-config@1.5.1", "", { "dependencies": { "@biomejs/biome": "2.0.0-beta.2", "@biomejs/js-api": "^0.7.1", "gradient-string": "^3.0.0", "picocolors": "^1.1.1" }, "peerDependencies": { "@biomejs/wasm-nodejs": "^1.9.4" }, "bin": { "biomeInit": "src/cli.mjs" } }, "sha512-reB+uh0z5eTgpfy7PLYsaj0NDpmdD/Tafr4DMME4vR0jqh3dKjxTVQNz/s6+YTf0KmfsuGZ9E2LkxY4PSs4Kcg=="],
 
     "@qodestack/dl-yt-playlist": ["@qodestack/dl-yt-playlist@8.1.1", "", { "dependencies": { "@googleapis/youtube": "^20.0.0", "@qodestack/utils": "^2.8.0", "cli-progress": "^3.12.0", "valibot": "^0.36.0" } }, "sha512-yOUgwUTdncw+Uy4v0Scz1pYNZecmMxylIxZ5Ya3woRkxJ0ZDP7lqXoTcHZVH0r/Vx2ggKccpgF1gs4boaIq3Vg=="],
 
