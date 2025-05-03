@@ -1,5 +1,5 @@
-import type {TailwindBreakpoint, TailwindMediaQuery} from './constants'
 import type {Video} from '@qodestack/dl-yt-playlist'
+import type {TailwindBreakpoint, TailwindMediaQuery} from './constants'
 
 import {fetchWithProgress, shuffleArray, wait} from '@qodestack/utils'
 
@@ -18,11 +18,11 @@ import {
 } from './constants'
 import {
   initialMetadata,
-  unknownMetadataAtom,
+  initialMetadataLoadingProgressAtom,
   isAppInitializedAtom,
   selectedBeatIdAtom,
-  initialMetadataLoadingProgressAtom,
   tailwindBreakpointAtom,
+  unknownMetadataAtom,
 } from './globalState'
 import {store} from './store'
 
@@ -67,7 +67,7 @@ export function initApp() {
    * mounting, then queue up the first beat.
    */
   const initAppPromise = fetchWithProgress({
-    url: '/api/metadata',
+    url: `/api/metadata?isoDate=${new Date().toISOString()}`,
     contentLengthHeader: 'Original-Content-Length',
     onProgress: percent => {
       store.set(initialMetadataLoadingProgressAtom, Math.round(percent))
