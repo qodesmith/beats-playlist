@@ -8,6 +8,7 @@ export function ShareIcon({
 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24">
+      <title>share icon</title>
       <g transform="matrix(0.83 0 0 0.83 12 12)">
         <path
           fill={fill}

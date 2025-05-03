@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/style/noDefaultExport: default export expected */
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],

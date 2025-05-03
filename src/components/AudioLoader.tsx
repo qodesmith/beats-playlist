@@ -20,6 +20,7 @@ export function AudioLoader({
       xmlns="http://www.w3.org/2000/svg"
       fill={fill}
     >
+      <title>audio loader</title>
       <g transform="matrix(1 0 0 -1 0 50)">
         <rect width="10" height="12.5" rx="3">
           <animate

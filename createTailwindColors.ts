@@ -78,6 +78,7 @@ function createTailwindColors() {
 try {
   createTailwindColors()
 } catch (error) {
+  // biome-ignore lint/suspicious/noConsole: this is ok here
   console.log(error)
   process.exit(1)
 }

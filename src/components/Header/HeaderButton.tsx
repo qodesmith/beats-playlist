@@ -13,6 +13,7 @@ export function HeaderButton({
 } & ComponentProps<'button'>) {
   return (
     <button
+      type="button"
       id={id}
       onClick={onClick}
       disabled={disabled}

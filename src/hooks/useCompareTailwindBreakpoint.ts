@@ -32,5 +32,7 @@ export function useCompareTailwindBreakpoint(
       return currentBpIndex > bpIndex
     case '>=':
       return currentBpIndex >= bpIndex
+    default:
+      throw new Error(`Unknown operator value: ${operator}`)
   }
 }

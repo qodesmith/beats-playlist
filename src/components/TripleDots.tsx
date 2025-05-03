@@ -17,6 +17,7 @@ export function TripleDots({
       height={isVertical ? tripleSize : size}
       viewBox={viewBox}
     >
+      <title>triple dots</title>
       <circle fill={fill} cx="4" cy="4" r="2" />
       {isVertical ? (
         <>

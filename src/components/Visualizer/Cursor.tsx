@@ -41,6 +41,9 @@ export function Cursor({
   }, [])
 
   return (
+    // TODO: fix this
+    // biome-ignore lint/nursery/noNoninteractiveElementInteractions: TODO
+    // biome-ignore lint/nursery/noStaticElementInteractions: TODO
     <div
       id="cursor-container"
       className="absolute top-0 size-full opacity-75"

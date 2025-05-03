@@ -16,6 +16,7 @@ export function Hamburger({
 
   return (
     <svg width={size} height={size} viewBox="0 0 30 30" fill={fill}>
+      <title>hamburger</title>
       <rect
         width="30"
         height="4"

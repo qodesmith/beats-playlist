@@ -8,6 +8,7 @@ export function CopyIcon({
 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24">
+      <title>copy</title>
       <g transform="matrix(1.43 0 0 1.43 12 12)">
         <path
           fill={fill}
