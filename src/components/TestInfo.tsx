@@ -8,8 +8,8 @@ export function TestInfo() {
   return (
     <div
       className={clsx(
-        'absolute left-0 top-0 z-50 w-full break-words bg-red-800/80'
+        'absolute top-0 left-0 z-50 w-full break-words bg-red-800/80'
       )}
-    ></div>
+    />
   )
 }

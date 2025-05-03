@@ -1,39 +1,30 @@
 import type {Video} from '@qodestack/dl-yt-playlist'
 
+import {$} from 'bun'
 import fs from 'node:fs'
 import path from 'node:path'
+import process from 'node:process'
 
 import {VideoSchema} from '@qodestack/dl-yt-playlist/schemas'
-import {safeParse} from 'valibot'
-
-import {$} from 'bun'
-import dotenv from 'dotenv'
 import {
-  eq,
-  inArray,
-  desc,
-  count,
-  lte,
-  and,
-  isNotNull,
-  gt,
-  lt,
-} from 'drizzle-orm'
-import {Hono} from 'hono'
-import {
+  createLogger,
+  emptyLog,
   errorToObject,
   invariant,
   isValidDate,
-  createLogger,
-  emptyLog,
 } from '@qodestack/utils'
+import dotenv from 'dotenv'
+import {and, count, desc, gt, inArray, isNotNull, lt, lte} from 'drizzle-orm'
+import {Hono} from 'hono'
+import {safeParse} from 'valibot'
 
+import {cronOnlyMiddleware} from './cronOnlyMiddleware'
 import {gzip} from './gzipMiddleware'
+import {noDirectRequestMiddleware} from './noDirectRequestMiddleware'
 import {getDatabase} from './sqlite/db'
 import {beatsTable} from './sqlite/schema'
-import {deletePlaylistItem} from './youtubeApi'
-import {noDirectRequestMiddleware} from './noDirectRequestMiddleware'
-import {cronOnlyMiddleware} from './cronOnlyMiddleware'
+
+// import {deletePlaylistItem} from './youtubeApi'
 
 // Load secret env vars from the Unraid server.
 dotenv.config({path: '/youtube_auth/download-youtube-beats.env'})
@@ -61,6 +52,7 @@ type Variables = {
   }
 }
 
+// biome-ignore lint/style/useNamingConvention: the type name is ok here
 export const app = new Hono<{Variables: Variables}>()
 
 const beatsBasePath =
@@ -201,8 +193,8 @@ app.get('/api/metadata', noDirectRequestMiddleware, async c => {
   const db = getDatabase()
 
   invariant(isoDate && isValidDate(new Date(isoDate)), 'Invalid date')
-  invariant(limit ? !isNaN(+limit) : true, 'Invalid limit')
-  invariant(limit ? (page ? !isNaN(+page) : true) : true, 'Invalid page')
+  invariant(limit ? !Number.isNaN(+limit) : true, 'Invalid limit')
+  invariant(limit ? (page ? !Number.isNaN(+page) : true) : true, 'Invalid page')
 
   const andClause = and(
     /**
@@ -295,7 +287,7 @@ app.get('/api/unknown-metadata', noDirectRequestMiddleware, async c => {
   const unknownMetadataFileNames = fs
     .readdirSync(`${beatsBasePath}/audio`)
     .filter(item => {
-      return !filteredBeatsSet.has(item) && !allIdsSet.has(item.slice(0, -4))
+      return !(filteredBeatsSet.has(item) || allIdsSet.has(item.slice(0, -4)))
     })
 
   const unknownMetadata: Video[] = []
@@ -328,7 +320,7 @@ app.get('/api/unknown-metadata', noDirectRequestMiddleware, async c => {
         isUnavailable: true,
         lufs: -14,
       })
-    } catch (err) {
+    } catch (_err) {
       failures.push(id)
     }
   }
@@ -349,6 +341,7 @@ app.get('/api/thumbnails/:id', noDirectRequestMiddleware, c => {
       // Cache for 1 year
       'Cache-Control': 'public, max-age=31536000',
       // Set expiration date
+      // biome-ignore lint/style/useNamingConvention: headers are capitalized
       Expires: new Date(Date.now() + 31536000000).toUTCString(),
     },
   })
@@ -395,7 +388,7 @@ app.get('/api/beats/:id', noDirectRequestMiddleware, c => {
 // })
 
 app.post('/fetchnow', async c => {
-  if (!FETCHNOW_QUERY_KEY || !FETCHNOW_QUERY_VALUE) {
+  if (!(FETCHNOW_QUERY_KEY && FETCHNOW_QUERY_VALUE)) {
     return c.json({error: 'Server error'}, 500)
   }
 
@@ -420,4 +413,5 @@ const server = Bun.serve({
   fetch: app.fetch,
 })
 
+// biome-ignore lint/suspicious/noConsole: this is ok here
 console.log(`🔥 Server running at ${server.url}`)

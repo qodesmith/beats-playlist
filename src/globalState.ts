@@ -1,5 +1,5 @@
-import type {TailwindBreakpoint} from './constants'
 import type {Video} from '@qodestack/dl-yt-playlist'
+import type {TailwindBreakpoint} from './constants'
 
 import {shuffleArray} from '@qodestack/utils'
 import {atom} from 'jotai'

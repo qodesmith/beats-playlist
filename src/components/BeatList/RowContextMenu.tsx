@@ -87,7 +87,7 @@ function RowContextMenu({beatId}: {beatId: string}) {
   // Close menu handler.
   const closeMenu = useCallback(() => {
     setRowContextMenuData(undefined)
-  }, [setRowContextMenuData])
+  }, [])
 
   // Copy URL handler.
   const handleCopy = useCallback(() => {
@@ -97,7 +97,7 @@ function RowContextMenu({beatId}: {beatId: string}) {
       const newMessage = {id: Math.random(), message: 'URL copied!'}
       setToastMessages(messages => [...messages, newMessage])
     })
-  }, [beatId, setToastMessages])
+  }, [beatId])
 
   // Close menu when clicking outside of it.
   useEffect(() => {
@@ -107,7 +107,7 @@ function RowContextMenu({beatId}: {beatId: string}) {
         const isMenuClick = menuRef.current.contains(target)
         const isMenuButtonClick = !!target.closest(`.${rowMenuButtonClass}`)
 
-        if (!isMenuClick && !isMenuButtonClick) {
+        if (!(isMenuClick || isMenuButtonClick)) {
           closeMenu()
         }
       }
@@ -118,7 +118,7 @@ function RowContextMenu({beatId}: {beatId: string}) {
     return () => {
       window.removeEventListener('click', handler)
     }
-  }, [beatId, closeMenu])
+  }, [closeMenu])
 
   return (
     <ul ref={menuRef} id={menuId}>
@@ -182,14 +182,14 @@ function ListItem({
       setRowContextMenuData(undefined)
       onClick?.()
     }
-  }, [disabled, onClick, setRowContextMenuData])
+  }, [disabled, onClick])
 
   const content = (
     <>
       {icon && (
         // Padding increases the click surface area. This is clickable because
         // it's rendered inside an element with a click event handler.
-        <div className="absolute left-1 top-1/2 -translate-y-1/2 p-2">
+        <div className="-translate-y-1/2 absolute top-1/2 left-1 p-2">
           {icon}
         </div>
       )}
@@ -200,14 +200,17 @@ function ListItem({
   return (
     <li
       className={clsx(
-        'relative mx-1 rounded pl-10 pr-2',
+        'relative mx-1 rounded pr-2 pl-10',
         disabled ? 'cursor-not-allowed' : 'cursor-pointer',
         !isMobile && 'hover:bg-neutral-800'
       )}
     >
-      <div
-        onClick={!href ? closeMenuOnClick : undefined}
+      <button
+        type="button"
+        disabled={disabled}
+        onMouseDown={href ? undefined : closeMenuOnClick}
         className={clsx(
+          'w-full text-left',
           isMobile ? 'inline-block' : 'block',
           disabled && 'opacity-30',
           !href && 'py-2'
@@ -225,7 +228,7 @@ function ListItem({
         ) : (
           content
         )}
-      </div>
+      </button>
     </li>
   )
 }

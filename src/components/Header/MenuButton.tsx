@@ -1,9 +1,9 @@
 import {useSetAtom} from 'jotai'
 import {useCallback, useEffect} from 'react'
 
+import {isMenuOpenAtom} from '../../globalState'
 import {Hamburger} from './Hamburger'
 import {HeaderButton} from './HeaderButton'
-import {isMenuOpenAtom} from '../../globalState'
 
 export function MenuButton({
   buttonId,
@@ -13,20 +13,20 @@ export function MenuButton({
   menuId: string
 }) {
   const setOpen = useSetAtom(isMenuOpenAtom)
-  const toggleOpen = useCallback(() => setOpen(v => !v), [setOpen])
+  const toggleOpen = useCallback(() => setOpen(v => !v), [])
 
   const handleClickOutside = useCallback(
     (e: MouseEvent) => {
       const button = document.getElementById(buttonId)
       const menu = document.getElementById(menuId)
-      const isButtonClick = button && button.contains(e.target as Node)
-      const isMenuClick = menu && menu.contains(e.target as Node)
+      const isButtonClick = button?.contains(e.target as Node)
+      const isMenuClick = menu?.contains(e.target as Node)
 
-      if (!isButtonClick && !isMenuClick) {
+      if (!(isButtonClick || isMenuClick)) {
         setOpen(false)
       }
     },
-    [buttonId, menuId, setOpen]
+    [buttonId, menuId]
   )
 
   useEffect(() => {

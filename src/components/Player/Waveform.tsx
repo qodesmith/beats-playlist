@@ -64,7 +64,7 @@ function WaveformLoadingProgress({beatId}: {beatId: string}) {
   const progress = useAtomValue(audioFetchingProgressAtomFamily(beatId))
 
   return (
-    <div className="absolute left-0 top-0 grid h-full w-full place-content-center">
+    <div className="absolute top-0 left-0 grid h-full w-full place-content-center">
       <AudioLoader size={44} />
       <div className="text-center">{progress}%</div>
     </div>

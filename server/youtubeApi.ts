@@ -7,6 +7,9 @@
  * [This npm search](https://www.npmjs.com/search?q=scope%3Agoogleapis) will
  * show all the submodules available.
  */
+
+import process from 'node:process'
+
 import google from '@googleapis/youtube'
 
 /**
@@ -25,6 +28,7 @@ export async function deletePlaylistItem(playlistItemId: string) {
     process.env.CLIENT_ID,
     process.env.CLIENT_SECRET
   )
+  // biome-ignore lint/style/useNamingConvention: this is Google's api
   oauth2Client.setCredentials({refresh_token: process.env.REFRESH_TOKEN})
 
   const yt = google.youtube({version: 'v3', auth: oauth2Client})

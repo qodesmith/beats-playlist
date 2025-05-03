@@ -3,8 +3,10 @@
  * This will migrate the data in metadata.json to the SQLite database.
  */
 
-import {Video} from '@qodestack/dl-yt-playlist'
+import type {Video} from '@qodestack/dl-yt-playlist'
+
 import {$} from 'bun'
+
 import {getDatabase} from './sqlite/db'
 import {beatsTable} from './sqlite/schema'
 

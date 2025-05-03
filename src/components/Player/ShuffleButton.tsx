@@ -1,7 +1,7 @@
 import {useAtomValue} from 'jotai'
 
-import {Shuffle} from './ControlIcons'
 import {isPlaybackShuffledAtom, togglePlaybackShuffle} from '../../AudioThing'
+import {Shuffle} from './ControlIcons'
 
 export function ShuffleButton({
   baseSize = 8,
@@ -16,12 +16,13 @@ export function ShuffleButton({
 
   return (
     <button
+      type="button"
       className="grid size-full place-items-center"
       onClick={togglePlaybackShuffle}
     >
       <Shuffle
         size={baseSize * 3 * 0.7}
-        fill={!isPlaybackShuffled ? disabledFill : fill}
+        fill={isPlaybackShuffled ? fill : disabledFill}
       />
     </button>
   )

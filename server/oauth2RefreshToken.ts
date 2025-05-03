@@ -3,8 +3,10 @@
  *
  * This script is used to get the initial refresh token for the YouTube API.
  */
+/** biome-ignore-all lint/suspicious/noConsole: it's ok here */
 
-import readline from 'readline'
+import process from 'node:process'
+import readline from 'node:readline'
 
 import google from '@googleapis/youtube'
 import open from 'open'
@@ -27,6 +29,7 @@ const rl = readline.createInterface({
 const SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 
 const authUrl = oauth2Client.generateAuthUrl({
+  // biome-ignore lint/style/useNamingConvention: this is Google's api
   access_type: 'offline', // 'offline' to get a refresh token
   scope: SCOPES,
 })

@@ -1,16 +1,16 @@
 import {useAtomValue} from 'jotai'
 import {AnimatePresence, motion} from 'motion/react'
 
+import {
+  initialMetadataLoadingProgressAtom,
+  isAppInitializedAtom,
+} from '../globalState'
 import {AudioLoader} from './AudioLoader'
 import {BeatList} from './BeatList/BeatList'
 import {RowContextMenuContainer} from './BeatList/RowContextMenu'
 import {Footer} from './Footer/Footer'
 import {Header} from './Header/Header'
 import {SearchDisplay} from './SearchDisplay'
-import {
-  initialMetadataLoadingProgressAtom,
-  isAppInitializedAtom,
-} from '../globalState'
 import {TestInfo} from './TestInfo'
 import {ToastContainer} from './Toast/Toast'
 

@@ -2,8 +2,8 @@ import clsx from 'clsx'
 import {useAtomValue} from 'jotai'
 import {memo} from 'react'
 
-import {BeatListItem} from './BeatListItem'
 import {rowContextMenuDataAtom, visualMetadataSelector} from '../../globalState'
+import {BeatListItem} from './BeatListItem'
 
 export function BeatList() {
   const isMenuOpen = !!useAtomValue(rowContextMenuDataAtom)

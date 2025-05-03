@@ -5,13 +5,13 @@ import clsx from 'clsx'
 import {useAtom, useAtomValue, useSetAtom} from 'jotai'
 import {useCallback, useMemo, useRef, useState} from 'react'
 
-import {RowMenuButton} from './RowMenuButton'
 import {handlePlayPause, isPlayingAtom} from '../../AudioThing'
 import {highlightColorObj} from '../../constants'
 import {selectedArtistAtom, selectedBeatIdAtom} from '../../globalState'
 import {useCompareTailwindBreakpoint} from '../../hooks/useCompareTailwindBreakpoint'
-import {Play} from '../Player/ControlIcons'
 import {getRandomRgb} from '../../utils'
+import {Play} from '../Player/ControlIcons'
+import {RowMenuButton} from './RowMenuButton'
 
 type Props = {
   video: Video
@@ -34,11 +34,11 @@ export function BeatListItem({video, rowNum}: Props) {
      * Clicking the thumbnail or title should only trigger the initial playback.
      * Clicking them again should have no effect.
      */
-    if (!isPlaying || !isSelected) {
+    if (!(isPlaying && isSelected)) {
       setSelectedBeatId(id)
       handlePlayPause()
     }
-  }, [id, isPlaying, isSelected, setSelectedBeatId])
+  }, [id, isPlaying, isSelected])
   const handleTouchStart = useCallback(() => {
     setShouldScrollTitle(true)
   }, [])
@@ -89,7 +89,8 @@ export function BeatListItem({video, rowNum}: Props) {
 
       {/* THUMBNAIL */}
       <button
-        className="h-11 w-11 rounded bg-cover bg-center"
+        type="button"
+        className="h-11 w-11 rounded bg-center bg-cover"
         style={thumbnailStyle}
         onClick={handleClickToPlay}
       >
@@ -106,6 +107,7 @@ export function BeatListItem({video, rowNum}: Props) {
       {/* TITLE / ARTIST */}
       <div className="flex w-full select-none flex-col items-start overflow-hidden">
         <button
+          type="button"
           className={clsx('text-nowrap transition-transform ease-linear', {
             [highlightColorObj.text]: isSelected,
           })}
@@ -140,9 +142,10 @@ export function BeatListItem({video, rowNum}: Props) {
           {title}
         </button>
         <button
+          type="button"
           className={clsx(
             highlightColorObj.textHover,
-            'p-0.5 pl-0 text-sm text-neutral-500 md:p-1 md:pl-0'
+            'p-0.5 pl-0 text-neutral-500 text-sm md:p-1 md:pl-0'
           )}
           onClick={() => {
             setSelectedArtist(v => {

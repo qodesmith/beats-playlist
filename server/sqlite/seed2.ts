@@ -1,8 +1,8 @@
-import {getDatabase} from './db'
-import path from 'node:path'
-import fs from 'node:fs'
-import {beatsTable} from './schema'
+/** biome-ignore-all lint/suspicious/noConsole: this is ok */
 import {desc} from 'drizzle-orm'
+
+import {getDatabase} from './db'
+import {beatsTable} from './schema'
 
 /**
  * Duplicate the thumbnails.

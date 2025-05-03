@@ -8,14 +8,14 @@ export function SearchDisplay() {
   const [searchValue, setSearchValue] = useAtom(searchAtom)
   const clearSearchValue = useCallback(() => {
     setSearchValue('')
-  }, [setSearchValue])
+  }, [])
   const [selectedArtist, setSelectedArtist] = useAtom(selectedArtistAtom)
   const clearSelectedArtist = useCallback(() => {
     setSelectedArtist(undefined)
-  }, [setSelectedArtist])
+  }, [])
 
   return (
-    <div className="flex h-8 flex-shrink-0 items-center gap-2 px-2 text-sm font-bold uppercase">
+    <div className="flex h-8 flex-shrink-0 items-center gap-2 px-2 font-bold text-sm uppercase">
       {selectedArtist && (
         <Chip text={selectedArtist} onClose={clearSelectedArtist} />
       )}

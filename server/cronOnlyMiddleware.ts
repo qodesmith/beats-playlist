@@ -1,7 +1,8 @@
+import {eq} from 'drizzle-orm'
 import {createMiddleware} from 'hono/factory'
+
 import {getDatabase} from './sqlite/db'
 import {usersTable} from './sqlite/schema'
-import {eq} from 'drizzle-orm'
 
 /**
  * This middleware requires the cron job's email and password to continue.
@@ -53,6 +54,7 @@ export const cronOnlyMiddleware = createMiddleware(async (c, next) => {
     }
   } catch (e) {
     if (Bun.env.NODE_ENV !== 'production') {
+      // biome-ignore lint/suspicious/noConsole: this only runs in dev
       console.log('cronOnlyMiddleware failure:', e)
     }
 

@@ -13,7 +13,7 @@
         "drizzle-kit": "^0.31.0",
         "drizzle-orm": "^0.43.1",
         "hono": "^4.7.8",
-        "valibot": "^1.0.0",
+        "valibot": "^0.36.0",
       },
       "devDependencies": {
         "@qodestack/biome-config": "^1.5.0",
@@ -704,7 +704,7 @@
 
     "uuid": ["uuid@9.0.1", "", { "bin": { "uuid": "dist/bin/uuid" } }, "sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA=="],
 
-    "valibot": ["valibot@1.0.0", "", { "peerDependencies": { "typescript": ">=5" }, "optionalPeers": ["typescript"] }, "sha512-1Hc0ihzWxBar6NGeZv7fPLY0QuxFMyxwYR2sF1Blu7Wq7EnremwY2W02tit2ij2VJT8HcSkHAQqmFfl77f73Yw=="],
+    "valibot": ["valibot@0.36.0", "", {}, "sha512-CjF1XN4sUce8sBK9TixrDqFM7RwNkuXdJu174/AwmQUB62QbCQADg5lLe8ldBalFgtj1uKj+pKwDJiNo4Mn+eQ=="],
 
     "vite": ["vite@6.3.4", "", { "dependencies": { "esbuild": "^0.25.0", "fdir": "^6.4.4", "picomatch": "^4.0.2", "postcss": "^8.5.3", "rollup": "^4.34.9", "tinyglobby": "^0.2.13" }, "optionalDependencies": { "fsevents": "~2.3.3" }, "peerDependencies": { "@types/node": "^18.0.0 || ^20.0.0 || >=22.0.0", "jiti": ">=1.21.0", "less": "*", "lightningcss": "^1.21.0", "sass": "*", "sass-embedded": "*", "stylus": "*", "sugarss": "*", "terser": "^5.16.0", "tsx": "^4.8.1", "yaml": "^2.4.2" }, "optionalPeers": ["@types/node", "jiti", "less", "lightningcss", "sass", "sass-embedded", "stylus", "sugarss", "terser", "tsx", "yaml"], "bin": { "vite": "bin/vite.js" } }, "sha512-BiReIiMS2fyFqbqNT/Qqt4CVITDU9M9vE+DKcVAsB+ZV0wvTKd+3hMbkpxz1b+NmEDMegpVbisKiAZOnvO92Sw=="],
 
@@ -751,8 +751,6 @@
     "@qodestack/dl-yt-playlist/@googleapis/youtube": ["@googleapis/youtube@20.0.0", "", { "dependencies": { "googleapis-common": "^7.0.0" } }, "sha512-wdt1J0JoKYhvpoS2XIRHX0g/9ul/B0fQeeJAhuuBIdYINuuLt6/oZYZZCBmkuhtkA3IllXgqgAXOjLtLRAnR2g=="],
 
     "@qodestack/dl-yt-playlist/@qodestack/utils": ["@qodestack/utils@2.8.0", "", { "peerDependencies": { "typescript": "^5.6.3" } }, "sha512-Gjz0YEcabDbBzDXpgELleODRqNkKuwOMTwmphGWZYg0T768fX1TnD5DMFaqQ1G+ZgAeVuQZ0T7f63DVsInHgPw=="],
-
-    "@qodestack/dl-yt-playlist/valibot": ["valibot@0.36.0", "", {}, "sha512-CjF1XN4sUce8sBK9TixrDqFM7RwNkuXdJu174/AwmQUB62QbCQADg5lLe8ldBalFgtj1uKj+pKwDJiNo4Mn+eQ=="],
 
     "@types/babel__core/@babel/parser": ["@babel/parser@7.24.7", "", { "bin": "./bin/babel-parser.js" }, "sha512-9uUYRm6OqQrCqQdG1iCBwBPZgN8ciDBro2nIOFaiRz1/BCxaI7CNvQbDHvsArAC7Tw9Hda/B3U+6ui9u4HWXPw=="],
 

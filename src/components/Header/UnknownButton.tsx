@@ -2,8 +2,8 @@ import clsx from 'clsx'
 import {useAtom} from 'jotai'
 import {useCallback} from 'react'
 
-import {HeaderButton} from './HeaderButton'
 import {isUnknownMetadataAtom} from '../../globalState'
+import {HeaderButton} from './HeaderButton'
 
 export function UnknownButton() {
   const [isUnknownMetadata, setIsUnknownMetadata] = useAtom(
@@ -11,7 +11,7 @@ export function UnknownButton() {
   )
   const toggleUnknown = useCallback(() => {
     setIsUnknownMetadata(v => !v)
-  }, [setIsUnknownMetadata])
+  }, [])
 
   return (
     <HeaderButton

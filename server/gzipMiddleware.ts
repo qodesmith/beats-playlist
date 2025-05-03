@@ -1,4 +1,5 @@
 import {gzipSync} from 'bun'
+
 import compressible from 'compressible'
 import {createMiddleware} from 'hono/factory'
 

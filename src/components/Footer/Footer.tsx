@@ -2,12 +2,12 @@ import clsx from 'clsx'
 import {useAtomValue} from 'jotai'
 import {useId, useRef} from 'react'
 
-import {FooterSearch} from './FooterSearch'
 import {isSearchOpenAtom} from '../../globalState'
 import {useCompareTailwindBreakpoint} from '../../hooks/useCompareTailwindBreakpoint'
 import {AudioTimeSlider} from '../Player/AudioTimeSlider'
 import {Controls} from '../Player/Controls'
 import {Waveform} from '../Player/Waveform'
+import {FooterSearch} from './FooterSearch'
 
 export function Footer() {
   const isSearchOpen = useAtomValue(isSearchOpenAtom)
@@ -26,7 +26,7 @@ export function Footer() {
         <Waveform />
         <div
           className={clsx(
-            'absolute left-0 top-0 grid size-full place-items-center overflow-hidden bg-black/90 p-2 md:transition-transform md:duration-500',
+            'absolute top-0 left-0 grid size-full place-items-center overflow-hidden bg-black/90 p-2 md:transition-transform md:duration-500',
             isSearchOpen ? 'translate-y-0' : '-translate-y-full'
           )}
         >

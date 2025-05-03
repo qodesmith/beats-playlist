@@ -53,7 +53,7 @@ function Toast({
       isRemovedRef.current = true
       setToastMessages(msgs => msgs.filter(m => m.id !== id))
     }
-  }, [id, setToastMessages])
+  }, [id])
 
   useEffect(() => {
     const timeout = setTimeout(handleClose, duration)

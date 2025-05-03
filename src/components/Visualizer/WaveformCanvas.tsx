@@ -1,7 +1,7 @@
 import type {TailwindColor} from '../../tailwindColors'
 
 import {useAtomValue} from 'jotai'
-import {useMemo, useEffect} from 'react'
+import {useEffect, useMemo} from 'react'
 
 import {progressPercentAtom} from '../../AudioThing'
 import {tailwindColors} from '../../tailwindColors'
@@ -80,9 +80,9 @@ export function WaveformCanvas({
   const waveformData = useMemo(() => {
     const barCount = width / barWidth
 
-    return !audioBuffer
-      ? Array.from<number>({length: barCount}).fill(0)
-      : audioBufferToNumbers({audioBuffer, barCount, type: 'peak'})
+    return audioBuffer
+      ? audioBufferToNumbers({audioBuffer, barCount, type: 'peak'})
+      : Array.from<number>({length: barCount}).fill(0)
   }, [audioBuffer, barWidth, width])
 
   // Effect to draw the canvas.

@@ -1,13 +1,13 @@
 import type {Video} from '@qodestack/dl-yt-playlist'
 
+import {$} from 'bun'
 import {unlinkSync} from 'node:fs'
 import path from 'node:path'
 
-import {$} from 'bun'
-
+import {getEnvVar} from '../getEnvVar'
 import {getDatabase} from './db'
 import * as tables from './schema'
-import {getEnvVar} from '../getEnvVar'
+
 const {
   beatsTable,
   usersTable,

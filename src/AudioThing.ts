@@ -3,11 +3,11 @@ import {atom} from 'jotai'
 import {atomFamily, atomWithStorage, unwrap} from 'jotai/utils'
 
 import {
-  sampleRate,
   contentLengthHeader,
-  TARGET_LUFS,
   isPlaybackShuffledKey,
   muteTimeSeconds,
+  sampleRate,
+  TARGET_LUFS,
 } from './constants'
 import {
   initialMetadata,
@@ -40,7 +40,7 @@ class AudioThing {
     if (store.get(selectedBeatIdAtom) === id) {
       store.set(audioThingAtom, audioThing)
     } else {
-      audioThing.cleanUp()
+      await audioThing.cleanUp()
     }
 
     return audioThing
@@ -180,7 +180,7 @@ class AudioThing {
     const volumeMultiplier = store.get(volumeMultiplierAtom)
 
     if (lufs != null) {
-      const adjustmentValue = Math.pow(10, (TARGET_LUFS - lufs) / 20)
+      const adjustmentValue = 10 ** ((TARGET_LUFS - lufs) / 20)
       return adjustmentValue * volumeMultiplier
     }
 
@@ -316,10 +316,10 @@ export async function handleWaveformClick(
   const offsetX = e.clientX - left
   const position = offsetX / width // 0 - 1
 
-  if (!audioThing) {
-    audioThing = await AudioThing.init(id, position)
-  } else {
+  if (audioThing) {
     await audioThing.setPosition(position)
+  } else {
+    audioThing = await AudioThing.init(id, position)
   }
 }
 
@@ -373,7 +373,7 @@ function loadPreviousOrNext(type: 'previous' | 'next') {
   audioThing?.cleanUp()
   store.set(selectedBeatIdAtom, newBeatId)
   scrollElementIntoView(newBeatId, {behavior: 'smooth', block: 'nearest'})
-  AudioThing.init(newBeatId)
+  void AudioThing.init(newBeatId)
 }
 
 export function handleStartSlider(
@@ -403,7 +403,7 @@ export function handleMoveSlider(e: MouseEvent | TouchEvent) {
   const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
   const isBeforeRange = clientX < left
   const isAfterRange = clientX > left + width
-  const isInRange = !isBeforeRange && !isAfterRange
+  const isInRange = !(isBeforeRange || isAfterRange)
   const isSliderDragging = store.get(isSliderDraggingAtom)
 
   if (isSliderDragging) {

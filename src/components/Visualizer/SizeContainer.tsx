@@ -44,10 +44,10 @@ export function SizeContainer({
       const {width, height} = el.getBoundingClientRect()
       setContainerDimensions({width, height})
     }
-  }, [setContainerDimensions])
+  }, [])
 
   // Initial size effect.
-  useEffect(handleResize, [handleResize])
+  useEffect(handleResize, [])
 
   // Resize effect.
   useEffect(() => {

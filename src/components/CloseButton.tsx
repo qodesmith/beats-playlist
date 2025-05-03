@@ -11,7 +11,7 @@ export function CloseButton({
   const stroke = useMemo(() => ({stroke: fill}), [fill])
 
   return (
-    <button onClick={onClick} className={className}>
+    <button type="button" onClick={onClick} className={className}>
       <svg
         width={size}
         height={size}
@@ -19,6 +19,7 @@ export function CloseButton({
         fill={fill}
         className="group p-1"
       >
+        <title>close button</title>
         <rect
           y="13"
           width="30"
@@ -33,7 +34,7 @@ export function CloseButton({
           height="4"
           rx="2"
           style={stroke}
-          className="origin-center -rotate-45 stroke-0 transition-all duration-200 md:group-hover:stroke-2"
+          className="-rotate-45 origin-center stroke-0 transition-all duration-200 md:group-hover:stroke-2"
         />
       </svg>
     </button>

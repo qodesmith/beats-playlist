@@ -1,8 +1,15 @@
 {
-	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-	"extends": ["@qodestack/biome-config/reactExtraHooks"],
-	"files": {
-		"ignoreUnknown": true,
-		"includes": ["**", "!**/node_modules/**", "!dist/**", "!*.lock"]
-	}
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "extends": ["@qodestack/biome-config/reactExtraHooks"],
+  "files": {
+    "ignoreUnknown": true,
+    "includes": [
+      "**",
+      "!**/node_modules/**",
+      "!dist/**",
+      "!*.lock",
+      "!server/sqlite/drizzle/**",
+      "!src/tailwindColors.ts"
+    ]
+  }
 }

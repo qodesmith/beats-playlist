@@ -1,6 +1,7 @@
 import type {PluginOption} from 'vite'
 
 import fs from 'node:fs'
+import process from 'node:process'
 
 import react from '@vitejs/plugin-react'
 import dotenv from 'dotenv'
@@ -11,6 +12,7 @@ dotenv.config({path: './.env'})
 const {SERVER_PORT, USE_PROD_API, UNRAID_API = ''} = process.env
 
 // https://vitejs.dev/config/
+// biome-ignore lint/style/noDefaultExport: Vite expects a default export
 export default defineConfig(({command, mode}) => ({
   publicDir: command === 'build' ? false : 'public',
   plugins: [
@@ -27,6 +29,7 @@ export default defineConfig(({command, mode}) => ({
     },
   },
   define: {
+    // biome-ignore lint/style/useNamingConvention: this is ok
     __DEV__: command !== 'build' && mode !== 'production',
   },
 }))

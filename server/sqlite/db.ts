@@ -1,12 +1,13 @@
 import type {BunSQLiteDatabase} from 'drizzle-orm/bun-sqlite'
 
-import path from 'node:path'
-
 import {Database} from 'bun:sqlite'
+import path from 'node:path'
+import process from 'node:process'
+
 import {drizzle} from 'drizzle-orm/bun-sqlite'
 
-import * as schema from './schema'
 import {getEnvVar} from '../getEnvVar'
+import * as schema from './schema'
 
 let db: BunSQLiteDatabase<typeof schema> & {$client: Database}
 
@@ -22,10 +23,10 @@ export function getDatabase({fresh = false}: {fresh?: boolean} = {}) {
   }
 
   if (!db) {
-    const SQLITE_DB_NAME = getEnvVar('SQLITE_DB_NAME')
+    const SqliteDbName = getEnvVar('SQLITE_DB_NAME')
     const dbPath = isProd
-      ? `/beats/${SQLITE_DB_NAME}`
-      : path.resolve(import.meta.dirname, SQLITE_DB_NAME)
+      ? `/beats/${SqliteDbName}`
+      : path.resolve(import.meta.dirname, SqliteDbName)
     const sqlite = isTest ? getTestDb() : new Database(dbPath)
 
     db = drizzle({client: sqlite, schema})
@@ -39,8 +40,8 @@ function getTestDb() {
     throw new Error('This function is only for use in tests')
   }
 
-  const SQLITE_DB_NAME = getEnvVar('SQLITE_DB_NAME')
-  const dbPath = path.resolve(import.meta.dirname, SQLITE_DB_NAME)
+  const SqliteDbName = getEnvVar('SQLITE_DB_NAME')
+  const dbPath = path.resolve(import.meta.dirname, SqliteDbName)
 
   /**
    * https://bun.sh/docs/api/sqlite#serialize

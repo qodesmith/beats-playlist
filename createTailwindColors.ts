@@ -1,4 +1,5 @@
 import fs from 'node:fs'
+import process from 'node:process'
 
 import defaultColors from 'tailwindcss/colors'
 
@@ -59,7 +60,7 @@ function createTailwindColors() {
 
   const colorsJson = JSON.stringify(colors, null, 2)
   const fileComment = '// AUTO-GENERATED FILE - DO NOT EDIT'
-  const twColorType = `export type TailwindColor = keyof typeof tailwindColors`
+  const twColorType = 'export type TailwindColor = keyof typeof tailwindColors'
   const fileContents = `${fileComment}\nexport const tailwindColors = ${colorsJson} as const\n\n${twColorType}\n`
 
   fs.writeFileSync('./src/tailwindColors.ts', fileContents)

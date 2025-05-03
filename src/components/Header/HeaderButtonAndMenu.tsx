@@ -1,9 +1,9 @@
 import {useAtomValue} from 'jotai'
 import {useId} from 'react'
 
+import {isMenuOpenAtom} from '../../globalState'
 import {HeaderMenu} from './HeaderMenu'
 import {MenuButton} from './MenuButton'
-import {isMenuOpenAtom} from '../../globalState'
 
 export function HeaderButtonAndMenu() {
   const isMenuOpen = useAtomValue(isMenuOpenAtom)

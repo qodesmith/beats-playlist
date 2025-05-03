@@ -1,11 +1,11 @@
 import {useAtom} from 'jotai'
 import {AnimatePresence, motion} from 'motion/react'
-import {useCallback, useEffect, useState, useId, useRef} from 'react'
+import {useCallback, useEffect, useId, useRef, useState} from 'react'
 
-import {VolumeIcon} from './ControlIcons'
-import {VerticalSlider} from './VerticalSlider'
 import {volumeMultiplierAtom} from '../../AudioThing'
 import {MAX_VOLUME_MULTIPLIER} from '../../constants'
+import {VolumeIcon} from './ControlIcons'
+import {VerticalSlider} from './VerticalSlider'
 
 export function VolumeButton({
   baseSize,
@@ -19,10 +19,7 @@ export function VolumeButton({
   const sliderId = useId()
   const buttonRef = useRef<HTMLButtonElement>(null)
   const [volumeMultiplier, setVolumeMultiplier] = useAtom(volumeMultiplierAtom)
-  const handleResetVolume = useCallback(
-    () => setVolumeMultiplier(1),
-    [setVolumeMultiplier]
-  )
+  const handleResetVolume = useCallback(() => setVolumeMultiplier(1), [])
 
   // Close volume when clicking outside of it.
   useEffect(() => {
@@ -56,6 +53,7 @@ export function VolumeButton({
         fill={fill}
       />
       <button
+        type="button"
         onClick={toggleVolume}
         ref={buttonRef}
         className="grid size-full place-items-center"

@@ -1,4 +1,5 @@
 import path from 'node:path'
+import process from 'node:process'
 
 import {defineConfig} from 'drizzle-kit'
 
@@ -15,6 +16,7 @@ const dbPath =
     ? `file:/beats/${SQLITE_DB_NAME}`
     : `file:${path.resolve(__dirname, SQLITE_DB_NAME)}`
 
+// biome-ignore lint/style/noDefaultExport: drizzle expects a default export
 export default defineConfig({
   out: path.resolve(__dirname, './drizzle'),
   schema: path.resolve(__dirname, './schema.ts'),

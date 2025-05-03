@@ -2,8 +2,8 @@ import {useAtomValue} from 'jotai'
 import {useEffect, useState} from 'react'
 
 import {isSearchOpenAtom} from '../globalState'
-import {useCompareTailwindBreakpoint} from './useCompareTailwindBreakpoint'
 import {scrollElementIntoView} from '../utils'
+import {useCompareTailwindBreakpoint} from './useCompareTailwindBreakpoint'
 
 export function useScrollToFooterForMobileSearch(footerId: string) {
   const isSearchOpen = useAtomValue(isSearchOpenAtom)

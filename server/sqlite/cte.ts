@@ -1,10 +1,14 @@
+/** biome-ignore-all lint/correctness/noUnusedVariables: this is ok */
+/** biome-ignore-all lint/suspicious/noConsole: this is ok */
+
+import {desc, getTableColumns, sql} from 'drizzle-orm'
+
 import {getDatabase} from './db'
-import {desc, sql, getTableColumns} from 'drizzle-orm'
 import {beatsTable} from './schema'
 
 const db = getDatabase()
 
-const isoDate = '2024-07-16T21:56:16Z'
+const _isoDate = '2024-07-16T21:56:16Z'
 
 const {description, thumbnailUrls, ...tableCols} = getTableColumns(beatsTable)
 
@@ -27,7 +31,7 @@ const result = await db.with(sq).select().from(sq)
 console.log('RESULT:', result)
 
 // CTE - common table expression - https://orm.drizzle.team/docs/select#with-clause
-const rawQuery = sql`
+const _rawQuery = sql`
   WITH temp AS (
     SELECT *, ROW_NUMBER() OVER (ORDER BY dateAddedToPlaylist DESC) AS row_index
     FROM BEATS

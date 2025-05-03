@@ -2,13 +2,20 @@
  * NOTE!
  * These tests assume a local SQLite database populated with data.
  */
+/**
+ * NOTE!
+ * These tests assume a local SQLite database populated with data.
+ */
 
-import {describe, expect, it, beforeEach, mock} from 'bun:test'
+import type {Video} from '@qodestack/dl-yt-playlist'
+
+import {beforeEach, describe, expect, it, mock} from 'bun:test'
+
+import {eq, not} from 'drizzle-orm'
+
 import {app} from '../server'
-import {Video} from '@qodestack/dl-yt-playlist'
 import {getDatabase} from '../sqlite/db'
 import {beatsTable} from '../sqlite/schema'
-import {eq, not} from 'drizzle-orm'
 
 mock.module('../youtubeApi', () => {
   return {
@@ -598,8 +605,9 @@ describe('GET /api/beats/:id', async () => {
 })
 
 // TODO
+// biome-ignore lint/suspicious/noSkippedTests: it's ok for now
 describe.skip('DELETE /api/delete/:playlistItemId', async () => {
   it('should delete a beat from the database', async () => {
-    const res = await app.request('/api/delete/', {method: 'DELETE'})
+    const _res = await app.request('/api/delete/', {method: 'DELETE'})
   })
 })

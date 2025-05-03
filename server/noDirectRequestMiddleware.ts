@@ -1,3 +1,5 @@
+import process from 'node:process'
+
 import {safeJsonParse} from '@qodestack/utils'
 import {createMiddleware} from 'hono/factory'
 

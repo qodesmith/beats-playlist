@@ -1,10 +1,6 @@
 import {useAtomValue, useSetAtom} from 'jotai'
 import {useCallback} from 'react'
 
-import {Next, Pause, Play, Previous, SearchIcon} from './ControlIcons'
-import {RepeatButton} from './RepeatButton'
-import {ShuffleButton} from './ShuffleButton'
-import {VolumeButton} from './VolumeButton'
 import {
   handleNextClick,
   handlePlayPause,
@@ -12,6 +8,10 @@ import {
   isPlayingAtom,
 } from '../../AudioThing'
 import {isSearchOpenAtom, selectedBeatIdAtom} from '../../globalState'
+import {Next, Pause, Play, Previous, SearchIcon} from './ControlIcons'
+import {RepeatButton} from './RepeatButton'
+import {ShuffleButton} from './ShuffleButton'
+import {VolumeButton} from './VolumeButton'
 
 export function Controls({baseSize}: {baseSize: number}) {
   const beatId = useAtomValue(selectedBeatIdAtom)
@@ -20,7 +20,7 @@ export function Controls({baseSize}: {baseSize: number}) {
   const setIsSearchOpen = useSetAtom(isSearchOpenAtom)
   const toggleSearch = useCallback(() => {
     setIsSearchOpen(v => !v)
-  }, [setIsSearchOpen])
+  }, [])
 
   return (
     <div className="grid grid-cols-[repeat(7,1fr)] place-items-center justify-center pb-2 md:grid-cols-[repeat(7,32px)] md:gap-4">
@@ -32,6 +32,7 @@ export function Controls({baseSize}: {baseSize: number}) {
 
       {/* PREVIOUS */}
       <button
+        type="button"
         className="grid size-full place-items-center"
         onClick={handlePreviousClick}
       >
@@ -39,7 +40,7 @@ export function Controls({baseSize}: {baseSize: number}) {
       </button>
 
       {/* PLAY / PAUSE */}
-      <button onClick={handlePlayPause}>
+      <button type="button" onClick={handlePlayPause}>
         {isPlaying ? (
           <Pause size={baseSize * 4} circleFill={fill} />
         ) : (
@@ -49,6 +50,7 @@ export function Controls({baseSize}: {baseSize: number}) {
 
       {/* NEXT */}
       <button
+        type="button"
         className="grid size-full place-items-center"
         onClick={handleNextClick}
       >
@@ -63,6 +65,7 @@ export function Controls({baseSize}: {baseSize: number}) {
 
       {/* SEARCH */}
       <button
+        type="button"
         className="grid size-full place-items-center"
         onClick={toggleSearch}
       >

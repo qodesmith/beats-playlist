@@ -32,17 +32,18 @@ export function RowMenuButton({
         buttonRef.current.getBoundingClientRect()
       setRowContextMenuData({beatId, height, top, bottom, left})
     }
-  }, [beatId, isMobile, rowContextMenuData, setRowContextMenuData])
+  }, [beatId, isMobile, rowContextMenuData])
 
   return (
     <button
+      type="button"
       id={`${rowMenuButtonClass}-${beatId}`}
       ref={buttonRef}
       className={clsx(
         rowMenuButtonClass,
         'relative',
         isBelowMedium && 'px-2',
-        !isBelowMedium && !isRowMenuOpen && 'hidden',
+        !(isBelowMedium || isRowMenuOpen) && 'hidden',
         !isBelowMedium &&
           'h-[30px] place-items-center place-self-center group-hover:block'
       )}

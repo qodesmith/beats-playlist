@@ -8,14 +8,11 @@ export function FooterSearch({footerId}: {footerId: string}) {
   const setSearchValue = useSetAtom(searchAtom)
   const [isSearchOpen, setIsSearchOpen] = useAtom(isSearchOpenAtom)
   const inputRef = useRef<HTMLInputElement>(null)
-  const handleSubmit = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault()
-      setIsSearchOpen(false)
-      setSearchValue(inputRef.current?.value ?? '')
-    },
-    [setIsSearchOpen, setSearchValue]
-  )
+  const handleSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setIsSearchOpen(false)
+    setSearchValue(inputRef.current?.value ?? '')
+  }, [])
 
   useScrollToFooterForMobileSearch(footerId)
 
@@ -31,7 +28,7 @@ export function FooterSearch({footerId}: {footerId: string}) {
         input.value = ''
       }
     }
-  }, [footerId, isSearchOpen, setSearchValue])
+  }, [isSearchOpen])
 
   return (
     <form

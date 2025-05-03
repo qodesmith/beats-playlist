@@ -1,10 +1,10 @@
 import {sql} from 'drizzle-orm'
 import {
-  sqliteTable,
   integer,
-  real,
-  text,
   primaryKey,
+  real,
+  sqliteTable,
+  text,
 } from 'drizzle-orm/sqlite-core'
 
 /*

@@ -1,3 +1,5 @@
+import process from 'node:process'
+
 export function getEnvVar(key: string): string {
   const value = process.env[key]
 
