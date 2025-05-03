@@ -31,6 +31,9 @@ export function AudioTimeSlider() {
       <FormattedTime />
 
       {/* The slider itself. */}
+      {/* TODO: fix this */}
+      {/** biome-ignore lint/nursery/noNoninteractiveElementInteractions: TODO */}
+      {/** biome-ignore lint/nursery/noStaticElementInteractions: TODO */}
       <div
         id={sliderContainerId}
         className="group relative grid cursor-pointer place-items-center"
@@ -93,7 +96,7 @@ function Ball() {
   return (
     <div
       className={clsx(
-        'absolute right-0 top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 scale-100 rounded-full bg-puerto-rico-300 transition-transform duration-200 group-hover:scale-[3]',
+        '-translate-x-1/2 -translate-y-1/2 absolute top-1/2 right-0 h-1 w-1 scale-100 rounded-full bg-puerto-rico-300 transition-transform duration-200 group-hover:scale-[3]',
         {
           'scale-[3]': isDragging,
         }

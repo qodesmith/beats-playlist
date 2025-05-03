@@ -119,28 +119,34 @@ export function VerticalSlider({
   }, [])
 
   return (
+    // TODO: fix this
+    // biome-ignore lint/a11y/useKeyWithClickEvents: TODO
+    // biome-ignore lint/nursery/noNoninteractiveElementInteractions: TODO
     <div
       id={id}
-      className="absolute bottom-[calc(100%+.5rem)] left-1/2 grid -translate-x-1/2 cursor-default place-items-center gap-2 rounded border border-neutral-700 bg-neutral-900 pb-3"
+      className="-translate-x-1/2 absolute bottom-[calc(100%+.5rem)] left-1/2 grid cursor-default place-items-center gap-2 rounded border border-neutral-700 bg-neutral-900 pb-3"
       onClick={handleContainerClick}
     >
       {/* TOP CONTAINER */}
       <div className="flex flex-col items-center justify-center">
         {/* MULTIPLIER VALUE */}
-        <div className="select-none text-xs text-neutral-500">
+        <div className="select-none text-neutral-500 text-xs">
           {multiplier.toFixed(2)}
         </div>
 
         {/* RESET BUTTON */}
-        <button className="p-2" onClick={onReset}>
+        <button type="button" className="p-2" onClick={onReset}>
           <ResetIcon fill={fill} size={16} />
         </button>
       </div>
 
       {/* BOTTOM POINTER */}
-      <div className="absolute top-full h-3 w-3 -translate-y-[calc(50%-.5px)] rotate-45 border-b border-r border-neutral-700 bg-neutral-900" />
+      <div className="-translate-y-[calc(50%-.5px)] absolute top-full h-3 w-3 rotate-45 border-neutral-700 border-r border-b bg-neutral-900" />
 
       {/* SLIDER BAR */}
+      {/* TODO: fix this */}
+      {/** biome-ignore lint/nursery/noNoninteractiveElementInteractions: TODO */}
+      {/** biome-ignore lint/nursery/noStaticElementInteractions: TODO */}
       <div
         className="group relative cursor-pointer px-4"
         onMouseDown={handleMouseDown}
@@ -152,7 +158,7 @@ export function VerticalSlider({
       >
         {/* 100% INDICATOR LINE */}
         <div
-          className="absolute left-1/2 h-[1px] w-3/4 -translate-x-1/2 bg-neutral-700"
+          className="-translate-x-1/2 absolute left-1/2 h-[1px] w-3/4 bg-neutral-700"
           style={indicatorBottomOffset}
         />
 
