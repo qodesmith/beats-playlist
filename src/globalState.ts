@@ -167,7 +167,7 @@ export const selectedArtistAtom = atom<string>()
 /**
  * The DOM element for the slider container. Used in event handlers.
  */
-export const sliderContainerElementAtom = atom<HTMLElement | null>(null)
+export const sliderContainerElementAtom = atom<HTMLElement | null>()
 
 /**
  * If the slider is currently dragging or not. Used in event handlers.
