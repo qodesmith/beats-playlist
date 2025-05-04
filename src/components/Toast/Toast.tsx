@@ -61,7 +61,7 @@ function Toast({
   }, [duration, handleClose])
 
   return (
-    <div className="flex w-60 items-start rounded border border-black bg-puerto-rico-400/80 p-2 text-black">
+    <div className="flex w-60 items-start rounded-sm border border-black bg-puerto-rico-400/80 p-2 text-black">
       <div className="grow text-center">{message}</div>
       <CloseButton size={20} fill="black" onClick={handleClose} />
     </div>

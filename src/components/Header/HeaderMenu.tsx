@@ -48,7 +48,7 @@ export function HeaderMenu({
        * override the style attribute for non-mobile sizes. This way we don't
        * have to use JavaScript to determine if we're at a mobile breakpoint.
        */
-      className="md:!h-max fixed left-2 z-10 mt-2 h-[calc(100%-5px)] w-[calc(100%-1em)] rounded border border-neutral-700 p-2 backdrop-blur-md md:absolute md:right-0 md:left-auto md:w-max"
+      className="fixed left-2 z-10 mt-2 h-[calc(100%-5px)] w-[calc(100%-1em)] rounded-sm border border-neutral-700 p-2 backdrop-blur-md md:absolute md:right-0 md:left-auto md:h-max! md:w-max"
     >
       <div className="absolute top-2 right-2 flex flex-col gap-2">
         <HeaderButton

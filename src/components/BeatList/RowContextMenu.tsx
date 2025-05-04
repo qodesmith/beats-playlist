@@ -61,7 +61,7 @@ export function RowContextMenuContainer() {
           key={rowContextMenuData.beatId}
           id={motionDivId}
           className={clsx(
-            'fixed select-none rounded border border-neutral-800 bg-black py-1 text-sm',
+            'fixed select-none rounded-sm border border-neutral-800 bg-black py-1 text-sm',
             isMobile && 'bottom-0 w-full'
           )}
           style={isMobile ? undefined : style}
@@ -200,7 +200,7 @@ function ListItem({
   return (
     <li
       className={clsx(
-        'relative mx-1 rounded pr-2 pl-10',
+        'relative mx-1 rounded-sm pr-2 pl-10',
         disabled ? 'cursor-not-allowed' : 'cursor-pointer',
         !isMobile && 'hover:bg-neutral-800'
       )}

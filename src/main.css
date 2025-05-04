@@ -1,10 +1,77 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+/* https://uicolors.app/create */
+@theme {
+  --color-puerto-rico-50: #f2fbf8;
+  --color-puerto-rico-100: #d2f5ec;
+  --color-puerto-rico-200: #a5ead9;
+  --color-puerto-rico-300: #70d8c2;
+  --color-puerto-rico-400: #40bca5;
+  --color-puerto-rico-500: #29a38f;
+  --color-puerto-rico-600: #1e8374;
+  --color-puerto-rico-700: #1c695e;
+  --color-puerto-rico-800: #1b544d;
+  --color-puerto-rico-900: #1b4641;
+  --color-puerto-rico-950: #092a27;
+
+  --color-jade-50: #effef7;
+  --color-jade-100: #dafeef;
+  --color-jade-200: #b8fadd;
+  --color-jade-300: #81f4c3;
+  --color-jade-400: #43e5a0;
+  --color-jade-500: #1acd81;
+  --color-jade-600: #0fa968;
+  --color-jade-700: #108554;
+  --color-jade-800: #126945;
+  --color-jade-900: #11563a;
+  --color-jade-950: #03301f;
+
+  --color-lavender-magenta-50: #fef4ff;
+  --color-lavender-magenta-100: #fbe8ff;
+  --color-lavender-magenta-200: #f8d1fd;
+  --color-lavender-magenta-300: #f195fa;
+  --color-lavender-magenta-400: #ee7af8;
+  --color-lavender-magenta-500: #e248ed;
+  --color-lavender-magenta-600: #c828d1;
+  --color-lavender-magenta-700: #a91ead;
+  --color-lavender-magenta-800: #8c1a8e;
+  --color-lavender-magenta-900: #741b74;
+  --color-lavender-magenta-950: #4d054d;
+
+  --color-bright-turquoise-50: #edfffd;
+  --color-bright-turquoise-100: #c1fff9;
+  --color-bright-turquoise-200: #83fff5;
+  --color-bright-turquoise-300: #3efff0;
+  --color-bright-turquoise-400: #17fbe6;
+  --color-bright-turquoise-500: #00decb;
+  --color-bright-turquoise-600: #00b3a8;
+  --color-bright-turquoise-700: #008e87;
+  --color-bright-turquoise-800: #00706d;
+  --color-bright-turquoise-900: #055c59;
+  --color-bright-turquoise-950: #003839;
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
 
 @layer base {
   input {
-    @apply outline outline-1 outline-transparent;
+    @apply outline outline-transparent;
   }
 }
 

@@ -26,7 +26,7 @@ export function AudioTimeSlider() {
   }, [])
 
   return (
-    <div className="m-auto grid w-full grid-cols-[5ch,1fr,5ch] gap-2 py-2 md:w-1/2">
+    <div className="m-auto grid w-full grid-cols-[5ch_1fr_5ch] gap-2 py-2 md:w-1/2">
       {/* The current time on the left of the slider. */}
       <FormattedTime />
 
@@ -41,7 +41,7 @@ export function AudioTimeSlider() {
         onTouchStart={handleStartSlider}
       >
         {/* SLIDER BG */}
-        <div className="h-1 w-full rounded bg-neutral-500" />
+        <div className="h-1 w-full rounded-sm bg-neutral-500" />
 
         {/* SLIDER PROGRESS */}
         <SliderProgress />
@@ -71,7 +71,7 @@ function SliderProgress() {
 
   return (
     <div
-      className="absolute left-0 h-1 rounded bg-puerto-rico-400"
+      className="absolute left-0 h-1 rounded-sm bg-puerto-rico-400"
       style={{width: `${progressPercent}%`}}
     />
   )
@@ -96,9 +96,9 @@ function Ball() {
   return (
     <div
       className={clsx(
-        '-translate-x-1/2 -translate-y-1/2 absolute top-1/2 right-0 h-1 w-1 scale-100 rounded-full bg-puerto-rico-300 transition-transform duration-200 group-hover:scale-[3]',
+        '-translate-x-1/2 -translate-y-1/2 absolute top-1/2 right-0 h-1 w-1 scale-100 rounded-full bg-puerto-rico-300 transition-transform duration-200 group-hover:scale-300',
         {
-          'scale-[3]': isDragging,
+          'scale-300': isDragging,
         }
       )}
       style={{left: `${progressPercent}%`}}

@@ -124,7 +124,7 @@ export function VerticalSlider({
     // biome-ignore lint/nursery/noNoninteractiveElementInteractions: TODO
     <div
       id={id}
-      className="-translate-x-1/2 absolute bottom-[calc(100%+.5rem)] left-1/2 grid cursor-default place-items-center gap-2 rounded border border-neutral-700 bg-neutral-900 pb-3"
+      className="-translate-x-1/2 absolute bottom-[calc(100%+.5rem)] left-1/2 grid cursor-default place-items-center gap-2 rounded-sm border border-neutral-700 bg-neutral-900 pb-3"
       onClick={handleContainerClick}
     >
       {/* TOP CONTAINER */}
@@ -163,12 +163,12 @@ export function VerticalSlider({
         />
 
         <div
-          className="relative h-36 w-1 rounded bg-neutral-500"
+          className="relative h-36 w-1 rounded-sm bg-neutral-500"
           ref={sliderBarRef}
         >
           {/* CURRENT VOLUME BAR */}
           <div
-            className="absolute bottom-0 left-0 w-full rounded bg-puerto-rico-400"
+            className="absolute bottom-0 left-0 w-full rounded-sm bg-puerto-rico-400"
             // Add .25rem (width of the bar) so no gap forms between the bar and the ball.
             style={{height: `calc(${valuePercent} + .25rem)`}}
           />
@@ -191,8 +191,8 @@ function VerticalSliderBall({
   return (
     <div
       className={clsx(
-        'absolute bottom-0 h-1 w-1 rounded-full bg-puerto-rico-300 transition-transform duration-200 group-hover:scale-[3]',
-        {'scale-[3]': isDragging}
+        'absolute bottom-0 h-1 w-1 rounded-full bg-puerto-rico-300 transition-transform duration-200 group-hover:scale-300',
+        {'scale-300': isDragging}
       )}
       style={{bottom: value}}
     />

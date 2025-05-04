@@ -15,11 +15,11 @@ document.body.classList.add(
   'text-white',
 
   // Other styles.
-  'bg-gradient-to-b',
+  'bg-linear-to-b',
   'from-neutral-900',
   'to-black',
   'h-full',
-  'max-w-screen-2xl',
+  'max-w-(--breakpoint-2xl)',
   '2xl:mx-auto'
 )
 const root = document.getElementById('root')!

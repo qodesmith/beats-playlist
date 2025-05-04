@@ -59,7 +59,7 @@ export function BeatListItem({video, rowNum}: Props) {
     <div
       id={id}
       className={clsx(
-        'group grid scroll-mt-10 grid-cols-[auto_44px_1fr] items-center gap-2 rounded py-2 md:grid-cols-[4ch_44px_1fr_10ch_5ch_30px] md:gap-4 md:p-2',
+        'group grid scroll-mt-10 grid-cols-[auto_44px_1fr] items-center gap-2 rounded-sm py-2 md:grid-cols-[4ch_44px_1fr_10ch_5ch_30px] md:gap-4 md:p-2',
         {
           'md:hover:bg-neutral-800': !isSelected,
           'md:bg-neutral-700': isSelected,
@@ -90,7 +90,7 @@ export function BeatListItem({video, rowNum}: Props) {
       {/* THUMBNAIL */}
       <button
         type="button"
-        className="h-11 w-11 rounded bg-center bg-cover"
+        className="h-11 w-11 rounded-sm bg-center bg-cover"
         style={thumbnailStyle}
         onClick={handleClickToPlay}
       >

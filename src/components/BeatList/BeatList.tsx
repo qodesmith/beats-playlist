@@ -11,7 +11,7 @@ export function BeatList() {
   return (
     <div
       className={clsx(
-        'flex w-full flex-grow flex-col overflow-x-hidden px-2',
+        'flex w-full grow flex-col overflow-x-hidden px-2',
         isMenuOpen ? 'overflow-y-hidden' : 'overflow-y-auto'
       )}
     >
