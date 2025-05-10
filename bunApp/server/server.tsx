@@ -33,6 +33,52 @@ const server = serve({
         },
       })
     },
+
+    /**
+     * GET /forbidden.webm
+     * Used in noDirectRequestMiddleware.ts which prevents direct access to beat
+     * files by checking the headers for certain criteria, then responding with
+     * a custom html string which includes loading forbidden.webm
+     *
+     * *********************
+     * CRON-ONLY ENDPOINTS *
+     * *********************
+     *
+     * POST /api/ids-for-download (cronOnlyMiddleware)
+     * This endpoint is used by the cron job to know which beats it should
+     * download. It receives a list of ids and returns a filtered list.
+     *
+     * POST /api/beats (cronOnlyMiddleware)
+     * This endpoint updates the database with metadata for beats that were
+     * recently downloaded by the cron job.
+     *
+     * *****
+     * API *
+     * *****
+     *
+     * GET /api/metadata (noDirectRequestMiddleware)
+     * Returns beat metadata. Pagination seems to be set up.
+     *
+     * GET /api/new-metadata (noDirectRequestMiddleware)
+     * Unused
+     *
+     * GET /api/unknown-metadata (noDirectRequestMiddleware)
+     * Returns beat metadata for files on the filesystem but not in the db. Uses
+     * ffprobe on the CLI to get the duration of the file.
+     *
+     * GET /api/thumbnails/:id (noDirectRequestMiddleware)
+     * Thumbnail endpoint.
+     *
+     * GET /api/beats/:id (noDirectRequestMiddleware)
+     * Audio mp3 endpoint.
+     *
+     * DELETE /api/delete/:playlistItemId
+     * Never implemented. Endpoint to delete a beat from the YouTube playlist
+     * and the file system.
+     *
+     * POST /fetchnow
+     * Unraid Docker network only - manually triggers the cron job.
+     */
   },
 
   development: process.env.NODE_ENV !== 'production',
