@@ -160,6 +160,8 @@ app.post('/api/beats', cronOnlyMiddleware, async c => {
     }
   })
 
+  // TODO - add waveform number array here.
+
   // Save beats to the database.
   try {
     const inserted = await getDatabase()
