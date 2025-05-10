@@ -9,7 +9,8 @@
       "!dist/**",
       "!*.lock",
       "!server/sqlite/drizzle/**",
-      "!src/tailwindColors.ts"
+      "!src/tailwindColors.ts",
+      "!**/routeTree.gen.ts"
     ]
   }
 }

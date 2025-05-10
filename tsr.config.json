@@ -1,0 +1,4 @@
+{
+  "routesDirectory": "./bunApp/client/routes",
+  "generatedRouteTree": "./bunApp/client/routeTree.gen.ts"
+}
