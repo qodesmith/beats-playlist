@@ -7,10 +7,10 @@
   "module": "bunApp/server/server.tsx",
   "scripts": {
     "dev": "bun --hot bunApp/server/server.tsx",
+    "build": "bun run build.ts",
     "dev:old": "concurrently \"bun --watch ./server/server.ts\" \"bun run dev:client\"",
     "dev:prodApi": "bun run createColors && USE_PROD_API=true vite",
     "dev:client": "vite",
-    "build": "bun run createColors && tsc -b && vite build",
     "tsc:check": "bun run tsc --noEmit -p ./tsconfig.app.json",
     "lint": "biome lint",
     "preview": "vite preview",
