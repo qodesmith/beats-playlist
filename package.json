@@ -3,10 +3,10 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "main": "bunApp/server.tsx",
-  "module": "bunApp/server.tsx",
+  "main": "bunApp/server/server.tsx",
+  "module": "bunApp/server/server.tsx",
   "scripts": {
-    "dev": "bun --hot bunApp/server.tsx",
+    "dev": "bun --hot bunApp/server/server.tsx",
     "dev:old": "concurrently \"bun --watch ./server/server.ts\" \"bun run dev:client\"",
     "dev:prodApi": "bun run createColors && USE_PROD_API=true vite",
     "dev:client": "vite",

@@ -3,7 +3,7 @@ import process from 'node:process'
 
 import {getRandomNumber} from '@qodestack/utils'
 
-import index from './index.html'
+import index from '../index.html'
 
 const server = serve({
   routes: {
